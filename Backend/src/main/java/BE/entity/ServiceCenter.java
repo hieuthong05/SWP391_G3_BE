@@ -5,41 +5,40 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@Table(name = "service_center")
 public class ServiceCenter {
 
-    //Primary key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "service_center_ID")
+    @Column(name = "service_centerID")
     private Long serviceCenterID;
 
-    //Foreign key
-    //1-1 vs Order
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="order_id",nullable = false)
-    private Orders orders;
-    //n-n vs Technician, Admin, Staff
-
-    //Foreign key
-
-    @Column(name="service_name")
-    private String serviceName;
-
+    private String name;
     private String address;
-
+    private String location;
     private String phone;
-
     private String email;
 
-    @Column(name = "opened_time")
-    private LocalDateTime openedTime;
+    @Column(name="open_time")
+    private String openTime;
 
-    @Column(name="created_day")
-    private LocalDateTime createdDay;
+    @Column(name="close_time")
+    private String closeTime;
 
-    private boolean status;
+    private String status;
+    private String image;
+
+    @OneToMany(mappedBy = "serviceCenter")
+    private List<Orders> orders;
+
+    @OneToMany(mappedBy = "serviceCenter")
+    private List<Employee> employees;
+
+    @OneToMany(mappedBy = "serviceCenter")
+    private List<Component> components;
 }

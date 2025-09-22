@@ -14,30 +14,41 @@ import java.util.List;
 @Setter
 public class Orders {
 
-    //Primary key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="order_ID")
+    @Column(name ="orderID")
     private Long orderID;
 
-    //Foreign key
-    // One to Many vs Orders table
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Vehicle> vehicles = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "serviceID")
+    private Service service;
 
-    //Foreign key
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customerID")
+    private Customer customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "vehicleID")
+    private Vehicle vehicle;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_centerID")
+    private ServiceCenter serviceCenter;
+
+    @CreationTimestamp
+    @Column(name="order_date", updatable = false)
+    private LocalDateTime orderDate;
 
     private String status;
 
-    @CreationTimestamp
-    @Column(name="day_created",updatable = false)
-    private LocalDateTime dayCreated;
+    @Column(name="total_cost")
+    private Double totalCost;
 
-    private double total;
+    @Column(name="paymnent_status")
+    private Boolean paymentStatus;
 
-    @Column(name="payment_Status")
-    private String paymentStatus;
-
-    @Column(name="payment_Method")
+    @Column(name="payment_method")
     private String paymentMethod;
+
+    private String notes;
 }

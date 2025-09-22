@@ -4,34 +4,33 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Getter
 @Setter
+@Table(name="shift")
 public class Shift {
 
-    //Primary Key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="shift_ID")
+    @Column(name="shift_id")
     private Long shiftID;
 
-    //Foreign Key
-    //Many to Many Technician
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="service_centerID")
+    private ServiceCenter serviceCenter;
 
-    //
+    private LocalDate date;
 
-    //Foreign Key
+    @Column(name="start")
+    private LocalTime start;
 
-    private LocalDateTime day;
+    @Column(name="end")
+    private LocalTime end;
 
-    @Column(name="start_time")
-    private LocalDateTime startTime;
-
-    @Column(name="end_time")
-    private LocalDateTime endTime;
-
-    private String status;//1: Not yet 2: Working 3:Done
-
+    private String status;
 }
+

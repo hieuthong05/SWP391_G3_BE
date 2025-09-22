@@ -1,0 +1,45 @@
+package BE.entity;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@Table(name = "component")
+public class Component {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "componentID")
+    private Long componentID;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "service_centerID")
+    private ServiceCenter serviceCenter;
+
+    private String name;
+
+    @Column(unique = true)
+    private String code;
+
+    private String type;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
+    private String description;
+
+    private Double price;
+    private Integer quantity;
+
+    @Column(name = "min_quantity")
+    private Integer minQuantity;
+
+    @Column(name = "supplier_name")
+    private String supplierName;
+
+    @Lob
+    private byte[] image;
+
+    private String status;
+}

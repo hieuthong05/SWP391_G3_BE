@@ -12,38 +12,27 @@ import java.time.LocalDateTime;
 @Setter
 public class Vehicle {
 
-    //Primary Key
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vehicle_ID")
+    @Column(name = "vehicleID")
     private Long vehicleID;
 
-    //Foreign Key
-    @ManyToOne(fetch = FetchType.LAZY)// 1 cus có Many Vehicles
-    @JoinColumn(name="customer_ID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="customerID", nullable = false)
     private Customer customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_ID")
-    private Orders order;
-
-    //Foreign Key
-
-    @Column(unique = true, name = "license_plate",nullable = false)
+    @Column(name = "license_plate", unique = true, nullable = false)
     private String licensePlate;
 
-    @Column(name = "VIN",unique = true, length = 17,nullable = false)// Ko dc trùng lặp và có 17 kí tự
+    @Column(name = "VIN", unique = true, length = 17, nullable = false)
     private String vin;
 
-    @Column(nullable = false)
+    @Column(name = "type")
+    private String type;
+
+    @Column(name="model", nullable = false)
     private String model;
 
-    private Integer year;// Năm sản xuất
-
-    private Integer mileage;// số km đã chạy
-
-    @CreationTimestamp
-    @Column(updatable = false, name = "day_Created")
-    private LocalDateTime dayCreated;
-
+    private Integer year;
+    private Integer mileage;
 }
