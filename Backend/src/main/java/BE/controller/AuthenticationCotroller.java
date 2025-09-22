@@ -34,4 +34,20 @@ public class AuthenticationCotroller {
         List<Customer> accountList = authenticationService.getAllAccount();
         return ResponseEntity.ok(accountList);
     }
+
+    @Autowired
+    private CustomerService customerService;
+
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest loginRequest) {
+        return customerService.login(loginRequest.getEmailOrPhone(), loginRequest.getPassword())
+                .map(customer -> LoginResponse.builder()
+                        .success(true)
+                        .message("Login successful")
+                        .customer(customer) // có thể ẩn password khi trả về
+                        .build())
+                .orElse(LoginResponse.builder()
+                        .success(false)
+                        .message("Sai email/phone hoặc mật khẩu")
+                        .build());
 }

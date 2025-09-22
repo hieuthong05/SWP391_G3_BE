@@ -1,4 +1,5 @@
-package BE.model;
+package com.example.Login.Entity;
+
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -7,16 +8,16 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "customer")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Customer {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long customerID;
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // auto increment
+    @Column(name = "customerID")
+    private String customerID;
 
     private String name;
 
@@ -29,10 +30,13 @@ public class Customer {
     private String password;
     private String address;
     private String gender;
-    private LocalDateTime birth;
-    private LocalDateTime createdAt;
-    private Boolean status;
-}
 
+    @Column(name = "birth")
+    private String birth;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    private Boolean status;
 }
 
