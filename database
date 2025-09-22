@@ -1,0 +1,359 @@
+USE SWP391 
+
+CREATE TABLE [customer] (
+  [customerID] nvarchar(255) PRIMARY KEY,
+  [name] nvarchar(255),
+  [email] nvarchar(255) UNIQUE,
+  [phone] nvarchar(255) UNIQUE,
+  [password] nvarchar(255),
+  [address] nvarchar(255),
+  [gender] nvarchar(255),
+  [birth] date,
+  [created_at] datetime,
+  [status] BIT
+)
+GO
+
+CREATE TABLE [vehicle] (
+  [vehicleID] nvarchar(255) PRIMARY KEY,
+  [customerID] nvarchar(255),
+  [license_plate] nvarchar(255),
+  [VIN] varchar(17),
+  [type] nvarchar(255),
+  [model] nvarchar(255),
+  [year] int,
+  [mileage] int
+)
+GO
+
+CREATE TABLE [service] (
+  [serviceID] nvarchar(255) PRIMARY KEY,
+  [service_name] nvarchar(255),
+  [description] text,
+  [service_type] nvarchar(255),
+  [estimated_time] nvarchar(255),
+  [price] decimal,
+  [warranty_peroid] int,
+  [service_status] nvarchar(255),
+  [component] nvarchar(255),
+  [date] datetime
+)
+GO
+
+CREATE TABLE [service_center] (
+  [service_centerID] nvarchar(255) PRIMARY KEY,
+  [name] nvarchar(255),
+  [address] nvarchar(255),
+  [location] nvarchar(255),
+  [phone] nvarchar(255),
+  [email] nvarchar(255),
+  [open_time] nvarchar(255),
+  [close_time] nvarchar(255),
+  [status] nvarchar(255),
+  [image] nvarchar(255)
+)
+GO
+
+CREATE TABLE [orders] (
+  [orderID] nvarchar(255) PRIMARY KEY,
+  [serviceID] nvarchar(255),
+  [customerID] nvarchar(255),
+  [vehicleID] nvarchar(255),
+  [service_centerID] nvarchar(255),
+  [order_date] datetime,
+  [status] nvarchar(255),
+  [total_cost] decimal,
+  [paymnent_status] BIT,
+  [payment_method] nvarchar(255),
+  [notes] nvarchar(255)
+)
+GO
+
+CREATE TABLE [component] (
+  [componentID] nvarchar(255) PRIMARY KEY,
+  [service_centerID] nvarchar(255),
+  [name] nvarchar(255),
+  [code] nvarchar(255) UNIQUE,
+  [type] nvarchar(255),
+  [description] text,
+  [price] decimal,
+  [quantity] int,
+  [min_quantity] int,
+  [supplier_name] nvarchar(255),
+  [image] image,
+  [status] nvarchar(255)
+)
+GO
+
+CREATE TABLE [employee] (
+  [employeeID] nvarchar(255) PRIMARY KEY,
+  [name] nvarchar(255),
+  [password] nvarchar(255),
+  [phone] nvarchar(255) UNIQUE,
+  [email] nvarchar(255) UNIQUE,
+  [gender] nvarchar(255),
+  [role] nvarchar(255),
+  [service_centerID] nvarchar(255),
+  [shift] nvarchar(255),
+  [status] nvarchar(255),
+  [salary] decimal,
+  [address] nvarchar(255),
+  [birth] date,
+  [created_at] datetime
+)
+GO
+
+CREATE TABLE [Message] (
+  [messageID] nvarchar(255) PRIMARY KEY,
+  [staffID] nvarchar(255),
+  [customerID] nvarchar(255),
+  [content] text,
+  [status] nvarchar(255),
+  [created_at] datetime
+)
+GO
+
+CREATE TABLE [Technician_Certificate] (
+  [technician_id] nvarchar(255) PRIMARY KEY,
+  [certificate_name] nvarchar(255),
+  [skill] nvarchar(255),
+  [issued_by] nvarchar(255),
+  [valid_from] date,
+  [valid_to] date
+)
+GO
+
+CREATE TABLE [shift] (
+  [shift_id] nvarchar(255) PRIMARY KEY,
+  [service_centerID] nvarchar(255),
+  [date] date,
+  [start] time,
+  [end] time,
+  [status] nvarchar(255)
+)
+GO
+
+CREATE TABLE [employee_shift] (
+  [employee_id] nvarchar(255),
+  [shift_id] nvarchar(255)
+)
+GO
+
+CREATE TABLE [admin] (
+  [adminID] nvarchar(255) PRIMARY KEY,
+  [name] nvarchar(255),
+  [password] nvarchar(255),
+  [email] nvarchar(255) UNIQUE,
+  [phone] nvarchar(255) UNIQUE,
+  [role] nvarchar(255),
+  [service_center_id] nvarchar(255),
+  [gender] nvarchar(255),
+  [salary] decimal,
+  [address] nvarchar(255),
+  [birth] date,
+  [service_centerID] nvarchar(255),
+  [shift] nvarchar(255),
+  [status] nvarchar(255),
+  [created_at] datetime
+)
+GO
+
+CREATE TABLE [revenue] (
+  [revenue_id] int PRIMARY KEY IDENTITY(1, 1),
+  [service_center_id] int,
+  [admin_id] int,
+  [amount] decimal(12,2),
+  [period] nvarchar(255),
+  [created_at] datetime
+)
+GO
+
+CREATE TABLE [report] (
+  [report_id] nvarchar(255) PRIMARY KEY,
+  [service_id] nvarchar(255),
+  [admin_id] nvarchar(255),
+  [title] nvarchar(255),
+  [description] text,
+  [created_at] datetime
+)
+GO
+
+CREATE TABLE [quotation] (
+  [quotation_id] nvarchar(255) PRIMARY KEY,
+  [customer_id] nvarchar(255),
+  [service_id] nvarchar(255),
+  [estimated_cost] decimal(15,2),
+  [quotation_date] datetime,
+  [status] nvarchar(255),
+  [notes] text
+)
+GO
+
+CREATE TABLE [invoice] (
+  [invoice_id] nvarchar(255) PRIMARY KEY,
+  [quotation_id] nvarchar(255),
+  [order_id] nvarchar(255),
+  [customer_id] nvarchar(255),
+  [service_center_id] nvarchar(255),
+  [staff_id] nvarchar(255),
+  [issue_date] datetime,
+  [due_date] datetime,
+  [total_amount] decimal(15,2),
+  [tax_amount] decimal(15,2),
+  [discount_amount] decimal(15,2),
+  [final_amount] decimal(15,2),
+  [payment_status] nvarchar(255),
+  [payment_method] nvarchar(255),
+  [notes] text
+)
+GO
+
+CREATE TABLE [invoice_detail] (
+  [invoice_detail_id] nvarchar(255) PRIMARY KEY,
+  [invoice_id] nvarchar(255),
+  [item_type] nvarchar(255),
+  [description] text,
+  [quantity] int,
+  [unit_price] decimal(15,2),
+  [line_total] decimal(15,2)
+)
+GO
+
+CREATE TABLE [payment] (
+  [payment_id] nvarchar(255) PRIMARY KEY ,
+  [invoice_id] nvarchar(255),
+  [amount_paid] decimal(15,2),
+  [payment_date] datetime,
+  [method] nvarchar(255),
+  [reference_code] nvarchar(255)
+)
+GO
+
+CREATE TABLE [maintenance] (
+  [maintenance_id] nvarchar(255) PRIMARY KEY ,
+  [order_id] nvarchar(255),
+  [employee_id] nvarchar(255),
+  [vehicle_id] nvarchar(255),
+  [description] text,
+  [cost] decimal(15,2),
+  [start_time] datetime,
+  [end_time] datetime,
+  [next_due_date] datetime,
+  [status] nvarchar(255),
+  [notes] nvarchar(255)
+)
+GO
+
+CREATE TABLE [maintenance_component] (
+  [maintenance_component_id] nvarchar(255) PRIMARY KEY ,
+  [maintenance_id] nvarchar(255),
+  [component_id] nvarchar(255),
+  [quantity] int,
+  [cost] decimal(12,2)
+)
+GO
+
+ALTER TABLE [vehicle] ADD FOREIGN KEY ([customerID]) REFERENCES [customer] ([customerID])
+GO
+
+ALTER TABLE [orders] ADD FOREIGN KEY ([serviceID]) REFERENCES [service] ([serviceID])
+GO
+
+ALTER TABLE [orders] ADD FOREIGN KEY ([customerID]) REFERENCES [customer] ([customerID])
+GO
+
+ALTER TABLE [orders] ADD FOREIGN KEY ([vehicleID]) REFERENCES [vehicle] ([vehicleID])
+GO
+
+ALTER TABLE [orders] ADD FOREIGN KEY ([service_centerID]) REFERENCES [service_center] ([service_centerID])
+GO
+
+ALTER TABLE [component] ADD FOREIGN KEY ([service_centerID]) REFERENCES [service_center] ([service_centerID])
+GO
+
+ALTER TABLE [employee] ADD FOREIGN KEY ([service_centerID]) REFERENCES [service_center] ([service_centerID])
+GO
+
+ALTER TABLE [employee] ADD FOREIGN KEY ([shift]) REFERENCES [shift] ([shift_id])
+GO
+
+ALTER TABLE [Message] ADD FOREIGN KEY ([staffID]) REFERENCES [employee] ([employeeID])
+GO
+
+ALTER TABLE [Message] ADD FOREIGN KEY ([customerID]) REFERENCES [customer] ([customerID])
+GO
+
+ALTER TABLE [Technician_Certificate] ADD FOREIGN KEY ([technician_id]) REFERENCES [employee] ([employeeID])
+GO
+
+ALTER TABLE [shift] ADD FOREIGN KEY ([service_centerID]) REFERENCES [service_center] ([service_centerID])
+GO
+
+ALTER TABLE [employee_shift] ADD FOREIGN KEY ([employee_id]) REFERENCES [employee] ([employeeID])
+GO
+
+ALTER TABLE [employee_shift] ADD FOREIGN KEY ([shift_id]) REFERENCES [shift] ([shift_id])
+GO
+
+ALTER TABLE [admin] ADD FOREIGN KEY ([service_center_id]) REFERENCES [service_center] ([service_centerID])
+GO
+
+ALTER TABLE [admin] ADD FOREIGN KEY ([service_centerID]) REFERENCES [service_center] ([service_centerID])
+GO
+
+ALTER TABLE [admin] ADD FOREIGN KEY ([shift]) REFERENCES [shift] ([shift_id])
+GO
+
+ALTER TABLE [revenue] ADD FOREIGN KEY ([service_center_id]) REFERENCES [service_center] ([service_centerID])
+GO
+
+ALTER TABLE [revenue] ADD FOREIGN KEY ([admin_id]) REFERENCES [admin] ([adminID])
+GO
+
+ALTER TABLE [report] ADD FOREIGN KEY ([service_id]) REFERENCES [service] ([serviceID])
+GO
+
+ALTER TABLE [report] ADD FOREIGN KEY ([admin_id]) REFERENCES [admin] ([adminID])
+GO
+
+ALTER TABLE [quotation] ADD FOREIGN KEY ([customer_id]) REFERENCES [customer] ([customerID])
+GO
+
+ALTER TABLE [quotation] ADD FOREIGN KEY ([service_id]) REFERENCES [service] ([serviceID])
+GO
+
+ALTER TABLE [invoice] ADD FOREIGN KEY ([quotation_id]) REFERENCES [quotation] ([quotation_id])
+GO
+
+ALTER TABLE [invoice] ADD FOREIGN KEY ([order_id]) REFERENCES [orders] ([orderID])
+GO
+
+ALTER TABLE [invoice] ADD FOREIGN KEY ([customer_id]) REFERENCES [customer] ([customerID])
+GO
+
+ALTER TABLE [invoice] ADD FOREIGN KEY ([service_center_id]) REFERENCES [service_center] ([service_centerID])
+GO
+
+ALTER TABLE [invoice] ADD FOREIGN KEY ([staff_id]) REFERENCES [employee] ([employeeID])
+GO
+
+ALTER TABLE [invoice_detail] ADD FOREIGN KEY ([invoice_id]) REFERENCES [invoice] ([invoice_id])
+GO
+
+ALTER TABLE [payment] ADD FOREIGN KEY ([invoice_id]) REFERENCES [invoice] ([invoice_id])
+GO
+
+ALTER TABLE [maintenance] ADD FOREIGN KEY ([order_id]) REFERENCES [orders] ([orderID])
+GO
+
+ALTER TABLE [maintenance] ADD FOREIGN KEY ([employee_id]) REFERENCES [employee] ([employeeID])
+GO
+
+ALTER TABLE [maintenance] ADD FOREIGN KEY ([vehicle_id]) REFERENCES [vehicle] ([vehicleID])
+GO
+
+ALTER TABLE [maintenance_component] ADD FOREIGN KEY ([maintenance_id]) REFERENCES [maintenance] ([maintenance_id])
+GO
+
+ALTER TABLE [maintenance_component] ADD FOREIGN KEY ([component_id]) REFERENCES [component] ([componentID])
+GO
