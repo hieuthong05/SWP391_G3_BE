@@ -1,38 +1,17 @@
 package BE.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-@Entity
-@Table(name = "customer")
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class Customer {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long customerID;
-
+@Data
+public class CustomerDTO {
     private String name;
-
-    @Column(unique = true)
     private String email;
-
-    @Column(unique = true)
     private String phone;
-
     private String password;
-    private String address;
     private String gender;
-    private LocalDateTime birth;
-    private LocalDateTime createdAt;
-    private Boolean status;
+    private String address;
+    private LocalDate birth;
+    private boolean status =true;
 }
-
-}
-

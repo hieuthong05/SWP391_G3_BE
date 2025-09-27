@@ -12,27 +12,28 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Table(name="orders")
 public class Orders {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="orderID")
+    @Column(name ="order_id")   // phải mapping đúng với cột trong DB
     private Long orderID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "serviceID")
+    @JoinColumn(name = "serviceid")  // tên cột trong DB
     private Service service;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customerID")
+    @JoinColumn(name = "customerid")
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicleID")
+    @JoinColumn(name = "vehicleid")
     private Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_centerID")
+    @JoinColumn(name = "service_centerid")
     private ServiceCenter serviceCenter;
 
     @CreationTimestamp
@@ -44,7 +45,9 @@ public class Orders {
     @Column(name="total_cost")
     private Double totalCost;
 
-    @Column(name="paymnent_status")
+    // trong DB bạn có 2 cột: "payment_status" và "paymnent_status" (có typo)
+    // nên phải xác định dùng cái nào, ở đây mình để "payment_status"
+    @Column(name="payment_status")
     private Boolean paymentStatus;
 
     @Column(name="payment_method")

@@ -14,17 +14,21 @@ public class Vehicle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vehicleID")
+    @Column(name = "vehicle_id")
     private Long vehicleID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="customerID", nullable = false)
+    @JoinColumn(name="customer_id", nullable = false)
     private Customer customer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="orders_id")
+    private Orders orders;
 
     @Column(name = "license_plate", unique = true, nullable = false)
     private String licensePlate;
 
-    @Column(name = "VIN", unique = true, length = 17, nullable = false)
+    @Column(name = "vin", unique = true, length = 17, nullable = false)
     private String vin;
 
     @Column(name = "type")
@@ -35,4 +39,8 @@ public class Vehicle {
 
     private Integer year;
     private Integer mileage;
+
+    @CreationTimestamp
+    @Column(name="day_created")
+    private LocalDateTime dayCreated;
 }

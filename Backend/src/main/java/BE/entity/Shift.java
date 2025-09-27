@@ -23,13 +23,13 @@ public class Shift {
     @JoinColumn(name="service_centerID")
     private ServiceCenter serviceCenter;
 
-    private LocalDate date;
+    private LocalDate shift_date;
 
-    @Column(name="start")
-    private LocalTime start;
+    @Column(name="start_time")
+    private LocalTime start_time;
 
-    @Column(name="end")
-    private LocalTime end;
+    @Column(name="end_time")
+    private LocalTime end_time;
 
     private String status;
 }

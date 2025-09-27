@@ -10,11 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class VehicleDTO {
-
+    @NotNull(message = "Vehicle ID is required !")
     private long vehicleID;
-
-    @NotNull(message = "Customer ID is required !")
-    private long customerID;
 
     @NotEmpty(message = "License plate is required !")
     private String licensePlate;

@@ -15,7 +15,7 @@ public class ServiceCenter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "service_centerID")
+    @Column(name = "service_center_id")
     private Long serviceCenterID;
 
     private String name;
