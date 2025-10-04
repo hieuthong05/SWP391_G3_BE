@@ -54,4 +54,12 @@ public class Orders {
     private String paymentMethod;
 
     private String notes;
+
+    @ManyToMany
+    @JoinTable(
+            name = "order_service_package",
+            joinColumns = @JoinColumn(name = "order_id"),
+            inverseJoinColumns = @JoinColumn(name = "package_id")
+    )
+    private List<ServicePackage> servicePackages = new ArrayList<>();
 }

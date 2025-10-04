@@ -29,7 +29,9 @@ public class Filter extends OncePerRequestFilter {
     private final List<String> PULIC_API = List.of(
             "POST:/api/admin/register",
             "POST:/api/customer/register",
-            "POST:/api/auth/login"
+            "POST:/api/auth/login",
+            "POST:/api/employee/register",
+            "GET: /api/reminders/customer/{customerId}"
     );
 
     public boolean isPublicAPI(String uri, String method ){

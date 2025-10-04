@@ -1,6 +1,7 @@
 package BE.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -26,6 +27,7 @@ public class Employee {
     private String phone;
 
     @Column(unique = true)
+    @Email
     private String email;
 
     private String gender;
@@ -39,7 +41,7 @@ public class Employee {
     @JoinColumn(name = "shift")
     private Shift shift;
 
-    private String status;
+    private boolean status;
     private Double salary;
     private String address;
     private LocalDate birth;

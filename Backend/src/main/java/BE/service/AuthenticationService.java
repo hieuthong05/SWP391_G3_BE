@@ -1,12 +1,10 @@
 package BE.service;
 
 
-import BE.entity.Admin;
-import BE.entity.Customer;
-import BE.entity.Employee;
-import BE.entity.User;
+import BE.entity.*;
 import BE.model.AdminDTO;
 import BE.model.CustomerDTO;
+import BE.model.EmployeeDTO;
 import BE.model.UserDTO;
 import BE.model.request.LoginRequest;
 import BE.model.response.UserResponse;
@@ -53,6 +51,12 @@ public class AuthenticationService implements UserDetailsService {
     @Autowired
     AuthenticationManager authenticationManager;
 
+    @Autowired
+    ShiftRepository shiftRepository;
+
+    @Autowired
+    ServiceCenterRepository serviceCenterRepository;
+
     @Transactional
     public CustomerDTO registerCus(CustomerDTO customerDTO){
         //Xử lý logic của register
@@ -87,6 +91,19 @@ public class AuthenticationService implements UserDetailsService {
         authenticationRepository.save(user);
 
         return convertToDTO(savedAdmin);
+    }
+
+    public EmployeeDTO registerEmp(EmployeeDTO employeeDTO)
+    {
+        employeeDTO.setPassword(passwordEncoder.encode(employeeDTO.getPassword()));
+
+        Employee convertEmployee = convertEmployee(employeeDTO);
+        Shift shift = shiftRepository.findById(employeeDTO.getShift()).orElseThrow(() -> new RuntimeException("Shift not found"));
+        ServiceCenter serviceCenter = serviceCenterRepository.findById(employeeDTO.getServiceCenter()).orElseThrow(() -> new RuntimeException("Service Center not found"));
+        convertEmployee.setShift(shift);
+        convertEmployee.setServiceCenter(serviceCenter);
+        employeeRepository.save(convertEmployee);
+        return employeeDTO;
     }
 
     public UserResponse login(LoginRequest loginRequest){
@@ -150,6 +167,11 @@ public class AuthenticationService implements UserDetailsService {
 
     public Admin convertAdmin(AdminDTO request){
         return modelMapper.map(request,Admin.class);
+    }
+
+    public Employee convertEmployee(EmployeeDTO employeeDTO)
+    {
+        return modelMapper.map(employeeDTO, Employee.class);
     }
 
     public CustomerDTO convertToDTO(Customer customer){

@@ -1,5 +1,6 @@
 package BE.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,9 @@ public class Shift {
     @Column(name="shift_id")
     private Long shiftID;
 
+    @Column(name = "name", columnDefinition = "NVARCHAR(255)")
+    private String name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="service_centerID")
     private ServiceCenter serviceCenter;
@@ -26,11 +30,13 @@ public class Shift {
     private LocalDate shift_date;
 
     @Column(name="start_time")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime start_time;
 
     @Column(name="end_time")
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime end_time;
 
-    private String status;
+    private boolean status;
 }
 

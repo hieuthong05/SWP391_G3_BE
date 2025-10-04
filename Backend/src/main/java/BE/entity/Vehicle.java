@@ -5,7 +5,10 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,9 +24,8 @@ public class Vehicle {
     @JoinColumn(name="customer_id", nullable = false)
     private Customer customer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="orders_id")
-    private Orders orders;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Orders> orders = new ArrayList<>();
 
     @Column(name = "license_plate", unique = true, nullable = false)
     private String licensePlate;
@@ -43,4 +45,9 @@ public class Vehicle {
     @CreationTimestamp
     @Column(name="day_created")
     private LocalDateTime dayCreated;
+
+    private LocalDate lastMaintenanceDate;
+    private Integer lastMaintenanceMileage;
+
+
 }
