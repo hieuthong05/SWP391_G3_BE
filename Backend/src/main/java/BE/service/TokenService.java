@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
@@ -40,6 +41,22 @@ public class TokenService {
         return authenticationRepository.findUserByPhone(value);
     }
 
+    public  String extractPhone(String token){
+        return extractClaim(token,Claims :: getSubject);
+    }
+
+    private Date extractExpiration(String token){
+        return extractClaim(token, Claims :: getExpiration);
+    }
+    private boolean isTokenExpired(String token){
+        return extractExpiration(token).before(new Date());
+    }
+
+    public boolean validateToken(String token, UserDetails userDetails){
+        final String phone = extractPhone(token);
+        return  (phone.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
     public <T> T extractClaim(String token, Function<Claims,T> reslover){
         Claims claims = extractAllClaims(token);
         return reslover.apply(claims);
@@ -51,5 +68,9 @@ public class TokenService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public UserDetails loadUserByPhone(String phone){
+        return  authenticationRepository.findUserByPhone(phone);
     }
 }
