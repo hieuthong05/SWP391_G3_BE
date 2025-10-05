@@ -17,7 +17,7 @@ public class Shift {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="shift_id")
+    @Column(name="shift_ID")
     private Long shiftID;
 
     @Column(name = "name", columnDefinition = "NVARCHAR(255)")

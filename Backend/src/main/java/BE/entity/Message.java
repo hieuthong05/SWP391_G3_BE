@@ -15,15 +15,15 @@ public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "messageID")
+    @Column(name = "message_ID")
     private Long messageID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "staffID")
+    @JoinColumn(name = "staff_ID")
     private Employee staff;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customerID")
+    @JoinColumn(name = "customer_ID")
     private Customer customer;
 
     @Column(columnDefinition = "NVARCHAR(MAX)")

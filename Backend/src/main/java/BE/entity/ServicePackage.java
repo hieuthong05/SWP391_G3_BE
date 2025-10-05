@@ -12,7 +12,7 @@ public class ServicePackage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "package_id")
+    @Column(name = "package_ID")
     private Long packageId;
 
     @Column(nullable = false, unique = true)

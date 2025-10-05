@@ -16,7 +16,7 @@ public class Admin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "adminID")
+    @Column(name = "admin_ID")
     private Long adminID;
 
     private String name;
@@ -31,7 +31,7 @@ public class Admin {
     private String role;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_center_id")
+    @JoinColumn(name = "service_center_ID")
     private ServiceCenter serviceCenter;
 
     private String gender;

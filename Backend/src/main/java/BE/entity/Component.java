@@ -12,7 +12,7 @@ public class Component {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "componentID")
+    @Column(name = "component_ID")
     private Long componentID;
 
     @ManyToOne(fetch = FetchType.LAZY)

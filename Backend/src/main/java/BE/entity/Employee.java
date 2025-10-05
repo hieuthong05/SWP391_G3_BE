@@ -17,7 +17,7 @@ public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "employeeID")
+    @Column(name = "employee_ID")
     private Long employeeID;
 
     private String name;
@@ -34,7 +34,7 @@ public class Employee {
     private String role;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_centerID")
+    @JoinColumn(name = "service_center_ID")
     private ServiceCenter serviceCenter;
 
     @ManyToOne(fetch = FetchType.LAZY)

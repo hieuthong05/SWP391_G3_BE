@@ -17,11 +17,11 @@ public class Vehicle {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vehicle_id")
+    @Column(name = "vehicle_ID")
     private Long vehicleID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="customer_id", nullable = false)
+    @JoinColumn(name="customer_ID", nullable = false)
     private Customer customer;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -46,7 +46,10 @@ public class Vehicle {
     @Column(name="day_created")
     private LocalDateTime dayCreated;
 
+    @Column(name = "last_maintenance_date")
     private LocalDate lastMaintenanceDate;
+
+    @Column(name = "last_maintenance_mileage")
     private Integer lastMaintenanceMileage;
 
 

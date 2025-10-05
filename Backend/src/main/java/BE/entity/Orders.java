@@ -17,23 +17,23 @@ public class Orders {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="order_id")   // phải mapping đúng với cột trong DB
+    @Column(name ="order_ID")   // phải mapping đúng với cột trong DB
     private Long orderID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "serviceid")  // tên cột trong DB
+    @JoinColumn(name = "service_ID")  // tên cột trong DB
     private Service service;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customerid")
+    @JoinColumn(name = "customer_ID")
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "vehicleid")
+    @JoinColumn(name = "vehicle_ID")
     private Vehicle vehicle;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_centerid")
+    @JoinColumn(name = "service_center_ID")
     private ServiceCenter serviceCenter;
 
     @CreationTimestamp
@@ -58,8 +58,8 @@ public class Orders {
     @ManyToMany
     @JoinTable(
             name = "order_service_package",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "package_id")
+            joinColumns = @JoinColumn(name = "order_ID"),
+            inverseJoinColumns = @JoinColumn(name = "package_ID")
     )
     private List<ServicePackage> servicePackages = new ArrayList<>();
 }
