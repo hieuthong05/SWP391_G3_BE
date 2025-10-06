@@ -35,28 +35,20 @@ public class Filter extends OncePerRequestFilter {
             "POST:/api/customer/register",
             "POST:/api/auth/login",
             "POST:/api/employee/register",
-<<<<<<< Updated upstream
             "GET: /api/reminders/customer/{customerId}",
 
             "GET:/swagger-ui/**",
             "GET:/v3/api-docs/**",
             "GET:/swagger-resources/**",
-            "GET:/webjars/**"
-
-=======
+            "GET:/webjars/**",
             "GET:/api/reminders/customer/{customerId}"
->>>>>>> Stashed changes
     );
 
     public boolean isPublicAPI(String uri, String method ){
         AntPathMatcher matcher = new AntPathMatcher();
 
-<<<<<<< Updated upstream
-//        if(method.equals("GET")) return true;
-=======
         if(method.equals("GET")) return true;
         if(uri.startsWith("/api/employees")) return true;
->>>>>>> Stashed changes
 
         return PULIC_API.stream().anyMatch(pattern ->{
             String[] parts = pattern.split(":", 2);
