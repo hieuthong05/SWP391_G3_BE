@@ -40,14 +40,15 @@ public class Filter extends OncePerRequestFilter {
             "GET:/swagger-ui/**",
             "GET:/v3/api-docs/**",
             "GET:/swagger-resources/**",
-            "GET:/webjars/**"
-
+            "GET:/webjars/**",
+            "GET:/api/reminders/customer/{customerId}"
     );
 
     public boolean isPublicAPI(String uri, String method ){
         AntPathMatcher matcher = new AntPathMatcher();
 
-//        if(method.equals("GET")) return true;
+        if(method.equals("GET")) return true;
+        if(uri.startsWith("/api/employees")) return true;
 
         return PULIC_API.stream().anyMatch(pattern ->{
             String[] parts = pattern.split(":", 2);
