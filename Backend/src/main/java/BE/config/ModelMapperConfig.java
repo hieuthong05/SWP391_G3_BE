@@ -1,5 +1,9 @@
 package BE.config;
 
+import BE.entity.Admin;
+import BE.entity.Customer;
+import BE.entity.Employee;
+import BE.model.response.UserResponse;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
@@ -15,8 +19,11 @@ public class ModelMapperConfig {
         // Configure to skip null values
         modelMapper.getConfiguration()
                 .setSkipNullEnabled(true)
-                .setMatchingStrategy(MatchingStrategies.STRICT);
+                .setFieldMatchingEnabled(true)
+                .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE)
+                .setMatchingStrategy(MatchingStrategies.STANDARD);
 
         return modelMapper;
+
     }
 }

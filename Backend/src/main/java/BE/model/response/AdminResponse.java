@@ -1,14 +1,13 @@
-package BE.model;
+package BE.model.response;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.math.BigDecimal;
 
 @Data
-public class AdminDTO {
-
+public class AdminResponse {
     private String address;
     private LocalDate birth;
     private LocalDateTime createdAt;
@@ -20,6 +19,5 @@ public class AdminDTO {
     private String role;
     private BigDecimal salary;
     private Boolean status;
-    private Long serviceCenter;
-    private Long shift;
+    private String shift;
 }

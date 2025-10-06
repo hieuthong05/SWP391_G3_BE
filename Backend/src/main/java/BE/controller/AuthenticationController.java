@@ -44,19 +44,18 @@ public class AuthenticationController {
     @SecurityRequirement(name = "api")
     @GetMapping("/api/auth/getUserInfo")
     public ResponseEntity<UserResponse> getUserInfo(@AuthenticationPrincipal User user, HttpServletRequest request) {
-        UserResponse userResponse;
         if (user == null) {
             return ResponseEntity.status(401).build();
-        } else {
-            userResponse = modelMapper.map(user, UserResponse.class);
-
-            String authHeader = request.getHeader("Authorization");
-            if(authHeader !=null && authHeader.startsWith("Bearer ")){
-                String token = authHeader.substring(7);
-                userResponse.setToken(token);
-            }
-
         }
+
+        UserResponse userResponse = authenticationService.getUserInfo(user);
+
+        String authHeader = request.getHeader("Authorization");
+        if(authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            userResponse.setToken(token);
+        }
+
         return ResponseEntity.ok(userResponse);
     }
 }

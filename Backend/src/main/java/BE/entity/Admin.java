@@ -43,7 +43,7 @@ public class Admin {
     @JoinColumn(name = "shift")
     private Shift shift;
 
-    private String status;
+    private boolean status;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

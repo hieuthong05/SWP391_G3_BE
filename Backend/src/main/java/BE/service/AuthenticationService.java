@@ -10,6 +10,7 @@ import BE.model.request.LoginRequest;
 import BE.model.response.UserResponse;
 import BE.repository.*;
 import jakarta.transaction.Transactional;
+import org.hibernate.proxy.HibernateProxy;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -120,12 +121,19 @@ public class AuthenticationService implements UserDetailsService {
             throw new RuntimeException("Not matching");
         }
 
-        UserResponse userResponse = modelMapper.map(userDetail, UserResponse.class);
+        UserResponse userResponse = switch (user.getRole().toLowerCase()) {
+            case "customer" -> modelMapper.map((Customer) userDetail, UserResponse.class);
+            case "admin", "center_admin" -> modelMapper.map((Admin) userDetail, UserResponse.class);
+            case "staff", "technician" -> modelMapper.map((Employee) userDetail, UserResponse.class);
+            default -> throw new RuntimeException("Role không hợp lệ");
+        };
         userResponse.setUserID(user.getUserID());
         userResponse.setRole(user.getRole());
+        userResponse.setPhone(user.getUsername());
 
         String token = tokenService.generateToken(user);
         userResponse.setToken(token);
+
         return userResponse;
     }
 
@@ -141,25 +149,47 @@ public class AuthenticationService implements UserDetailsService {
         if(role==null||role.isEmpty()){
             role="customer";
         }
-        switch (role.toLowerCase()){
+        Object entity;
+        switch (role.toLowerCase()) {
             case "customer":
-                return customerRepository.findById(refId).orElse(null);
-
+                entity = customerRepository.findById(refId).orElse(null);
+                break;
             case "staff":
             case "technician":
-
-                return employeeRepository.findById(refId).orElse(null);
-
+                entity = employeeRepository.findById(refId).orElse(null);
+                break;
             case "center_admin":
             case "admin":
-
-                return adminRepository.findById(refId).orElse(null);
-
+                entity = adminRepository.findById(refId).orElse(null);
+                break;
             default:
-                throw new RuntimeException("Role ko hợp lệ");
+                throw new RuntimeException("Role không hợp lệ");
         }
+        return entity;
 
     }
+
+    public UserResponse getUserInfo(User user) {
+        Object userDetail = getEntityInfo(user);
+
+        if(userDetail == null) {
+            throw new RuntimeException("User info not found !");
+        }
+
+        UserResponse userResponse = switch (user.getRole().toLowerCase()) {
+            case "customer" -> modelMapper.map((Customer) userDetail, UserResponse.class);
+            case "admin" -> modelMapper.map((Admin) userDetail, UserResponse.class);
+            case "staff", "technician" -> modelMapper.map((Employee) userDetail, UserResponse.class);
+            default -> throw new RuntimeException("Role không hợp lệ");
+        };
+
+        userResponse.setUserID(user.getUserID());
+        userResponse.setRole(user.getRole());
+        userResponse.setPhone(user.getUsername());
+
+        return userResponse;
+    }
+
 
     public Customer convertCustomer(CustomerDTO request){
         return modelMapper.map(request,Customer.class);
