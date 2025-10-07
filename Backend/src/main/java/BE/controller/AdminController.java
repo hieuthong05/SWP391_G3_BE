@@ -91,5 +91,25 @@ public class AdminController {
         }
     }
 
+    @SecurityRequirement(name="api")
+    @GetMapping("/isAdmin")
+    public  ResponseEntity<Map<String,Object>>isAdmin(){
+        try{
+            var currentUser = authenticationService.getCurrentUser();
+
+            boolean isAdmin = currentUser !=null && "admin".equalsIgnoreCase(currentUser.getRole());
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("isAdmin",isAdmin);
+            response.put("message",isAdmin ? "Current is admin." : "User is not admin !");
+
+            return  ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error","Invalid or expired token"));
+        }
+    }
+
 
 }
