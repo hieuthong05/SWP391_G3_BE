@@ -3,6 +3,8 @@ package BE.config;
 import BE.entity.Admin;
 import BE.entity.Customer;
 import BE.entity.Employee;
+import BE.entity.Vehicle;
+import BE.model.VehicleDTO;
 import BE.model.response.UserResponse;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -16,6 +18,12 @@ public class ModelMapperConfig {
 
         ModelMapper modelMapper = new ModelMapper();
 
+//        modelMapper.createTypeMap(VehicleDTO.class, Vehicle.class)
+//                .addMappings(mapper -> {
+//                    mapper.map(src -> null, Vehicle::setCustomer);
+//                    mapper.skip(Vehicle::setVehicleID);
+//                });
+
         // Configure to skip null values
         modelMapper.getConfiguration()
                 .setSkipNullEnabled(true)
@@ -23,7 +31,7 @@ public class ModelMapperConfig {
                 .setFieldAccessLevel(org.modelmapper.config.Configuration.AccessLevel.PRIVATE)
                 .setMatchingStrategy(MatchingStrategies.STANDARD);
 
-        return modelMapper;
 
+        return modelMapper;
     }
 }

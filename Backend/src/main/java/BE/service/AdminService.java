@@ -52,7 +52,7 @@ public class AdminService {
 
     @Transactional
     public AdminResponse updateAdmin(Long id, AdminDTO dto) {
-        Admin admin = adminRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + id));
+        Admin admin = adminRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Admin not found with id: " + id));
 
         if (adminRepository.findByPhoneAndAdminIDNot(dto.getPhone(),id).isPresent()){
             throw new IllegalArgumentException("Phone number already exists");
