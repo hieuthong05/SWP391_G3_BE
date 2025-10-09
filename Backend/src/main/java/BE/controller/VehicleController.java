@@ -1,7 +1,7 @@
 package BE.controller;
 
 
-import BE.model.VehicleDTO;
+import BE.model.DTO.VehicleDTO;
 import BE.model.response.VehicleResponse;
 import BE.service.VehicleService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

@@ -2,7 +2,7 @@ package BE.repository;
 
 import BE.entity.Customer;
 import BE.entity.Vehicle;
-import BE.model.VehicleDTO;
+import BE.model.DTO.VehicleDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package BE.service;
 
 import BE.entity.Customer;
-import BE.model.CustomerDTO;
+import BE.model.DTO.CustomerDTO;
 import BE.model.response.CustomerResponse;
 import BE.repository.CustomerRepository;
 import BE.repository.UserRepository;
