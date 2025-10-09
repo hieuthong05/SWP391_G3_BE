@@ -37,6 +37,7 @@ public class VehicleService {
 
         Vehicle vehicle = new Vehicle();
         modelMapper.map(vehicleDTO, vehicle);
+        vehicle.setVehicleID(null);
 
         if (vehicleDTO.getCustomerId() != null) {
             Customer customer = customerRepository.findById(vehicleDTO.getCustomerId())
