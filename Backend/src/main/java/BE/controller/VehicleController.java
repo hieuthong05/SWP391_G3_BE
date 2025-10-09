@@ -25,6 +25,7 @@ public class VehicleController {
     @Autowired
     VehicleService vehicleService;
 
+    @SecurityRequirement(name = "api")
     @PostMapping("/create")
     public ResponseEntity<VehicleResponse> createVehicle(@Valid @RequestBody VehicleDTO vehicleDTO){
         VehicleResponse newVel = vehicleService.createVehicle(vehicleDTO);
