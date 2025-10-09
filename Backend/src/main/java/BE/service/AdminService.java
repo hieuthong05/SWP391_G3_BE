@@ -2,7 +2,7 @@ package BE.service;
 
 import BE.entity.Admin;
 import BE.entity.Shift;
-import BE.model.AdminDTO;
+import BE.model.DTO.AdminDTO;
 import BE.model.response.AdminResponse;
 import BE.repository.AdminRepository;
 import BE.repository.ShiftRepository;

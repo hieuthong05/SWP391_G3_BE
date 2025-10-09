@@ -2,7 +2,7 @@ package BE.service;
 
 import BE.entity.Customer;
 import BE.entity.Vehicle;
-import BE.model.VehicleDTO;
+import BE.model.DTO.VehicleDTO;
 import BE.model.response.VehicleResponse;
 import BE.repository.CustomerRepository;
 import BE.repository.VehicleRepository;
