@@ -3,7 +3,7 @@ package BE.service;
 import BE.entity.Employee;
 import BE.entity.ServiceCenter;
 import BE.entity.Shift;
-import BE.model.EmployeeDTO;
+import BE.model.DTO.EmployeeDTO;
 import BE.model.response.EmployeeResponse;
 import BE.repository.EmployeeRepository;
 import BE.repository.ServiceCenterRepository;

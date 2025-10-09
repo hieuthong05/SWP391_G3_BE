@@ -1,7 +1,7 @@
 package BE.controller;
 
 import BE.entity.Employee;
-import BE.model.EmployeeDTO;
+import BE.model.DTO.EmployeeDTO;
 import BE.model.response.EmployeeResponse;
 import BE.service.AuthenticationService;
 import BE.service.EmployeeService;

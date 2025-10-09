@@ -1,6 +1,6 @@
 package BE.controller;
 
-import BE.model.AdminDTO;
+import BE.model.DTO.AdminDTO;
 import BE.service.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

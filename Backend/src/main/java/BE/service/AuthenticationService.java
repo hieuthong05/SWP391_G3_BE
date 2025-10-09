@@ -2,10 +2,9 @@ package BE.service;
 
 
 import BE.entity.*;
-import BE.model.AdminDTO;
-import BE.model.CustomerDTO;
-import BE.model.EmployeeDTO;
-import BE.model.UserDTO;
+import BE.model.DTO.AdminDTO;
+import BE.model.DTO.CustomerDTO;
+import BE.model.DTO.EmployeeDTO;
 import BE.model.request.LoginRequest;
 import BE.model.response.UserResponse;
 import BE.repository.*;

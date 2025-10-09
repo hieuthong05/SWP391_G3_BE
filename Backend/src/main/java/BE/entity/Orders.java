@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,10 +38,18 @@ public class Orders {
     @JoinColumn(name = "service_center_ID")
     private ServiceCenter serviceCenter;
 
+    // Ngày giờ HẸN (không phải ngày tạo order)
+    @Column(name = "appointment_date")
+    private LocalDate appointmentDate;
+
+    @Column(name = "appointment_time")
+    private LocalTime appointmentTime;
+
     @CreationTimestamp
     @Column(name="order_date", updatable = false)
     private LocalDateTime orderDate;
 
+    // Pending, Confirmed, In Progress, Completed, Cancelled
     private String status;
 
     @Column(name="total_cost")

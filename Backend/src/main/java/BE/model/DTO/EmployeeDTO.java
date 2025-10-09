@@ -1,14 +1,9 @@
-package BE.model;
+package BE.model.DTO;
 
-import BE.entity.ServiceCenter;
-import BE.entity.Shift;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 public class EmployeeDTO {
