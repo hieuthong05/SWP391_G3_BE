@@ -37,7 +37,7 @@ public class BookingService {
     ServiceCenterRepository serviceCenterRepository;
 
     @Autowired
-    ServiceRepository serviceRepository;
+    ServicesRepository servicesRepository;
 
     @Autowired
     ServicePackageRepository servicePackageRepository;
@@ -162,7 +162,7 @@ public class BookingService {
         // 7. Validate service or package exists
         if (dto.getServiceId() != null)
         {
-            service = serviceRepository.findById(dto.getServiceId()).orElse(null);
+            service = servicesRepository.findById(dto.getServiceId()).orElse(null);
             if (service == null)
             {
                 errors.add("Service not found with ID: " + dto.getServiceId());
