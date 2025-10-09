@@ -4,7 +4,7 @@ import BE.entity.Admin;
 import BE.entity.Customer;
 import BE.entity.Employee;
 import BE.entity.Vehicle;
-import BE.model.VehicleDTO;
+import BE.model.DTO.VehicleDTO;
 import BE.model.response.UserResponse;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
