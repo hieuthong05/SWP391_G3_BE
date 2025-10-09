@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/customers")
+@RequestMapping("/api/customer")
 @RequiredArgsConstructor
 public class CustomerController {
     @Autowired
