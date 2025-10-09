@@ -28,7 +28,7 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String role;      // CUSTOMER, STAFF, TECHNICIAN, SUPER_ADMIN, BRANCH_ADMIN
+    private String role;      // CUSTOMER, STAFF, TECHNICIAN, ADMIN
 
     @Column(name = "ref_id", nullable = false)
     private Long refId;       // id của bảng gốc

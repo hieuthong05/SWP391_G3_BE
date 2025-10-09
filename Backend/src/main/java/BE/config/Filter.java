@@ -47,7 +47,7 @@ public class Filter extends OncePerRequestFilter {
     public boolean isPublicAPI(String uri, String method ){
         AntPathMatcher matcher = new AntPathMatcher();
 
-        if(method.equals("GET")) return true;
+//        if(method.equals("GET")) return true;
         if(uri.startsWith("/api/employees")) return true;
 
         return PULIC_API.stream().anyMatch(pattern ->{

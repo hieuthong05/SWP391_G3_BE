@@ -52,5 +52,7 @@ public class Vehicle {
     @Column(name = "last_maintenance_mileage")
     private Integer lastMaintenanceMileage;
 
+    @Column(name = "status",columnDefinition = "BIT DEFAULT 1")
+    private Boolean status;
 
 }
