@@ -3,6 +3,7 @@ package BE.controller;
 
 import BE.entity.Customer;
 import BE.model.response.CustomerResponse;
+import BE.model.response.VehicleResponse;
 import BE.service.AuthenticationService;
 import BE.service.CustomerService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -27,6 +29,13 @@ public class CustomerController {
 
     @Autowired
     CustomerService customerService;
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/getAll")
+    public ResponseEntity<List<CustomerResponse>> getAll(){
+        List<CustomerResponse> responses = customerService.getAllCustomer();
+        return ResponseEntity.ok(responses);
+    }
 
     @SecurityRequirement(name = "api")
     @GetMapping("/getby/{id}")
