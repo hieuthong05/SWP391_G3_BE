@@ -9,7 +9,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @org.springframework.stereotype.Service
 public class ServicesService {
@@ -101,5 +104,17 @@ public class ServicesService {
                     return response;
                 })
                 .toList();
+    }
+
+    public List<Map<String, Object>> getMostBookedServices() {
+        List<Object[]> results = serviceRepository.findMostBookedServices();
+        return results.stream()
+                .map(result -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("service", result[0]);
+                    map.put("orderCount", result[1]);
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 }
