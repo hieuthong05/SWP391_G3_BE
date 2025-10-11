@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 public class BookingRequest {
@@ -22,11 +23,11 @@ public class BookingRequest {
     private Long serviceCenterId;
 
     // Chọn 1 trong 2
-    @Positive(message = "Service ID must be a positive number")
-    private Long serviceId;  // Dịch vụ đơn lẻ
+    @Size(min = 1, message = "At least one service must be selected")
+    private List<@Positive(message = "Service ID must be a positive number") Long> serviceIds;
 
-    @Positive(message = "Package ID must be a positive number")
-    private Long packageId;  // Gói dịch vụ
+//    @Positive(message = "Package ID must be a positive number")
+//    private Long packageId;  // Gói dịch vụ
 
     @NotNull(message = "Appointment date is required")
     @Future(message = "Appointment date must be in the future")

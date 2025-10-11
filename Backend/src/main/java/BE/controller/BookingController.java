@@ -41,13 +41,13 @@ public class BookingController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<BookingResponse>> getCustomerBookings(
-            @PathVariable Long customerId)
-    {
-        List<BookingResponse> bookings = bookingService.getCustomerBookings(customerId);
-        return ResponseEntity.ok(bookings);
-    }
+//    @GetMapping("/customer/{customerId}")
+//    public ResponseEntity<List<BookingResponse>> getCustomerBookings(
+//            @PathVariable Long customerId)
+//    {
+//        List<BookingResponse> bookings = bookingService.getCustomerBookings(customerId);
+//        return ResponseEntity.ok(bookings);
+//    }
 
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<Map<String, String>> cancelBooking(

@@ -87,46 +87,64 @@ public class BookingService {
         List<String> errors = new ArrayList<>();
 
         // 1. Validate: phải chọn service HOẶC package
-        if ((dto.getServiceId() == null && dto.getPackageId() == null) ||
-             (dto.getServiceId() != null && dto.getPackageId() != null))
+//        if ((dto.getServiceId() == null && dto.getPackageId() == null) ||
+//             (dto.getServiceId() != null && dto.getPackageId() != null))
+//        {
+//            errors.add("Please select either a service or a package, not both");
+//        }
+        if (dto.getServiceIds() == null || dto.getServiceIds().isEmpty())
         {
-            errors.add("Please select either a service or a package, not both");
+            errors.add("Please select at least 1 service.");
         }
 
         // 2. Validate entities exist
-        Customer customer = null;
-        Vehicle vehicle = null;
-        ServiceCenter serviceCenter = null;
-        BE.entity.Service service = null;
-        ServicePackage servicePackage = null;
 
-        try {
-            customer = customerRepository.findById(dto.getCustomerId())
-                    .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-        } catch (EntityNotFoundException e) {
+        Customer customer = customerRepository.findById(dto.getCustomerId()).orElse(null);
+        if (customer == null)
+        {
             errors.add("Customer not found with ID: " + dto.getCustomerId());
         }
 
-        try {
-            vehicle = vehicleRepository.findById(dto.getVehicleId())
-                    .orElseThrow(() -> new EntityNotFoundException("Vehicle not found"));
-        } catch (EntityNotFoundException e) {
+        Vehicle vehicle = vehicleRepository.findById(dto.getVehicleId()).orElse(null);
+        if (vehicle == null)
+        {
             errors.add("Vehicle not found with ID: " + dto.getVehicleId());
         }
 
-        try {
-            serviceCenter = serviceCenterRepository.findById(dto.getServiceCenterId())
-                    .orElseThrow(() -> new EntityNotFoundException("Service center not found"));
-        } catch (EntityNotFoundException e) {
+        ServiceCenter serviceCenter = serviceCenterRepository.findById(dto.getServiceCenterId()).orElse(null);
+        if (serviceCenter == null)
+        {
             errors.add("Service center not found with ID: " + dto.getServiceCenterId());
         }
 
-        // 2.5. Validate payment method
-        List<String> validMethods = Arrays.asList("CASH", "CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "E_WALLET");
-        if (!validMethods.contains(dto.getPaymentMethod().toUpperCase()))
+        // 6. Validate services //or package exists
+        List<BE.entity.Service> services = new ArrayList<>();
+//        ServicePackage servicePackage = null;
+
+        if (dto.getServiceIds() != null && !dto.getServiceIds().isEmpty())
         {
-            errors.add("Invalid payment method. Allowed values: " + String.join(", ", validMethods));
+            for (Long serviceId : dto.getServiceIds())
+            {
+                BE.entity.Service service = serviceRepository.findById(serviceId).orElse(null);
+                if (service == null)
+                {
+                    errors.add("Service not found with ID: " + serviceId);
+                }
+                else
+                {
+                    services.add(service);
+                }
+            }
         }
+
+//        else if (dto.getPackageId() != null)
+//        {
+//            servicePackage = servicePackageRepository.findById(dto.getPackageId()).orElse(null);
+//            if (servicePackage == null)
+//            {
+//                errors.add("Service package not found with ID: " + dto.getPackageId());
+//            }
+//        }
 
         // 3. Check vehicle belongs to customer
         if (customer != null && vehicle != null)
@@ -136,6 +154,14 @@ public class BookingService {
                 errors.add("Vehicle does not belong to this customer");
             }
         }
+
+//        // 2.5. Validate payment method
+//        List<String> validMethods = Arrays.asList("CASH", "CREDIT_CARD", "DEBIT_CARD", "BANK_TRANSFER", "E_WALLET");
+//        if (!validMethods.contains(dto.getPaymentMethod().toUpperCase()))
+//        {
+//            errors.add("Invalid payment method. Allowed values: " + String.join(", ", validMethods));
+//        }
+
 
         // 4. Check time slot availability
         if (serviceCenter != null)
@@ -159,30 +185,13 @@ public class BookingService {
                     OPENING_TIME + " and " + CLOSING_TIME.minusHours(1));
         }
 
-        // 7. Validate service or package exists
-        if (dto.getServiceId() != null)
-        {
-            service = serviceRepository.findById(dto.getServiceId()).orElse(null);
-            if (service == null)
-            {
-                errors.add("Service not found with ID: " + dto.getServiceId());
-            }
-        }
-        else if (dto.getPackageId() != null)
-        {
-            servicePackage = servicePackageRepository.findById(dto.getPackageId()).orElse(null);
-            if (servicePackage == null)
-            {
-                errors.add("Service package not found with ID: " + dto.getPackageId());
-            }
-        }
 
         if (!errors.isEmpty())
         {
             throw new IllegalArgumentException(String.join("; ", errors));
         }
 
-        // 6. Create order using ModelMapper
+        // 7. Create order
         Orders order = new Orders();
         modelMapper.map(dto, order); // Map common fields
 
@@ -194,63 +203,93 @@ public class BookingService {
         order.setPaymentStatus(false);
         order.setPaymentMethod(dto.getPaymentMethod().toUpperCase());
 
-        String serviceType;
-        Double estimatedCost;
 
-        if (service != null)
+        // 11. Calculate total cost and set services
+        Double totalCost = 0.0;
+        StringBuilder serviceTypes = new StringBuilder();
+
+        if (dto.getServiceIds() != null && !dto.getServiceIds().isEmpty())
         {
-            // Đặt service đơn lẻ
-            order.setService(service);
-            serviceType = service.getServiceName();
-            estimatedCost = service.getPrice();
-        }
-        else
-        {
-            // Đặt package
-            order.getServicePackages().add(servicePackage);
-            serviceType = servicePackage.getName();
-            estimatedCost = servicePackage.getPrice();
+            // Thêm tất cả services vào order
+            order.getServices().addAll(services);
+
+            for (BE.entity.Service service : services)
+            {
+                totalCost += service.getPrice();
+                if (serviceTypes.length() > 0) serviceTypes.append(", ");
+                serviceTypes.append(service.getServiceName());
+            }
         }
 
-        order.setTotalCost(estimatedCost);
+        order.setTotalCost(totalCost);
 
-        // 7. Save order
+
+//        else
+//        {
+//            order.getServicePackages().add(servicePackage);
+//            serviceType = servicePackage.getName();
+//            estimatedCost = servicePackage.getPrice();
+//        }
+
+//        order.setTotalCost(estimatedCost);
+
+        // 8. Save order
         Orders savedOrder = ordersRepository.save(order);
 
-        // 8. Build response using ModelMapper
+        // 9. Build response using ModelMapper
         BookingResponse response = modelMapper.map(savedOrder, BookingResponse.class);
         response.setServiceCenterName(serviceCenter.getName());
-        response.setServiceType(serviceType);
-        response.setEstimatedCost(estimatedCost);
+        response.setServiceType(serviceTypes.toString());
+        response.setEstimatedCost(totalCost);
         response.setPaymentMethod(savedOrder.getPaymentMethod());
-        response.setMessage("Booking created successfully. We will confirm your appointment shortly.");
+        response.setMessage("Booking created successfully with " +
+                            services.size() +
+                            " service(s). We will confirm your appointment shortly.");
 
         return response;
     }
 
     //Lấy danh sách bookings của customer
 
-    public List<BookingResponse> getCustomerBookings(Long customerId)
-    {
-        List<Orders> orders = ordersRepository.findByCustomer_CustomerIDOrderByAppointmentDateDesc(customerId);
-
-        return orders.stream().map(order -> {
-            BookingResponse dto = modelMapper.map(order, BookingResponse.class);
-            dto.setServiceCenterName(order.getServiceCenter().getName());
-
-            if (order.getService() != null)
-            {
-                dto.setServiceType(order.getService().getServiceName());
-            }
-            else if (!order.getServicePackages().isEmpty())
-            {
-                dto.setServiceType(order.getServicePackages().get(0).getName());
-            }
-
-            dto.setEstimatedCost(order.getTotalCost());
-            return dto;
-        }).collect(Collectors.toList());
-    }
+    // Lấy danh sách bookings của customer
+//    public List<BookingResponse> getCustomerBookings(Long customerId) {
+//        List<Orders> orders = ordersRepository.findByCustomer_CustomerIDOrderByAppointmentDateDesc(customerId);
+//
+//        return orders.stream().map(order -> {
+//            BookingResponse dto = modelMapper.map(order, BookingResponse.class);
+//            dto.setServiceCenterName(order.getServiceCenter().getName());
+//
+//            // Xử lý services (ManyToMany)
+//            StringBuilder serviceType = new StringBuilder();
+//            Double totalCost = 0.0;
+//
+//            if (!order.getServices().isEmpty()) {
+//                // Nếu đặt services
+//                for (int i = 0; i < order.getServices().size(); i++) {
+//                    Service service = order.getServices().get(i);
+//                    if (i > 0) serviceType.append(", ");
+//                    serviceType.append(service.getServiceName());
+//                    totalCost += service.getPrice();
+//                }
+//                dto.setServiceType(serviceType.toString());
+//                dto.setBookingType("SERVICE"); // Thêm field này nếu cần phân biệt
+//            }
+//            else if (!order.getServicePackages().isEmpty()) {
+//                // Nếu đặt packages
+//                for (int i = 0; i < order.getServicePackages().size(); i++) {
+//                    ServicePackage pkg = order.getServicePackages().get(i);
+//                    if (i > 0) serviceType.append(", ");
+//                    serviceType.append(pkg.getName());
+//                    totalCost += pkg.getPrice();
+//                }
+//                dto.setServiceType(serviceType.toString());
+//                dto.setBookingType("PACKAGE");
+//            }
+//
+//            dto.setEstimatedCost(order.getTotalCost());
+//            return dto;
+//        }).collect(Collectors.toList());
+//    }
 
     //Cancel booking
 

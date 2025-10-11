@@ -22,9 +22,17 @@ public class Orders {
     @Column(name ="order_ID")   // phải mapping đúng với cột trong DB
     private Long orderID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_ID")  // tên cột trong DB
-    private Service service;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "service_ID")  // tên cột trong DB
+//    private Service service;
+
+    @ManyToMany
+    @JoinTable(
+            name = "order_service",  // Tên bảng trung gian
+            joinColumns = @JoinColumn(name = "order_ID"),
+            inverseJoinColumns = @JoinColumn(name = "service_ID")
+    )
+    private List<Service> services = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_ID")

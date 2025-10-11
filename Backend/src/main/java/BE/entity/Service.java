@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -41,6 +42,9 @@ public class Service {
     private String component;
 
     private LocalDateTime date;
+
+    @ManyToMany(mappedBy = "services")
+    private List<Orders> orders = new ArrayList<>();
 
     @ManyToMany(mappedBy = "services")
     private List<ServicePackage> servicePackages;
