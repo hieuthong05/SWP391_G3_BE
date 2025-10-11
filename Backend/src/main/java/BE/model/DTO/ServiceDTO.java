@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 
 @Data
 public class ServiceDTO {
-    private Long serviceID;
     private String component;
     private LocalDateTime date;
     private String description;

@@ -35,6 +35,7 @@ public class ServicesService {
     public ServiceResponse createService(ServiceDTO serviceDTO) {
         BE.entity.Service service = new Service();
         modelMapper.map(serviceDTO, service);
+        service.setServiceID(null);
         service.setServiceStatus("active");
 
         BE.entity.Service savedService = servicesRepository.save(service);
