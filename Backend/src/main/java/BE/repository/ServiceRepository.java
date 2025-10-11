@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ServicesRepository extends JpaRepository<Service, Long> {
+public interface ServiceRepository extends JpaRepository<Service, Long> {
     Optional<Service> findByServiceIDAndServiceStatus(Long serviceID, String serviceStatus);
     List<Service> findByServiceStatus(String serviceStatus);
     List<Service> findByServiceTypeAndServiceStatus(String serviceType, String serviceStatus);
