@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ServiceCenterDTO {
-    private Long serviceCenterID;
+//    private Long serviceCenterID;
     private String name;
     private String address;
     private String location;

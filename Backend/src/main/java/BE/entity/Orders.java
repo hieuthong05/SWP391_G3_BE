@@ -19,7 +19,7 @@ public class Orders {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="order_ID")   // phải mapping đúng với cột trong DB
+    @Column(name ="order_ID")
     private Long orderID;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -46,7 +46,6 @@ public class Orders {
     @JoinColumn(name = "service_center_ID")
     private ServiceCenter serviceCenter;
 
-    // Ngày giờ HẸN (không phải ngày tạo order)
     @Column(name = "appointment_date")
     private LocalDate appointmentDate;
 
