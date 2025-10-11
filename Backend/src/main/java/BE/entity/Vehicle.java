@@ -24,7 +24,7 @@ public class Vehicle {
     @JoinColumn(name="customer_ID", nullable = false)
     private Customer customer;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "vehicle", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "vehicle", cascade = CascadeType.ALL)
     private List<Orders> orders = new ArrayList<>();
 
     @Column(name = "license_plate", unique = true, nullable = false)
