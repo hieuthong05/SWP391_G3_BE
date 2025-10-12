@@ -88,7 +88,7 @@ public class VehicleController {
     }
 
     @SecurityRequirement(name = "api")
-    @GetMapping("/getbyCustomerId/{id}")
+    @GetMapping("/getByCustomerId/{id}")
     public ResponseEntity<?> getVehicleByCustomerId(@PathVariable Long id) {
         List <VehicleResponse> responses = vehicleService.getVehiclesByCustomerId(id);
         Map<String, Object> response = new HashMap<>();

@@ -1,8 +1,8 @@
 package BE.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 public class Vehicle {
 
     @Id
@@ -36,10 +35,10 @@ public class Vehicle {
     @Column(name = "type")
     private String type;
 
-    @Column(name="model", nullable = false)
-    private String model;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "model_ID", nullable = false)
+    private Model model;
 
-    private Integer year;
     private Integer mileage;
 
     @CreationTimestamp

@@ -1,10 +1,12 @@
 package BE.service;
 
 import BE.entity.Customer;
+import BE.entity.Model;
 import BE.entity.Vehicle;
 import BE.model.DTO.VehicleDTO;
 import BE.model.response.VehicleResponse;
 import BE.repository.CustomerRepository;
+import BE.repository.ModelRepository;
 import BE.repository.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -23,44 +25,45 @@ public class VehicleService {
     CustomerRepository customerRepository;
 
     @Autowired
+    ModelRepository modelRepository;
+
+    @Autowired
     ModelMapper modelMapper;
 
     @Transactional
     public VehicleResponse createVehicle(VehicleDTO vehicleDTO) {
-        if (vehicleRepository.findByLicensePlate(vehicleDTO.getLicensePlate()).isPresent()){
+        if (vehicleRepository.findByLicensePlate(vehicleDTO.getLicensePlate()).isPresent()) {
             throw new IllegalArgumentException("License plate already exists");
         }
 
-        if (vehicleRepository.findByVin(vehicleDTO.getVin()).isPresent()){
+        if (vehicleRepository.findByVin(vehicleDTO.getVin()).isPresent()) {
             throw new IllegalArgumentException("VIN already exists");
         }
 
-        Vehicle vehicle = new Vehicle();
-        modelMapper.map(vehicleDTO, vehicle);
-        vehicle.setVehicleID(null);
+        Model model = modelRepository.findById(vehicleDTO.getModelID())
+                .orElseThrow(() -> new EntityNotFoundException("Model not found"));
 
-        if (vehicleDTO.getCustomerId() != null) {
-            Customer customer = customerRepository.findById(vehicleDTO.getCustomerId())
-                    .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
-            vehicle.setCustomer(customer);
+        Vehicle vehicle = modelMapper.map(vehicleDTO, Vehicle.class);
+        vehicle.setModel(model);
+
+        if (vehicleDTO.getCustomerId() == null) {
+            throw new IllegalArgumentException("Customer ID is required for a new vehicle.");
         }
+        Customer customer = customerRepository.findById(vehicleDTO.getCustomerId())
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+        vehicle.setCustomer(customer);
 
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
-        VehicleResponse vehicleResponse = new VehicleResponse();
-        modelMapper.map(savedVehicle, vehicleResponse);
 
-        return vehicleResponse;
+        return mapToVehicleResponse(savedVehicle);
     }
 
     @Transactional(readOnly = true)
-    public VehicleResponse getVehicleById(Long id){
+    public VehicleResponse getVehicleById(Long id) {
         Vehicle vehicle = vehicleRepository.findByVehicleIDAndStatus(id, true)
                 .orElseThrow(() -> new EntityNotFoundException("Vehicle not found with id: " + id));
 
-        VehicleResponse vehicleResponse = new VehicleResponse();
-        modelMapper.map(vehicle, vehicleResponse);
-
-        return vehicleResponse;
+        return mapToVehicleResponse(vehicle);
     }
 
     @Transactional
@@ -68,15 +71,21 @@ public class VehicleService {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vehicle not found with id: " + id));
 
-        if (vehicleRepository.findByLicensePlateAndVehicleIDNot(dto.getLicensePlate(), id).isPresent()){
+        if (vehicleRepository.findByLicensePlateAndVehicleIDNot(dto.getLicensePlate(), id).isPresent()) {
             throw new IllegalArgumentException("License plate already exists");
         }
 
-        if (vehicleRepository.findByVinAndVehicleIDNot(dto.getVin(), id).isPresent()){
+        if (vehicleRepository.findByVinAndVehicleIDNot(dto.getVin(), id).isPresent()) {
             throw new IllegalArgumentException("VIN already exists");
         }
 
         modelMapper.map(dto, vehicle);
+
+        if (dto.getModelID() != null) {
+            Model model = modelRepository.findById(dto.getModelID())
+                    .orElseThrow(() -> new EntityNotFoundException("Model not found"));
+            vehicle.setModel(model);
+        }
 
         if (dto.getCustomerId() != null) {
             Customer customer = customerRepository.findById(dto.getCustomerId())
@@ -85,14 +94,12 @@ public class VehicleService {
         }
 
         Vehicle updatedVehicle = vehicleRepository.save(vehicle);
-        VehicleResponse vehicleResponse = new VehicleResponse();
-        modelMapper.map(updatedVehicle, vehicleResponse);
 
-        return vehicleResponse;
+        return mapToVehicleResponse(updatedVehicle);
     }
 
     @Transactional
-    public void deleteVehicle(Long id){
+    public void deleteVehicle(Long id) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vehicle not found with id: " + id));
         vehicle.setStatus(false);
@@ -100,29 +107,38 @@ public class VehicleService {
     }
 
     @Transactional(readOnly = true)
-    public List<VehicleResponse> getAllVehicle(){
+    public List<VehicleResponse> getAllVehicle() {
         return vehicleRepository.findByStatus(true)
                 .stream()
-                .map(vehicle -> {
-                    VehicleResponse response = new VehicleResponse();
-                    modelMapper.map(vehicle, response);
-                    return response;
-                })
+                .map(this::mapToVehicleResponse)
                 .toList();
     }
 
     @Transactional(readOnly = true)
-    public List<VehicleResponse> getVehiclesByCustomerId(Long customerId){
+    public List<VehicleResponse> getVehiclesByCustomerId(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + customerId));
 
         return vehicleRepository.findByCustomerAndStatus(customer, true)
                 .stream()
-                .map(vehicle -> {
-                    VehicleResponse response = new VehicleResponse();
-                    modelMapper.map(vehicle, response);
-                    return response;
-                })
+                .map(this::mapToVehicleResponse)
                 .toList();
+    }
+
+    // Helper method để map Vehicle -> VehicleResponse
+    private VehicleResponse mapToVehicleResponse(Vehicle vehicle) {
+        VehicleResponse response = modelMapper.map(vehicle, VehicleResponse.class);
+
+        // Map customer
+        if (vehicle.getCustomer() != null) {
+            response.setCustomerID(vehicle.getCustomer().getCustomerID());
+        }
+
+        // Map model
+        if (vehicle.getModel() != null) {
+            response.setModel(modelMapper.map(vehicle.getModel(), BE.model.DTO.ModelDTO.class));
+        }
+
+        return response;
     }
 }
