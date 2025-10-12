@@ -40,7 +40,7 @@ public class VehicleService {
             throw new IllegalArgumentException("VIN already exists");
         }
 
-        Model model = modelRepository.findById(vehicleDTO.getModelId())
+        Model model = modelRepository.findById(vehicleDTO.getModelID())
                 .orElseThrow(() -> new EntityNotFoundException("Model not found"));
 
         Vehicle vehicle = modelMapper.map(vehicleDTO, Vehicle.class);
@@ -81,8 +81,8 @@ public class VehicleService {
 
         modelMapper.map(dto, vehicle);
 
-        if (dto.getModelId() != null) {
-            Model model = modelRepository.findById(dto.getModelId())
+        if (dto.getModelID() != null) {
+            Model model = modelRepository.findById(dto.getModelID())
                     .orElseThrow(() -> new EntityNotFoundException("Model not found"));
             vehicle.setModel(model);
         }
