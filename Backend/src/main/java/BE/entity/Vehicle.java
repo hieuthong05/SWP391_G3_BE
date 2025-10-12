@@ -1,8 +1,8 @@
 package BE.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 public class Vehicle {
 
     @Id

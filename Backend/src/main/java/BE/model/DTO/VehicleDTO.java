@@ -26,7 +26,6 @@ public class VehicleDTO {
 
     private String type;
     private Long modelID;
-    private Integer year;
     private Integer mileage;
     private LocalDate lastMaintenanceDate;
     private Integer lastMaintenanceMileage;
