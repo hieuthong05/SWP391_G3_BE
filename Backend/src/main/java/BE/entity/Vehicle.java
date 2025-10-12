@@ -36,10 +36,8 @@ public class Vehicle {
     @Column(name = "type")
     private String type;
 
-//    @Column(name="model", nullable = false)
-//    private String model;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "model_ID", nullable = true)
+    @JoinColumn(name = "model_ID", nullable = false)
     private Model model;
 
     private Integer mileage;

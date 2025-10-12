@@ -1,10 +1,12 @@
 package BE.service;
 
 import BE.entity.Customer;
+import BE.entity.Model;
 import BE.entity.Vehicle;
 import BE.model.DTO.VehicleDTO;
 import BE.model.response.VehicleResponse;
 import BE.repository.CustomerRepository;
+import BE.repository.ModelRepository;
 import BE.repository.VehicleRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
@@ -23,6 +25,9 @@ public class VehicleService {
     CustomerRepository customerRepository;
 
     @Autowired
+    ModelRepository modelRepository;
+
+    @Autowired
     ModelMapper modelMapper;
 
     @Transactional
@@ -34,8 +39,12 @@ public class VehicleService {
         if (vehicleRepository.findByVin(vehicleDTO.getVin()).isPresent()){
             throw new IllegalArgumentException("VIN already exists");
         }
+        
+        Model model = modelRepository.findById(vehicleDTO.getModelID())
+                .orElseThrow(() -> new RuntimeException("Model not found"));
 
         Vehicle vehicle = new Vehicle();
+        vehicle.setModel(model);
         modelMapper.map(vehicleDTO, vehicle);
         vehicle.setVehicleID(null);
 

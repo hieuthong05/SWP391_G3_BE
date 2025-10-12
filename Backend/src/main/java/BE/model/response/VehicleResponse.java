@@ -1,6 +1,8 @@
 package BE.model.response;
 
 
+import BE.entity.Model;
+import BE.model.DTO.ModelDTO;
 import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -13,7 +15,7 @@ public class VehicleResponse {
     private String licensePlate;
     private String vin;
     private String type;
-    private String model;
+    private ModelDTO model;
     private Integer year;
     private Integer mileage;
     private LocalDateTime dayCreated;
