@@ -95,4 +95,74 @@ public class BookingController {
         response.put("totalBookings", bookings.size());
         return ResponseEntity.ok(response);
     }
+
+    //---------------------------------------------------------------------------------------------------------------------
+//    /**
+//     * Lấy bookings của customer theo status
+//     * GET /api/bookings/customer/{customerId}?status=Pending
+//     */
+//    @SecurityRequirement(name = "api")
+//    @GetMapping("/customer/{customerId}/by-status")
+//    public ResponseEntity<List<CustomerBookingResponse>> getBookingsByCustomerIdAndStatus(
+//            @PathVariable Long customerId,
+//            @RequestParam(required = false) String status) {
+//
+//        List<CustomerBookingResponse> bookings =
+//                bookingService.getBookingsByCustomerIdAndStatus(customerId, status);
+//        return ResponseEntity.ok(bookings);
+//    }
+//
+//    /**
+//     * Lấy upcoming bookings của customer (chưa hoàn thành)
+//     * GET /api/bookings/customer/{customerId}/upcoming
+//     */
+//    @SecurityRequirement(name = "api")
+//    @GetMapping("/customer/{customerId}/upcoming")
+//    public ResponseEntity<List<CustomerBookingResponse>> getUpcomingBookings(
+//            @PathVariable Long customerId) {
+//
+//        List<CustomerBookingResponse> bookings =
+//                bookingService.getUpcomingBookingsByCustomerId(customerId);
+//        return ResponseEntity.ok(bookings);
+//    }
+//
+//    /**
+//     * Lấy booking history của customer (đã hoàn thành hoặc đã hủy)
+//     * GET /api/bookings/customer/{customerId}/history
+//     */
+//    @SecurityRequirement(name = "api")
+//    @GetMapping("/customer/{customerId}/history")
+//    public ResponseEntity<List<CustomerBookingResponse>> getBookingHistory(
+//            @PathVariable Long customerId) {
+//
+//        List<CustomerBookingResponse> bookings =
+//                bookingService.getBookingHistoryByCustomerId(customerId);
+//        return ResponseEntity.ok(bookings);
+//    }
+//
+//    /**
+//     * Lấy thống kê bookings của customer
+//     * GET /api/bookings/customer/{customerId}/stats
+//     */
+//    @SecurityRequirement(name = "api")
+//    @GetMapping("/customer/{customerId}/stats")
+//    public ResponseEntity<Map<String, Object>> getCustomerBookingStats(
+//            @PathVariable Long customerId) {
+//
+//        long totalBookings = ordersRepository.countByCustomerId(customerId);
+//        long pendingBookings = ordersRepository.countByCustomerIdAndStatus(customerId, "Pending");
+//        long confirmedBookings = ordersRepository.countByCustomerIdAndStatus(customerId, "Confirmed");
+//        long completedBookings = ordersRepository.countByCustomerIdAndStatus(customerId, "Completed");
+//        long cancelledBookings = ordersRepository.countByCustomerIdAndStatus(customerId, "Cancelled");
+//
+//        Map<String, Object> stats = new HashMap<>();
+//        stats.put("customerId", customerId);
+//        stats.put("totalBookings", totalBookings);
+//        stats.put("pendingBookings", pendingBookings);
+//        stats.put("confirmedBookings", confirmedBookings);
+//        stats.put("completedBookings", completedBookings);
+//        stats.put("cancelledBookings", cancelledBookings);
+//
+//        return ResponseEntity.ok(stats);
+//    }
 }

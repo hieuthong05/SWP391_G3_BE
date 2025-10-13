@@ -429,4 +429,56 @@ public class BookingService {
         }
         return response;
     }
+
+//    /**
+//     * Alternative: Lấy bookings với filter theo status
+//     */
+//    public List<CustomerBookingResponse> getBookingsByCustomerIdAndStatus(
+//            Long customerId, String status) {
+//
+//        customerRepository.findById(customerId)
+//                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+//
+//        List<Orders> orders;
+//        if (status == null || status.isEmpty()) {
+//            orders = ordersRepository.findByCustomerIdWithDetails(customerId);
+//        } else {
+//            orders = ordersRepository.findByCustomerIdAndStatus(customerId, status);
+//        }
+//
+//        return orders.stream()
+//                .map(this::mapToCustomerBookingResponse)
+//                .collect(Collectors.toList());
+//    }
+//
+//    /**
+//     * Lấy upcoming bookings của customer (chưa hoàn thành)
+//     */
+//    public List<CustomerBookingResponse> getUpcomingBookingsByCustomerId(Long customerId) {
+//        customerRepository.findById(customerId)
+//                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+//
+//        List<Orders> orders = ordersRepository.findUpcomingBookingsByCustomerId(
+//                customerId, LocalDate.now());
+//
+//        return orders.stream()
+//                .map(this::mapToCustomerBookingResponse)
+//                .collect(Collectors.toList());
+//    }
+//
+//    /**
+//     * Lấy booking history của customer (đã hoàn thành hoặc đã hủy)
+//     */
+//    public List<CustomerBookingResponse> getBookingHistoryByCustomerId(Long customerId) {
+//        customerRepository.findById(customerId)
+//                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+//
+//        List<String> completedStatuses = Arrays.asList("Completed", "Cancelled");
+//        List<Orders> orders = ordersRepository.findByCustomerIdAndStatusIn(
+//                customerId, completedStatuses);
+//
+//        return orders.stream()
+//                .map(this::mapToCustomerBookingResponse)
+//                .collect(Collectors.toList());
+//    }
 }
