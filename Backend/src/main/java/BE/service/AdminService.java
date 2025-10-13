@@ -26,8 +26,8 @@ public class AdminService {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    ShiftRepository shiftRepository;
+//    @Autowired
+//    ShiftRepository shiftRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -43,9 +43,9 @@ public class AdminService {
         AdminResponse adminResponse = new AdminResponse();
         modelMapper.map(admin, adminResponse);
 
-        if (admin.getShift() != null) {
-            adminResponse.setShift(admin.getShift().getName());
-        }
+//        if (admin.getShift() != null) {
+//            adminResponse.setShift(admin.getShift().getName());
+//        }
 
         return adminResponse;
     }
@@ -68,19 +68,19 @@ public class AdminService {
 
         modelMapper.map(dto, admin);
 
-        if (dto.getShift() != null) {
-            Shift shift = shiftRepository.findById(dto.getShift())
-                    .orElseThrow(() -> new EntityNotFoundException("Shift not found"));
-            admin.setShift(shift);
-        }
+//        if (dto.getShift() != null) {
+//            Shift shift = shiftRepository.findById(dto.getShift())
+//                    .orElseThrow(() -> new EntityNotFoundException("Shift not found"));
+//            admin.setShift(shift);
+//        }
 
         Admin updatedAdmin = adminRepository.save(admin);
         AdminResponse adminResponse = new AdminResponse();
         modelMapper.map(updatedAdmin,adminResponse);
 
-        if (updatedAdmin.getShift() != null) {
-            adminResponse.setShift(updatedAdmin.getShift().getName());
-        }
+//        if (updatedAdmin.getShift() != null) {
+//            adminResponse.setShift(updatedAdmin.getShift().getName());
+//        }
 
         return adminResponse;
     }
