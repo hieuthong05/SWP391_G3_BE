@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ public class BookingController {
     @Autowired
     BookingService bookingService;
 
+    @SecurityRequirement(name = "api")
     @GetMapping("/available-slots")
     public ResponseEntity<AvailableTimeSlotsDTO> getAvailableSlots(
             @RequestParam Long serviceCenterId,
@@ -51,6 +53,7 @@ public class BookingController {
 //        return ResponseEntity.ok(bookings);
 //    }
 
+    @SecurityRequirement(name = "api")
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<Map<String, String>> cancelBooking(
             @PathVariable Long orderId,
@@ -79,7 +82,66 @@ public class BookingController {
         return ResponseEntity.ok(response);
     }
 
-     //* Lấy tất cả bookings của customer theo customerId
+
+//     * Lấy tất cả bookings theo status
+//     * GET /api/bookings/status/{status}
+//     * Example: GET /api/bookings/status/Pending
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<BookingResponse>> getBookingsByStatus(
+            @PathVariable String status)
+    {
+        List<BookingResponse> bookings = bookingService.getBookingsByStatus(status);
+        return ResponseEntity.ok(bookings);
+    }
+
+
+     //* Alternative: Lấy bookings theo status qua query parameter
+     //* GET /api/bookings/by-status?status=Pending
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/by-status")
+    public ResponseEntity<List<BookingResponse>> getBookingsByStatusQuery(
+            @RequestParam String status)
+    {
+        List<BookingResponse> bookings = bookingService.getBookingsByStatus(status);
+        return ResponseEntity.ok(bookings);
+    }
+
+
+     //* Lấy danh sách tất cả status có sẵn
+     //* GET /api/bookings/available-statuses
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/available-statuses")
+    public ResponseEntity<Map<String, Object>> getAvailableStatuses()
+    {
+
+        List<String> statuses = Arrays.asList(
+                "Pending",
+                "Confirmed",
+                "In Progress",
+                "Completed",
+                "Cancelled"
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("availableStatuses", statuses);
+        response.put("description", Map.of(
+                "Pending", "Booking is waiting for confirmation",
+                "Confirmed", "Booking has been confirmed",
+                "In Progress", "Service is currently being performed",
+                "Completed", "Service has been completed",
+                "Cancelled", "Booking has been cancelled"
+        ));
+
+        return ResponseEntity.ok(response);
+    }
+
+    //-----------------------------------------------------API BY CUSTOMER ID----------------------------------------------------------------
+
+    //* Lấy tất cả bookings của customer theo customerId
      //* GET /api/bookings/customer/{customerId}
 
     @SecurityRequirement(name = "api")
@@ -96,7 +158,7 @@ public class BookingController {
         return ResponseEntity.ok(response);
     }
 
-    //---------------------------------------------------------------------------------------------------------------------
+
 //    /**
 //     * Lấy bookings của customer theo status
 //     * GET /api/bookings/customer/{customerId}?status=Pending

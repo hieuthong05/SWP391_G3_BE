@@ -65,6 +65,40 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             "ORDER BY o.orderDate DESC")
     List<Orders> findAllWithDetailsOrderByDate();
 
+//---------------------------------------------BY STATUS----------------------------------------------------
+
+     //* Lấy tất cả bookings theo status với eager loading
+     //* Sắp xếp theo orderDate mới nhất (DESC)
+
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter " +
+            "WHERE o.status = :status " +
+            "ORDER BY o.orderDate DESC")
+    List<Orders> findByStatusWithDetails(@Param("status") String status);
+
+
+     //* Đếm số bookings theo status
+
+    @Query("SELECT COUNT(o) FROM Orders o WHERE o.status = :status")
+    long countByStatus(@Param("status") String status);
+
+
+     //* Lấy bookings theo nhiều status (Optional - useful cho các trường hợp cần filter nhiều status)
+
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter " +
+            "WHERE o.status IN :statuses " +
+            "ORDER BY o.orderDate DESC")
+    List<Orders> findByStatusInWithDetails(@Param("statuses") List<String> statuses);
+
+
+//   ---------------------------------------------BY CUSTOMER ID--------------------------------------------------------------------------------------
     @Query("SELECT DISTINCT o FROM Orders o " +
             "LEFT JOIN FETCH o.services " +
             "LEFT JOIN FETCH o.vehicle " +
@@ -73,7 +107,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             "ORDER BY o.orderDate DESC")
     List<Orders> findByCustomerIdWithDetails(@Param("customerId") Long customerId);
 
-    //----------------------------------------------------------------------------
+
 //    /**
 //     * Lấy bookings theo customer và status
 //     */
