@@ -48,4 +48,20 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     @Query("SELECT o FROM Orders o JOIN o.services s WHERE s.serviceID IN :serviceIds GROUP BY o HAVING COUNT(s) = :count")
     List<Orders> findOrdersWithAllServices(@Param("serviceIds") List<Long> serviceIds,
                                            @Param("count") Long count);
+
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter")
+    List<Orders> findAllWithDetails();
+
+    // Hoặc với ordering
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter " +
+            "ORDER BY o.orderDate DESC")
+    List<Orders> findAllWithDetailsOrderByDate();
 }

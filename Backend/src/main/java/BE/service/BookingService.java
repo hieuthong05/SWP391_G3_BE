@@ -240,7 +240,7 @@ public class BookingService {
         BookingResponse response = modelMapper.map(savedOrder, BookingResponse.class);
         response.setServiceCenterName(serviceCenter.getName());
         response.setServiceType(serviceTypes.toString());
-        response.setEstimatedCost(totalCost);
+        response.setTotalCost(totalCost);
         response.setPaymentMethod(savedOrder.getPaymentMethod());
         response.setMessage("Booking created successfully with " +
                             services.size() +
@@ -313,5 +313,61 @@ public class BookingService {
 
         order.setStatus("Cancelled");
         ordersRepository.save(order);
+    }
+
+    @Transactional
+    public List<BookingResponse> getAllBookings()
+    {
+        List<Orders> orders = ordersRepository.findAll();
+
+        return orders.stream().map(order -> {
+            BookingResponse response = new BookingResponse();
+
+            response.setOrderId(order.getOrderID());
+            response.setStatus(order.getStatus());
+            response.setAppointmentDate(order.getAppointmentDate());
+            response.setAppointmentTime(order.getAppointmentTime());
+            response.setOrderDate(order.getOrderDate());
+            response.setTotalCost(order.getTotalCost());
+            response.setPaymentMethod(order.getPaymentMethod());
+            response.setPaymentStatus(order.getPaymentStatus());
+            response.setNotes(order.getNotes());
+
+            //Service Center
+            if (order.getServiceCenter() != null)
+            {
+                response.setServiceCenterId(order.getServiceCenter().getServiceCenterID());
+                response.setServiceCenterName(order.getServiceCenter().getName());
+            }
+
+            //Customer
+            if (order.getCustomer() != null)
+            {
+                response.setCustomerId(order.getCustomer().getCustomerID());
+                response.setCustomerName(order.getCustomer().getName());
+                response.setCustomerPhone(order.getCustomer().getPhone());
+                response.setCustomerEmail(order.getCustomer().getEmail());
+            }
+
+            //Vehicle
+            if (order.getVehicle() != null)
+            {
+                response.setVehicleId(order.getVehicle().getVehicleID());
+                response.setVehiclePlateNumber(order.getVehicle().getLicensePlate());
+                response.setVehicleModel(order.getVehicle().getModel().getModelName());
+            }
+
+            //Services
+            if (order.getServices() != null && !order.getServices().isEmpty())
+            {
+                List<String> serviceNames = order.getServices().stream()
+                        .map(BE.entity.Service::getServiceName)
+                        .collect(Collectors.toList());
+
+                response.setServiceNames(serviceNames);
+                response.setServiceType(String.join(", ", serviceNames));
+            }
+            return response;
+        }).collect(Collectors.toList());
     }
 }
