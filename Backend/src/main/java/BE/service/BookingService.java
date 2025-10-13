@@ -5,6 +5,7 @@ import BE.model.DTO.AvailableTimeSlotsDTO;
 import BE.model.DTO.TimeSlotDTO;
 import BE.model.request.BookingRequest;
 import BE.model.response.BookingResponse;
+import BE.model.response.CustomerBookingResponse;
 import BE.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -369,5 +370,63 @@ public class BookingService {
             }
             return response;
         }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<CustomerBookingResponse> getBookingsByCustomerId(Long customerId)
+    {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+
+        List<Orders> orders = ordersRepository.findByCustomerIdWithDetails(customerId);
+
+        if (orders.isEmpty())
+        {
+            return new ArrayList<>();
+        }
+
+        return orders.stream()
+                .map(this::mapToCustomerBookingResponse)
+                .collect(Collectors.toList());
+    }
+
+    private CustomerBookingResponse mapToCustomerBookingResponse(Orders order)
+    {
+        CustomerBookingResponse response = new CustomerBookingResponse();
+
+        response.setOrderId(order.getOrderID());
+        response.setStatus(order.getStatus());
+        response.setAppointmentDate(order.getAppointmentDate());
+        response.setAppointmentTime(order.getAppointmentTime());
+        response.setOrderDate(order.getOrderDate());
+        response.setTotalCost(order.getTotalCost());
+        response.setPaymentMethod(order.getPaymentMethod());
+        response.setPaymentStatus(order.getPaymentStatus());
+        response.setNotes(order.getNotes());
+
+        //Service Center
+        if (order.getServiceCenter() != null)
+        {
+            response.setServiceCenterName(order.getServiceCenter().getName());
+        }
+
+        //Services
+        if (order.getServices() != null && !order.getServices().isEmpty())
+        {
+            List<String> serviceNames = order.getServices().stream()
+                    .map(BE.entity.Service::getServiceName)
+                    .collect(Collectors.toList());
+
+            response.setServiceNames(serviceNames);
+            response.setServiceType(String.join(", ", serviceNames));
+        }
+
+        //Vehicle
+        if (order.getVehicle() != null)
+        {
+            response.setVehiclePlateNumber(order.getVehicle().getLicensePlate());
+            response.setVehicleModel(order.getVehicle().getModel().getModelName());
+        }
+        return response;
     }
 }

@@ -3,6 +3,7 @@ package BE.controller;
 import BE.model.DTO.AvailableTimeSlotsDTO;
 import BE.model.request.BookingRequest;
 import BE.model.response.BookingResponse;
+import BE.model.response.CustomerBookingResponse;
 import BE.service.BookingService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -75,6 +76,23 @@ public class BookingController {
         response.put("bookings", bookings);
         response.put("totalBookings", bookings.size());
 
+        return ResponseEntity.ok(response);
+    }
+
+     //* Lấy tất cả bookings của customer theo customerId
+     //* GET /api/bookings/customer/{customerId}
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<Map<String, Object>> getBookingsByCustomerId(
+            @PathVariable Long customerId)
+    {
+        List<CustomerBookingResponse> bookings = bookingService.getBookingsByCustomerId(customerId);
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("bookings", bookings);
+        response.put("totalBookings", bookings.size());
         return ResponseEntity.ok(response);
     }
 }
