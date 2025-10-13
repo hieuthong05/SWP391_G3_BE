@@ -93,4 +93,38 @@ public class EmployeeService {
         }
         return employeeRepository.save(employee);
     }
+
+    //Soft Delete Employee
+    @Transactional
+    public void deleteEmployee(Long id)
+    {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + id));
+
+        if (!employee.isStatus())
+        {
+            throw new IllegalStateException("Employee is already deactivated");
+        }
+
+        employee.setStatus(false);
+        employeeRepository.save(employee);
+    }
+
+    //Restore Employee
+    @Transactional
+    public void restoreEmployee(Long id)
+    {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Employee not found with id: " + id));
+
+
+        if (employee.isStatus())
+        {
+            throw new IllegalStateException("Employee is already active");
+        }
+
+        // Set status = true (restore)
+        employee.setStatus(true);
+        employeeRepository.save(employee);
+    }
 }
