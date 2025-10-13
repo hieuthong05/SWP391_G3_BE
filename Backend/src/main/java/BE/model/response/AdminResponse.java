@@ -19,5 +19,5 @@ public class AdminResponse {
     private String role;
     private BigDecimal salary;
     private Boolean status;
-    private String shift;
+//    private String shift;
 }

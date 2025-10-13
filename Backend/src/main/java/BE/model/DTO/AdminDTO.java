@@ -20,6 +20,6 @@ public class AdminDTO {
     private String role;
     private BigDecimal salary;
     private Boolean status;
-    private Long serviceCenter;
-    private Long shift;
+//    private Long serviceCenter;
+//    private Long shift;
 }

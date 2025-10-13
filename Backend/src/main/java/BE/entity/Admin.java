@@ -30,18 +30,18 @@ public class Admin {
 
     private String role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_center_ID")
-    private ServiceCenter serviceCenter;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "service_center_ID",nullable = true)
+//    private ServiceCenter serviceCenter;
 
     private String gender;
     private Double salary;
     private String address;
     private LocalDate birth;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shift")
-    private Shift shift;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "shift",nullable = true)
+//    private Shift shift;
 
     private boolean status;
 
