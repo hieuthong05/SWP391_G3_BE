@@ -48,4 +48,118 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     @Query("SELECT o FROM Orders o JOIN o.services s WHERE s.serviceID IN :serviceIds GROUP BY o HAVING COUNT(s) = :count")
     List<Orders> findOrdersWithAllServices(@Param("serviceIds") List<Long> serviceIds,
                                            @Param("count") Long count);
+
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter")
+    List<Orders> findAllWithDetails();
+
+    // Hoặc với ordering
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter " +
+            "ORDER BY o.orderDate DESC")
+    List<Orders> findAllWithDetailsOrderByDate();
+
+//---------------------------------------------BY STATUS----------------------------------------------------
+
+     //* Lấy tất cả bookings theo status với eager loading
+     //* Sắp xếp theo orderDate mới nhất (DESC)
+
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter " +
+            "WHERE o.status = :status " +
+            "ORDER BY o.orderDate DESC")
+    List<Orders> findByStatusWithDetails(@Param("status") String status);
+
+
+     //* Đếm số bookings theo status
+
+    @Query("SELECT COUNT(o) FROM Orders o WHERE o.status = :status")
+    long countByStatus(@Param("status") String status);
+
+
+     //* Lấy bookings theo nhiều status (Optional - useful cho các trường hợp cần filter nhiều status)
+
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.customer " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter " +
+            "WHERE o.status IN :statuses " +
+            "ORDER BY o.orderDate DESC")
+    List<Orders> findByStatusInWithDetails(@Param("statuses") List<String> statuses);
+
+
+//   ---------------------------------------------BY CUSTOMER ID--------------------------------------------------------------------------------------
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.services " +
+            "LEFT JOIN FETCH o.vehicle " +
+            "LEFT JOIN FETCH o.serviceCenter " +
+            "WHERE o.customer.customerID = :customerId " +
+            "ORDER BY o.orderDate DESC")
+    List<Orders> findByCustomerIdWithDetails(@Param("customerId") Long customerId);
+
+
+//    /**
+//     * Lấy bookings theo customer và status
+//     */
+//    @Query("SELECT DISTINCT o FROM Orders o " +
+//            "LEFT JOIN FETCH o.services " +
+//            "LEFT JOIN FETCH o.vehicle " +
+//            "LEFT JOIN FETCH o.serviceCenter " +
+//            "WHERE o.customer.customerID = :customerId " +
+//            "AND o.status = :status " +
+//            "ORDER BY o.appointmentDate DESC")
+//    List<Orders> findByCustomerIdAndStatus(@Param("customerId") Long customerId,
+//                                           @Param("status") String status);
+//
+//    /**
+//     * Lấy upcoming bookings (ngày hẹn >= ngày hiện tại và status không phải Completed/Cancelled)
+//     */
+//    @Query("SELECT DISTINCT o FROM Orders o " +
+//            "LEFT JOIN FETCH o.services " +
+//            "LEFT JOIN FETCH o.vehicle " +
+//            "LEFT JOIN FETCH o.serviceCenter " +
+//            "WHERE o.customer.customerID = :customerId " +
+//            "AND o.appointmentDate >= :currentDate " +
+//            "AND o.status NOT IN ('Completed', 'Cancelled') " +
+//            "ORDER BY o.appointmentDate ASC, o.appointmentTime ASC")
+//    List<Orders> findUpcomingBookingsByCustomerId(@Param("customerId") Long customerId,
+//                                                  @Param("currentDate") LocalDate currentDate);
+//
+//    /**
+//     * Lấy booking history (Completed hoặc Cancelled)
+//     */
+//    @Query("SELECT DISTINCT o FROM Orders o " +
+//            "LEFT JOIN FETCH o.services " +
+//            "LEFT JOIN FETCH o.vehicle " +
+//            "LEFT JOIN FETCH o.serviceCenter " +
+//            "WHERE o.customer.customerID = :customerId " +
+//            "AND o.status IN :statuses " +
+//            "ORDER BY o.appointmentDate DESC")
+//    List<Orders> findByCustomerIdAndStatusIn(@Param("customerId") Long customerId,
+//                                             @Param("statuses") List<String> statuses);
+//
+//    /**
+//     * Đếm số bookings của customer
+//     */
+//    @Query("SELECT COUNT(o) FROM Orders o WHERE o.customer.customerID = :customerId")
+//    long countByCustomerId(@Param("customerId") Long customerId);
+//
+//    /**
+//     * Đếm số bookings theo status của customer
+//     */
+//    @Query("SELECT COUNT(o) FROM Orders o " +
+//            "WHERE o.customer.customerID = :customerId " +
+//            "AND o.status = :status")
+//    long countByCustomerIdAndStatus(@Param("customerId") Long customerId,
+//                                    @Param("status") String status);
 }

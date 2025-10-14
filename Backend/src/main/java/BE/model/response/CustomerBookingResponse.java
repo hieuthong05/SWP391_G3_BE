@@ -8,14 +8,13 @@ import java.time.LocalTime;
 import java.util.List;
 
 @Data
-public class BookingResponse {
+public class CustomerBookingResponse {
     private Long orderId;
     private String status;
     private LocalDate appointmentDate;
     private LocalTime appointmentTime;
     private LocalDateTime orderDate;
     private String serviceCenterName;
-    private Long serviceCenterId;
     private String serviceType;
     private List<String> serviceNames;
     private Double totalCost;
@@ -23,18 +22,10 @@ public class BookingResponse {
     private Boolean paymentStatus;
     private String notes;
 
-    // Thông tin customer
-    private Long customerId;
-    private String customerName;
-    private String customerPhone;
-    private String customerEmail;
-
     // Thông tin vehicle
     private Long vehicleId;
     private String vehiclePlateNumber;
     private String vehicleModel;
 
     private String message;
-
-
 }

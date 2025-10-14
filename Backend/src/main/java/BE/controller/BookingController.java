@@ -3,6 +3,7 @@ package BE.controller;
 import BE.model.DTO.AvailableTimeSlotsDTO;
 import BE.model.request.BookingRequest;
 import BE.model.response.BookingResponse;
+import BE.model.response.CustomerBookingResponse;
 import BE.service.BookingService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
@@ -13,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,6 +27,7 @@ public class BookingController {
     @Autowired
     BookingService bookingService;
 
+    @SecurityRequirement(name = "api")
     @GetMapping("/available-slots")
     public ResponseEntity<AvailableTimeSlotsDTO> getAvailableSlots(
             @RequestParam Long serviceCenterId,
@@ -49,6 +53,7 @@ public class BookingController {
 //        return ResponseEntity.ok(bookings);
 //    }
 
+    @SecurityRequirement(name = "api")
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<Map<String, String>> cancelBooking(
             @PathVariable Long orderId,
@@ -57,4 +62,169 @@ public class BookingController {
         bookingService.cancelBooking(orderId, customerId);
         return ResponseEntity.ok(Map.of("message", "Booking cancelled successfully"));
     }
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/all")
+    public ResponseEntity<Map<String, Object>> getAllBookingsPaginated(
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "10") int size,
+//            @RequestParam(defaultValue = "orderDate") String sortBy,
+//            @RequestParam(defaultValue = "DESC") String sortDir
+    )
+    {
+
+        List<BookingResponse> bookings = bookingService.getAllBookings();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("bookings", bookings);
+        response.put("totalBookings", bookings.size());
+
+        return ResponseEntity.ok(response);
+    }
+
+
+//     * Lấy tất cả bookings theo status
+//     * GET /api/bookings/status/{status}
+//     * Example: GET /api/bookings/status/Pending
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/status/{status}")
+    public ResponseEntity<List<BookingResponse>> getBookingsByStatus(
+            @PathVariable String status)
+    {
+        List<BookingResponse> bookings = bookingService.getBookingsByStatus(status);
+        return ResponseEntity.ok(bookings);
+    }
+
+
+     //* Alternative: Lấy bookings theo status qua query parameter
+     //* GET /api/bookings/by-status?status=Pending
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/by-status")
+    public ResponseEntity<List<BookingResponse>> getBookingsByStatusQuery(
+            @RequestParam String status)
+    {
+        List<BookingResponse> bookings = bookingService.getBookingsByStatus(status);
+        return ResponseEntity.ok(bookings);
+    }
+
+
+     //* Lấy danh sách tất cả status có sẵn
+     //* GET /api/bookings/available-statuses
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/available-statuses")
+    public ResponseEntity<Map<String, Object>> getAvailableStatuses()
+    {
+
+        List<String> statuses = Arrays.asList(
+                "Pending",
+                "Confirmed",
+                "In Progress",
+                "Completed",
+                "Cancelled"
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("availableStatuses", statuses);
+        response.put("description", Map.of(
+                "Pending", "Booking is waiting for confirmation",
+                "Confirmed", "Booking has been confirmed",
+                "In Progress", "Service is currently being performed",
+                "Completed", "Service has been completed",
+                "Cancelled", "Booking has been cancelled"
+        ));
+
+        return ResponseEntity.ok(response);
+    }
+
+    //-----------------------------------------------------API BY CUSTOMER ID----------------------------------------------------------------
+
+    //* Lấy tất cả bookings của customer theo customerId
+     //* GET /api/bookings/customer/{customerId}
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/customer/{customerId}")
+    public ResponseEntity<Map<String, Object>> getBookingsByCustomerId(
+            @PathVariable Long customerId)
+    {
+        List<CustomerBookingResponse> bookings = bookingService.getBookingsByCustomerId(customerId);
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("bookings", bookings);
+        response.put("totalBookings", bookings.size());
+        return ResponseEntity.ok(response);
+    }
+
+
+//    /**
+//     * Lấy bookings của customer theo status
+//     * GET /api/bookings/customer/{customerId}?status=Pending
+//     */
+//    @SecurityRequirement(name = "api")
+//    @GetMapping("/customer/{customerId}/by-status")
+//    public ResponseEntity<List<CustomerBookingResponse>> getBookingsByCustomerIdAndStatus(
+//            @PathVariable Long customerId,
+//            @RequestParam(required = false) String status) {
+//
+//        List<CustomerBookingResponse> bookings =
+//                bookingService.getBookingsByCustomerIdAndStatus(customerId, status);
+//        return ResponseEntity.ok(bookings);
+//    }
+//
+//    /**
+//     * Lấy upcoming bookings của customer (chưa hoàn thành)
+//     * GET /api/bookings/customer/{customerId}/upcoming
+//     */
+//    @SecurityRequirement(name = "api")
+//    @GetMapping("/customer/{customerId}/upcoming")
+//    public ResponseEntity<List<CustomerBookingResponse>> getUpcomingBookings(
+//            @PathVariable Long customerId) {
+//
+//        List<CustomerBookingResponse> bookings =
+//                bookingService.getUpcomingBookingsByCustomerId(customerId);
+//        return ResponseEntity.ok(bookings);
+//    }
+//
+//    /**
+//     * Lấy booking history của customer (đã hoàn thành hoặc đã hủy)
+//     * GET /api/bookings/customer/{customerId}/history
+//     */
+//    @SecurityRequirement(name = "api")
+//    @GetMapping("/customer/{customerId}/history")
+//    public ResponseEntity<List<CustomerBookingResponse>> getBookingHistory(
+//            @PathVariable Long customerId) {
+//
+//        List<CustomerBookingResponse> bookings =
+//                bookingService.getBookingHistoryByCustomerId(customerId);
+//        return ResponseEntity.ok(bookings);
+//    }
+//
+//    /**
+//     * Lấy thống kê bookings của customer
+//     * GET /api/bookings/customer/{customerId}/stats
+//     */
+//    @SecurityRequirement(name = "api")
+//    @GetMapping("/customer/{customerId}/stats")
+//    public ResponseEntity<Map<String, Object>> getCustomerBookingStats(
+//            @PathVariable Long customerId) {
+//
+//        long totalBookings = ordersRepository.countByCustomerId(customerId);
+//        long pendingBookings = ordersRepository.countByCustomerIdAndStatus(customerId, "Pending");
+//        long confirmedBookings = ordersRepository.countByCustomerIdAndStatus(customerId, "Confirmed");
+//        long completedBookings = ordersRepository.countByCustomerIdAndStatus(customerId, "Completed");
+//        long cancelledBookings = ordersRepository.countByCustomerIdAndStatus(customerId, "Cancelled");
+//
+//        Map<String, Object> stats = new HashMap<>();
+//        stats.put("customerId", customerId);
+//        stats.put("totalBookings", totalBookings);
+//        stats.put("pendingBookings", pendingBookings);
+//        stats.put("confirmedBookings", confirmedBookings);
+//        stats.put("completedBookings", completedBookings);
+//        stats.put("cancelledBookings", cancelledBookings);
+//
+//        return ResponseEntity.ok(stats);
+//    }
 }

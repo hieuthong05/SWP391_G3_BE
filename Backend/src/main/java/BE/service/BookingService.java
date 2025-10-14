@@ -5,6 +5,7 @@ import BE.model.DTO.AvailableTimeSlotsDTO;
 import BE.model.DTO.TimeSlotDTO;
 import BE.model.request.BookingRequest;
 import BE.model.response.BookingResponse;
+import BE.model.response.CustomerBookingResponse;
 import BE.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -240,7 +241,7 @@ public class BookingService {
         BookingResponse response = modelMapper.map(savedOrder, BookingResponse.class);
         response.setServiceCenterName(serviceCenter.getName());
         response.setServiceType(serviceTypes.toString());
-        response.setEstimatedCost(totalCost);
+        response.setTotalCost(totalCost);
         response.setPaymentMethod(savedOrder.getPaymentMethod());
         response.setMessage("Booking created successfully with " +
                             services.size() +
@@ -314,4 +315,254 @@ public class BookingService {
         order.setStatus("Cancelled");
         ordersRepository.save(order);
     }
+
+    @Transactional
+    public List<BookingResponse> getAllBookings()
+    {
+        List<Orders> orders = ordersRepository.findAll();
+
+        return orders.stream().map(order -> {
+            BookingResponse response = new BookingResponse();
+
+            response.setOrderId(order.getOrderID());
+            response.setStatus(order.getStatus());
+            response.setAppointmentDate(order.getAppointmentDate());
+            response.setAppointmentTime(order.getAppointmentTime());
+            response.setOrderDate(order.getOrderDate());
+            response.setTotalCost(order.getTotalCost());
+            response.setPaymentMethod(order.getPaymentMethod());
+            response.setPaymentStatus(order.getPaymentStatus());
+            response.setNotes(order.getNotes());
+
+            //Service Center
+            if (order.getServiceCenter() != null)
+            {
+                response.setServiceCenterId(order.getServiceCenter().getServiceCenterID());
+                response.setServiceCenterName(order.getServiceCenter().getName());
+            }
+
+            //Customer
+            if (order.getCustomer() != null)
+            {
+                response.setCustomerId(order.getCustomer().getCustomerID());
+                response.setCustomerName(order.getCustomer().getName());
+                response.setCustomerPhone(order.getCustomer().getPhone());
+                response.setCustomerEmail(order.getCustomer().getEmail());
+            }
+
+            //Vehicle
+            if (order.getVehicle() != null)
+            {
+                response.setVehicleId(order.getVehicle().getVehicleID());
+                response.setVehiclePlateNumber(order.getVehicle().getLicensePlate());
+                response.setVehicleModel(order.getVehicle().getModel().getModelName());
+            }
+
+            //Services
+            if (order.getServices() != null && !order.getServices().isEmpty())
+            {
+                List<String> serviceNames = order.getServices().stream()
+                        .map(BE.entity.Service::getServiceName)
+                        .collect(Collectors.toList());
+
+                response.setServiceNames(serviceNames);
+                response.setServiceType(String.join(", ", serviceNames));
+            }
+            return response;
+        }).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public List<BookingResponse> getBookingsByStatus(String status)
+    {
+        if (status == null || status.trim().isEmpty())
+        {
+            throw new IllegalArgumentException("Status cannot be null or empty");
+        }
+
+        List<String> validStatuses = Arrays.asList("Pending", "Confirmed", "In Progress", "Completed", "Cancelled");
+        if (!validStatuses.contains(status))
+        {
+            throw new IllegalArgumentException("Invalid status. Valid values are: " + String.join(", ", validStatuses));
+        }
+
+        List<Orders> orders = ordersRepository.findByStatusWithDetails(status);
+
+        if (orders.isEmpty())
+        {
+            return new ArrayList<>();
+        }
+
+        return orders.stream()
+                .map(this::mapToBookingResponse)
+                .collect(Collectors.toList());
+    }
+
+    //Booking Response cho Staff/Technician
+    private BookingResponse mapToBookingResponse(Orders order)
+    {
+        BookingResponse response = new BookingResponse();
+
+        // Thông tin cơ bản từ Orders
+        response.setOrderId(order.getOrderID());
+        response.setStatus(order.getStatus());
+        response.setAppointmentDate(order.getAppointmentDate());
+        response.setAppointmentTime(order.getAppointmentTime());
+        response.setOrderDate(order.getOrderDate());
+        response.setTotalCost(order.getTotalCost());
+        response.setPaymentMethod(order.getPaymentMethod());
+        response.setPaymentStatus(order.getPaymentStatus());
+        response.setNotes(order.getNotes());
+
+        // Service Center info
+        if (order.getServiceCenter() != null)
+        {
+            response.setServiceCenterId(order.getServiceCenter().getServiceCenterID());
+            response.setServiceCenterName(order.getServiceCenter().getName());
+        }
+
+        // Services info
+        if (order.getServices() != null && !order.getServices().isEmpty())
+        {
+            List<String> serviceNames = order.getServices().stream()
+                    .map(BE.entity.Service::getServiceName)
+                    .collect(Collectors.toList());
+
+            response.setServiceNames(serviceNames);
+            response.setServiceType(String.join(", ", serviceNames));
+        }
+
+        // Customer info
+        if (order.getCustomer() != null)
+        {
+            response.setCustomerId(order.getCustomer().getCustomerID());
+            response.setCustomerName(order.getCustomer().getName());
+            response.setCustomerPhone(order.getCustomer().getPhone());
+            response.setCustomerEmail(order.getCustomer().getEmail());
+        }
+
+        // Vehicle info
+        if (order.getVehicle() != null)
+        {
+            response.setVehicleId(order.getVehicle().getVehicleID());
+            response.setVehiclePlateNumber(order.getVehicle().getLicensePlate());
+            response.setVehicleModel(order.getVehicle().getModel().getModelName());
+        }
+
+        return response;
+    }
+
+    //--------------------------------------------------------BY CUSTOMER ID-------------------------------------------------------------------------
+
+    @Transactional
+    public List<CustomerBookingResponse> getBookingsByCustomerId(Long customerId)
+    {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+
+        List<Orders> orders = ordersRepository.findByCustomerIdWithDetails(customerId);
+
+        if (orders.isEmpty())
+        {
+            return new ArrayList<>();
+        }
+
+        return orders.stream()
+                .map(this::mapToCustomerBookingResponse)
+                .collect(Collectors.toList());
+    }
+
+
+    //Booking Response cho Customer
+    private CustomerBookingResponse mapToCustomerBookingResponse(Orders order)
+    {
+        CustomerBookingResponse response = new CustomerBookingResponse();
+
+        response.setOrderId(order.getOrderID());
+        response.setStatus(order.getStatus());
+        response.setAppointmentDate(order.getAppointmentDate());
+        response.setAppointmentTime(order.getAppointmentTime());
+        response.setOrderDate(order.getOrderDate());
+        response.setTotalCost(order.getTotalCost());
+        response.setPaymentMethod(order.getPaymentMethod());
+        response.setPaymentStatus(order.getPaymentStatus());
+        response.setNotes(order.getNotes());
+
+        //Service Center
+        if (order.getServiceCenter() != null)
+        {
+            response.setServiceCenterName(order.getServiceCenter().getName());
+        }
+
+        //Services
+        if (order.getServices() != null && !order.getServices().isEmpty())
+        {
+            List<String> serviceNames = order.getServices().stream()
+                    .map(BE.entity.Service::getServiceName)
+                    .collect(Collectors.toList());
+
+            response.setServiceNames(serviceNames);
+            response.setServiceType(String.join(", ", serviceNames));
+        }
+
+        //Vehicle
+        if (order.getVehicle() != null)
+        {
+            response.setVehiclePlateNumber(order.getVehicle().getLicensePlate());
+            response.setVehicleModel(order.getVehicle().getModel().getModelName());
+        }
+        return response;
+    }
+
+//    /**
+//     * Alternative: Lấy bookings với filter theo status
+//     */
+//    public List<CustomerBookingResponse> getBookingsByCustomerIdAndStatus(
+//            Long customerId, String status) {
+//
+//        customerRepository.findById(customerId)
+//                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+//
+//        List<Orders> orders;
+//        if (status == null || status.isEmpty()) {
+//            orders = ordersRepository.findByCustomerIdWithDetails(customerId);
+//        } else {
+//            orders = ordersRepository.findByCustomerIdAndStatus(customerId, status);
+//        }
+//
+//        return orders.stream()
+//                .map(this::mapToCustomerBookingResponse)
+//                .collect(Collectors.toList());
+//    }
+//
+//    /**
+//     * Lấy upcoming bookings của customer (chưa hoàn thành)
+//     */
+//    public List<CustomerBookingResponse> getUpcomingBookingsByCustomerId(Long customerId) {
+//        customerRepository.findById(customerId)
+//                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+//
+//        List<Orders> orders = ordersRepository.findUpcomingBookingsByCustomerId(
+//                customerId, LocalDate.now());
+//
+//        return orders.stream()
+//                .map(this::mapToCustomerBookingResponse)
+//                .collect(Collectors.toList());
+//    }
+//
+//    /**
+//     * Lấy booking history của customer (đã hoàn thành hoặc đã hủy)
+//     */
+//    public List<CustomerBookingResponse> getBookingHistoryByCustomerId(Long customerId) {
+//        customerRepository.findById(customerId)
+//                .orElseThrow(() -> new EntityNotFoundException("Customer not found with ID: " + customerId));
+//
+//        List<String> completedStatuses = Arrays.asList("Completed", "Cancelled");
+//        List<Orders> orders = ordersRepository.findByCustomerIdAndStatusIn(
+//                customerId, completedStatuses);
+//
+//        return orders.stream()
+//                .map(this::mapToCustomerBookingResponse)
+//                .collect(Collectors.toList());
+//    }
 }
