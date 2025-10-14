@@ -127,7 +127,7 @@ public class AuthenticationService implements UserDetailsService {
             case "staff", "technician" -> modelMapper.map((Employee) userDetail, UserResponse.class);
             default -> throw new RuntimeException("Role không hợp lệ");
         };
-        userResponse.setUserID(user.getUserID());
+
         userResponse.setRole(user.getRole());
         userResponse.setPhone(user.getUsername());
 
