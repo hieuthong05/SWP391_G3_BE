@@ -103,7 +103,16 @@ public class AuthenticationService implements UserDetailsService {
         ServiceCenter serviceCenter = serviceCenterRepository.findById(employeeDTO.getServiceCenter()).orElseThrow(() -> new RuntimeException("Service Center not found"));
         convertEmployee.setShift(shift);
         convertEmployee.setServiceCenter(serviceCenter);
-        employeeRepository.save(convertEmployee);
+        Employee savedEmployee = employeeRepository.save(convertEmployee);
+
+        User user = modelMapper.map(employeeDTO,User.class);
+        user.setPassword(savedEmployee.getPassword());
+        user.setRole(savedEmployee.getRole());
+        user.setRefId(savedEmployee.getEmployeeID());
+        user.setRefType(savedEmployee.getRole());
+        user.setStatus(true);
+        authenticationRepository.save(user);
+
         return employeeDTO;
     }
 
