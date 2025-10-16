@@ -39,6 +39,19 @@ public class EmployeeController {
         return ResponseEntity.ok(response);
     }
 
+    @SecurityRequirement(name = "api")
+    @GetMapping
+    public ResponseEntity<Map<String, Object>> getAllEmployees()
+    {
+        List<EmployeeResponse> employees = employeeService.getAllEmployees();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("Total Employees", employees.size());
+        response.put("List Of Employees", employees);
+
+        return ResponseEntity.ok(response);
+    }
+
      //* Lấy active employees theo role (useful cho assign technician)
      //* GET /api/employees/active-by-role/{role}
 
@@ -50,8 +63,8 @@ public class EmployeeController {
                 employeeService.getAllActiveTechnicians();
 
         Map<String, Object> response = new HashMap<>();
-        response.put("totalEmployees", employees.size());
-        response.put("list", employees);
+        response.put("Total Technicians", employees.size());
+        response.put("List Of Technicians", employees);
 
         return ResponseEntity.ok(response);
     }
