@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class CustomerResponse {
+    private String customerID;
     private String name;
     private String email;
     private String phone;
