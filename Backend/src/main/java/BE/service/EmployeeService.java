@@ -16,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
@@ -34,6 +37,16 @@ public class EmployeeService {
 
     @Autowired
     ModelMapper modelMapper;
+
+    @Transactional(readOnly = true)
+    public List<EmployeeResponse> getActiveEmployeesByRole(String role)
+    {
+        List<Employee> employees = employeeRepository.findByRoleAndStatus(role, true);
+
+        return employees.stream()
+                .map(this::mapToEmployeeResponse)
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     public EmployeeResponse getEmployeeById(Long id)
@@ -126,5 +139,35 @@ public class EmployeeService {
         // Set status = true (restore)
         employee.setStatus(true);
         employeeRepository.save(employee);
+    }
+
+    private EmployeeResponse mapToEmployeeResponse(Employee employee) {
+        EmployeeResponse response = new EmployeeResponse();
+
+        // Basic info
+        response.setEmployeeID(employee.getEmployeeID());
+        response.setName(employee.getName());
+        response.setPhone(employee.getPhone());
+        response.setEmail(employee.getEmail());
+        response.setGender(employee.getGender());
+        response.setRole(employee.getRole());
+
+        response.setSalary(employee.getSalary());
+        response.setAddress(employee.getAddress());
+        response.setBirth(employee.getBirth());
+
+        // Service Center Name
+        if (employee.getServiceCenter() != null)
+        {
+            response.setServiceCenterName(employee.getServiceCenter().getName());
+        }
+
+        // Shift info
+        if (employee.getShift() != null)
+        {
+            response.setShiftName(employee.getShift().getName());
+        }
+
+        return response;
     }
 }

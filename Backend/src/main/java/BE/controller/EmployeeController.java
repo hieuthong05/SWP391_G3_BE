@@ -5,6 +5,7 @@ import BE.model.DTO.EmployeeDTO;
 import BE.model.response.EmployeeResponse;
 import BE.service.AuthenticationService;
 import BE.service.EmployeeService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -34,6 +36,25 @@ public class EmployeeController {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Get employee successfully");
         response.put("data", employee);
+        return ResponseEntity.ok(response);
+    }
+
+     //* Lấy active employees theo role (useful cho assign technician)
+     //* GET /api/employees/active-by-role/{role}
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/active-by-role/{role}")
+    public ResponseEntity<Map<String, Object>> getActiveEmployeesByRole(
+            @PathVariable String role)
+    {
+        List<EmployeeResponse> employees =
+                employeeService.getActiveEmployeesByRole(role);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("role", role);
+        response.put("totalEmployees", employees.size());
+        response.put("list", employees);
+
         return ResponseEntity.ok(response);
     }
 
