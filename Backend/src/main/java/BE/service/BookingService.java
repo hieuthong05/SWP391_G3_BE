@@ -16,9 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -450,6 +448,37 @@ public class BookingService {
         }
 
         return response;
+    }
+
+    /**
+     * Optional: Lấy bookings theo nhiều status
+     */
+    public List<BookingResponse> getBookingsByMultipleStatus(List<String> statuses) {
+        if (statuses == null || statuses.isEmpty()) {
+            throw new IllegalArgumentException("Status list cannot be null or empty");
+        }
+
+        List<Orders> orders = ordersRepository.findByStatusInWithDetails(statuses);
+
+        return orders.stream()
+                .map(this::mapToBookingResponse)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Optional: Lấy thống kê theo tất cả status
+     */
+    public Map<String, Long> getBookingStatusStatistics() {
+        Map<String, Long> stats = new HashMap<>();
+
+        List<String> statuses = Arrays.asList("Pending", "Confirmed", "In Progress", "Completed", "Cancelled");
+
+        for (String status : statuses) {
+            long count = ordersRepository.countByStatus(status);
+            stats.put(status, count);
+        }
+
+        return stats;
     }
 
     //--------------------------------------------------------BY CUSTOMER ID-------------------------------------------------------------------------

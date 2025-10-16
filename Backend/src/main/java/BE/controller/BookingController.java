@@ -109,6 +109,41 @@ public class BookingController {
         return ResponseEntity.ok(bookings);
     }
 
+    /**
+     * Lấy bookings theo nhiều status
+     * GET /api/bookings/by-statuses?statuses=Pending,Confirmed
+     */
+    @SecurityRequirement(name = "api")
+    @GetMapping("/by-statuses")
+    public ResponseEntity<List<BookingResponse>> getBookingsByMultipleStatus(
+            @RequestParam List<String> statuses) {
+
+        List<BookingResponse> bookings = bookingService.getBookingsByMultipleStatus(statuses);
+        return ResponseEntity.ok(bookings);
+    }
+
+    /**
+     * Lấy thống kê số lượng bookings theo từng status
+     * GET /api/bookings/status-statistics
+     */
+    @SecurityRequirement(name = "api")
+    @GetMapping("/status-statistics")
+    public ResponseEntity<Map<String, Object>> getBookingStatusStatistics() {
+
+        Map<String, Long> statistics = bookingService.getBookingStatusStatistics();
+
+        // Tính tổng
+        long totalBookings = statistics.values().stream()
+                .mapToLong(Long::longValue)
+                .sum();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("statistics", statistics);
+        response.put("totalBookings", totalBookings);
+
+        return ResponseEntity.ok(response);
+    }
+
 
      //* Lấy danh sách tất cả status có sẵn
      //* GET /api/bookings/available-statuses
