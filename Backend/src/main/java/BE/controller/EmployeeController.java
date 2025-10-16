@@ -43,15 +43,13 @@ public class EmployeeController {
      //* GET /api/employees/active-by-role/{role}
 
     @SecurityRequirement(name = "api")
-    @GetMapping("/active-by-role/{role}")
-    public ResponseEntity<Map<String, Object>> getActiveEmployeesByRole(
-            @PathVariable String role)
+    @GetMapping("/all/technicians")
+    public ResponseEntity<Map<String, Object>> getAllActiveTechnicians()
     {
         List<EmployeeResponse> employees =
-                employeeService.getActiveEmployeesByRole(role);
+                employeeService.getAllActiveTechnicians();
 
         Map<String, Object> response = new HashMap<>();
-        response.put("role", role);
         response.put("totalEmployees", employees.size());
         response.put("list", employees);
 

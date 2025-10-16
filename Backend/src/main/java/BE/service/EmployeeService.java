@@ -39,9 +39,9 @@ public class EmployeeService {
     ModelMapper modelMapper;
 
     @Transactional(readOnly = true)
-    public List<EmployeeResponse> getActiveEmployeesByRole(String role)
+    public List<EmployeeResponse> getAllActiveTechnicians()
     {
-        List<Employee> employees = employeeRepository.findByRoleAndStatus(role, true);
+        List<Employee> employees = employeeRepository.findByRoleAndStatus("technician", true);
 
         return employees.stream()
                 .map(this::mapToEmployeeResponse)
