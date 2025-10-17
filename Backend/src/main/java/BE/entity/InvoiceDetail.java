@@ -18,9 +18,9 @@ public class InvoiceDetail {
     @JoinColumn(name = "invoice_ID", nullable = false)
     private Invoice invoice;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "service_ID", nullable = false)
-    private Service service;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "service_ID", nullable = false)
+//    private Service service;
 
     private int quantity;
 

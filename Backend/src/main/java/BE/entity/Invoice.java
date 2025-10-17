@@ -19,9 +19,13 @@ public class Invoice {
     @Column(name = "invoice_ID")
     private Long invoiceID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_ID", nullable = false)
-    private Orders orders;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "order_ID", nullable = false)
+//    private Orders orders;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "maintenance_ID", nullable = false, unique = true)
+    private Maintenance maintenance;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<InvoiceDetail> invoiceDetails = new ArrayList<>();
