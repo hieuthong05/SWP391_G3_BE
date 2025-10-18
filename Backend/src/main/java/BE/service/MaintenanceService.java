@@ -91,7 +91,7 @@ public class MaintenanceService {
 
         maintenance.setCost(savedOrder.getTotalCost());
         maintenance.setStartTime(LocalDateTime.now());
-        maintenance.setStatus("In Progress");
+        maintenance.setStatus(savedOrder.getStatus());
         maintenance.setNotes(savedOrder.getNotes());
 
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
