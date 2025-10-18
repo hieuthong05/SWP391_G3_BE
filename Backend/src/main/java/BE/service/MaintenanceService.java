@@ -4,7 +4,9 @@ import BE.entity.Employee;
 import BE.entity.Maintenance;
 import BE.entity.Orders;
 import BE.model.request.ConfirmBookingRequest;
+import BE.model.response.BookingResponse;
 import BE.model.response.ConfirmBookingResponse;
+import BE.model.response.MaintenanceResponse;
 import BE.repository.EmployeeRepository;
 import BE.repository.MaintenanceRepository;
 import BE.repository.OrdersRepository;
@@ -148,9 +150,35 @@ public class MaintenanceService {
 
      //* Lấy tất cả maintenance records
 
-    public List<Maintenance> getAllMaintenances()
+    public List<MaintenanceResponse> getAllMaintenances()
     {
-        return maintenanceRepository.findAll();
+        List<Maintenance> maintenances = maintenanceRepository.findAll();
+
+        if (maintenances.isEmpty())
+        {
+            return new ArrayList<>();
+        }
+
+        return maintenances.stream()
+            .map(this::mapToMaintenanceResponse)
+            .collect(Collectors.toList());
+    }
+
+    public List<MaintenanceResponse> getMaintenancesByTechnicianId(Long technicianId)
+    {
+        Employee employee = employeeRepository.findById(technicianId)
+                .orElseThrow(() -> new EntityNotFoundException("Technician not found with ID: " + technicianId));
+
+        List<Maintenance> maintenances = maintenanceRepository.findByEmployeeId(technicianId);
+
+        if (maintenances.isEmpty())
+        {
+            return new ArrayList<>();
+        }
+
+        return maintenances.stream()
+                .map(this::mapToMaintenanceResponse)
+                .collect(Collectors.toList());
     }
 
 
@@ -161,6 +189,41 @@ public class MaintenanceService {
         return maintenanceRepository.findByOrderId(orderId)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Maintenance not found for order ID: " + orderId));
+    }
+
+    private MaintenanceResponse mapToMaintenanceResponse(Maintenance maintenance)
+    {
+        MaintenanceResponse response = new MaintenanceResponse();
+
+        response.setMaintenanceID(maintenance.getMaintenanceID());
+        if (maintenance.getOrders() != null)
+        {
+            response.setOrderID(maintenance.getOrders().getOrderID());
+        }
+
+        if (maintenance.getEmployee() != null)
+        {
+            response.setEmpID(maintenance.getEmployee().getEmployeeID());
+            response.setEmpName(maintenance.getEmployee().getName());
+        }
+
+        if (maintenance.getVehicle() != null)
+        {
+            response.setLicensePlate(maintenance.getVehicle().getLicensePlate());
+            response.setModel(maintenance.getVehicle().getModel().getModelName());
+        }
+
+        response.setDescription(maintenance.getDescription());
+        response.setCost(maintenance.getCost());
+
+        response.setStartTime(maintenance.getStartTime());
+        response.setEndTime(maintenance.getEndTime());
+        response.setNextDueDate(maintenance.getNextDueDate());
+
+        response.setStatus(maintenance.getStatus());
+        response.setNotes(maintenance.getNotes());
+
+        return response;
     }
 
     @Transactional

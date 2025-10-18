@@ -378,7 +378,7 @@ public class BookingService {
             throw new IllegalArgumentException("Status cannot be null or empty");
         }
 
-        List<String> validStatuses = Arrays.asList("Pending", "Confirmed", "In Progress", "Completed", "Cancelled");
+        List<String> validStatuses = Arrays.asList("Pending", "Confirmed", "In Progress", "Waiting For Payment", "Completed", "Cancelled");
         if (!validStatuses.contains(status))
         {
             throw new IllegalArgumentException("Invalid status. Valid values are: " + String.join(", ", validStatuses));
