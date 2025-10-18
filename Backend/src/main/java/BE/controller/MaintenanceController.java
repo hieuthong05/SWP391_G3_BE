@@ -62,4 +62,28 @@ public class MaintenanceController {
 
         return ResponseEntity.ok(response);
     }
+
+    @SecurityRequirement(name = "api")
+    @PutMapping("/{maintenanceID}/set-status/in-progress")
+    public ResponseEntity<Map<String, String>> setInProgress(@PathVariable Long maintenanceID)
+    {
+        maintenanceService.setInProgress(maintenanceID);
+        return ResponseEntity.ok(Map.of("message", "Set Status 'In Progress' successfully!"));
+    }
+
+    @SecurityRequirement(name = "api")
+    @PutMapping("/{maintenanceID}/set-status/waiting-for-payment")
+    public ResponseEntity<Map<String, String>> setWaitingForPayment(@PathVariable Long maintenanceID)
+    {
+        maintenanceService.setWaitingForPayment(maintenanceID);
+        return ResponseEntity.ok(Map.of("message", "Set Status 'Waiting For Payment' successfully!"));
+    }
+
+    @SecurityRequirement(name = "api")
+    @PutMapping("/{maintenanceID}/set-status/completed")
+    public ResponseEntity<Map<String, String>> setCompleted(@PathVariable Long maintenanceID)
+    {
+        maintenanceService.setCompleted(maintenanceID);
+        return ResponseEntity.ok(Map.of("message", "Set Status 'Completed' successfully!"));
+    }
 }

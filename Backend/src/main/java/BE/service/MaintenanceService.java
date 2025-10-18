@@ -162,4 +162,40 @@ public class MaintenanceService {
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Maintenance not found for order ID: " + orderId));
     }
+
+    @Transactional
+    public void setInProgress(Long maintenanceID)
+    {
+        Maintenance maintenance = maintenanceRepository.findById(maintenanceID)
+                .orElseThrow(() -> new EntityNotFoundException("Maintenance not found"));
+
+        maintenance.setStatus("In Progress");
+        Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
+        savedMaintenance.getOrders().setStatus(savedMaintenance.getStatus());
+        ordersRepository.save(savedMaintenance.getOrders());
+    }
+
+    @Transactional
+    public void setWaitingForPayment(Long maintenanceID)
+    {
+        Maintenance maintenance = maintenanceRepository.findById(maintenanceID)
+                .orElseThrow(() -> new EntityNotFoundException("Maintenance not found"));
+
+        maintenance.setStatus("Waiting For Payment");
+        Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
+        savedMaintenance.getOrders().setStatus(savedMaintenance.getStatus());
+        ordersRepository.save(savedMaintenance.getOrders());
+    }
+
+    @Transactional
+    public void setCompleted(Long maintenanceID)
+    {
+        Maintenance maintenance = maintenanceRepository.findById(maintenanceID)
+                .orElseThrow(() -> new EntityNotFoundException("Maintenance not found"));
+
+        maintenance.setStatus("Completed");
+        Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
+        savedMaintenance.getOrders().setStatus(savedMaintenance.getStatus());
+        ordersRepository.save(savedMaintenance.getOrders());
+    }
 }
