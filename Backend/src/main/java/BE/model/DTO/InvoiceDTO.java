@@ -7,4 +7,5 @@ import lombok.Data;
 public class InvoiceDTO {
     @NotNull(message = "maintenanceId is required")
     private Long maintenanceId;
+    private double totalAmount;
 }

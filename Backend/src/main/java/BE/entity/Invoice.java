@@ -35,4 +35,6 @@ public class Invoice {
     @CreationTimestamp
     @Column(name = "issued_date", updatable = false)
     private LocalDateTime issuedDate;
+
+    private String status;
 }

@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -44,7 +45,6 @@ public class InvoiceController {
     @GetMapping("/getby/{id}")
     public ResponseEntity<?> getInvoiceById(@PathVariable Long id) {
         try {
-            // SỬA: Kiểu dữ liệu nhận về là InvoiceResponse
             InvoiceResponse invoice = invoiceService.getInvoiceById(id);
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Get invoice successfully!");
@@ -59,7 +59,6 @@ public class InvoiceController {
     @GetMapping("/getby/maintenance/{maintenanceId}")
     public ResponseEntity<?> getInvoiceByMaintenanceId(@PathVariable Long maintenanceId) {
         try {
-            // SỬA: Kiểu dữ liệu nhận về là InvoiceResponse
             InvoiceResponse invoice = invoiceService.getInvoiceByMaintenanceId(maintenanceId);
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Get invoice by maintenance ID successfully!");
@@ -68,6 +67,20 @@ public class InvoiceController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<?> getAllInvoices() {
+        try {
+            List<InvoiceResponse> invoices = invoiceService.getAllInvoices();
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Get all invoices successfully!");
+            response.put("data", invoices);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
         }
     }
 }
