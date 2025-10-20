@@ -11,4 +11,5 @@ public class InvoiceResponse {
     private double totalAmount;
     private LocalDateTime issuedDate;
     private List<InvoiceDetailResponse> invoiceDetails;
+    private String status;
 }

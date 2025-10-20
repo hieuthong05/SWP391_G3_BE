@@ -54,6 +54,7 @@ public class InvoiceService {
             detail.setQuantity(mc.getQuantity());
             detail.setUnitPrice(mc.getComponent().getPrice());
 
+
             double subTotal = mc.getQuantity() * mc.getComponent().getPrice();
             detail.setSubTotal(subTotal);
 
@@ -63,6 +64,7 @@ public class InvoiceService {
 
         invoice.setInvoiceDetails(details);
         invoice.setTotalAmount(totalAmount);
+        invoice.setStatus("PENDING");
 
         maintenance.setStatus("Completed");
         maintenanceRepository.save(maintenance);
@@ -83,6 +85,16 @@ public class InvoiceService {
         Invoice invoice = invoiceRepository.findByMaintenance_MaintenanceID(maintenanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy hóa đơn cho phiên bảo dưỡng ID: " + maintenanceId));
         return convertToResponse(invoice);
+    }
+
+    @Transactional(readOnly = true)
+    public List<InvoiceResponse> getAllInvoices() {
+        List<Invoice> invoices = invoiceRepository.findAll();
+
+        // Sử dụng lại hàm convertToResponse để chuyển đổi danh sách
+        return invoices.stream()
+                .map(this::convertToResponse) // 'this::convertToResponse' tương đương 'invoice -> convertToResponse(invoice)'
+                .collect(Collectors.toList());
     }
 
     // Hàm helper private để chuyển đổi từ Entity sang DTO
