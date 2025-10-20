@@ -132,7 +132,7 @@ public class VehicleService {
         // Map customer
         if (vehicle.getCustomer() != null) {
             response.setCustomerID(vehicle.getCustomer().getCustomerID());
-            response.setCustomerName(vehicle.getCustomer().getName());
+            response.setCustomerName(vehicle.getCustomer().getName() );
         }
 
         // Map model

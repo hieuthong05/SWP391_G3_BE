@@ -30,4 +30,6 @@ public class Payment {
     @CreationTimestamp
     @Column(name = "payment_date", updatable = false)
     private LocalDateTime paymentDate;
+
+    private String paymentLinkId;
 }

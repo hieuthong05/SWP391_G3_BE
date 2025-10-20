@@ -22,6 +22,9 @@ public class InvoiceDetail {
 //    @JoinColumn(name = "service_ID", nullable = false)
 //    private Service service;
 
+    @Column(name = "item_name")
+    private String itemName;
+
     private int quantity;
 
     private double unitPrice;
