@@ -18,12 +18,17 @@ public class Quotation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "quotation_ID")
     private Long quotationID;
+    
+    //OneToOne với Maintenance
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "maintenance_ID", nullable = false, unique = true)
+    private Maintenance maintenance;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_ID", nullable = false)
-    private Orders orders;
+    //Danh sách các chi tiết trong báo giá
+    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuotationDetail> quotationDetails = new ArrayList<>();
 
-    private double estimatedCost;
+    private double totalAmount;
 
     private String status;
 

@@ -1,0 +1,104 @@
+package BE.controller;
+
+import BE.model.DTO.QuotationDTO;
+import BE.model.response.QuotationResponse;
+import BE.service.QuotationService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/quotations")
+@RequiredArgsConstructor
+@SecurityRequirement(name = "api")
+public class QuotationController {
+
+    @Autowired
+    private final QuotationService quotationService;
+
+    @PostMapping("/create")
+    public ResponseEntity<?> createQuotation(@Valid @RequestBody QuotationDTO requestDTO) {
+        try {
+            QuotationResponse newQuotation = quotationService.createQuotation(requestDTO.getMaintenanceId());
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Quotation created successfully!");
+            response.put("data", newQuotation);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (EntityNotFoundException e) {
+            // Trường hợp không tìm thấy Maintenance
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            // Trường hợp báo giá đã tồn tại hoặc không có component đề xuất
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            // Các lỗi không mong muốn khác
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getQuotationById(@PathVariable Long id) {
+        try {
+            QuotationResponse quotation = quotationService.getQuotationById(id);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Get quotation successfully!");
+            response.put("data", quotation);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}/confirm")
+    public ResponseEntity<Map<String, String>> confirmQuotation(
+            @PathVariable Long id,
+            @RequestParam boolean approved) {
+        try {
+            quotationService.confirmQuotation(id, approved);
+            String message = approved ? "Quotation approved successfully." : "Quotation rejected.";
+            return ResponseEntity.ok(Map.of("message", message));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
+
+    @GetMapping("/maintenance/{maintenanceId}")
+    public ResponseEntity<?> getQuotationByMaintenanceId(@PathVariable Long maintenanceId) {
+        try {
+            // Bạn cần thêm phương thức getQuotationByMaintenanceId vào QuotationService
+            QuotationResponse quotation = quotationService.getQuotationByMaintenanceId(maintenanceId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Get quotation by maintenance ID successfully!");
+            response.put("data", quotation);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
+
+}
