@@ -19,6 +19,12 @@ public class Component {
     @JoinColumn(name = "service_centerID")
     private ServiceCenter serviceCenter;
 
+    // Relationship Many-to-One với CheckList
+    // Nhiều Components thuộc về một CheckList
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "checklist_ID")
+    private CheckList checkList;
+
     private String name;
 
     @Column(unique = true)

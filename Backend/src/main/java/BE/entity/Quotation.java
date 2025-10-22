@@ -6,6 +6,8 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,4 +30,13 @@ public class Quotation {
     @CreationTimestamp
     @Column(name = "created_day", updatable = false)
     private LocalDateTime createdDay;
+
+    // Relationship Many-to-Many với CheckList
+    @ManyToMany
+    @JoinTable(
+            name = "quotation_checklist",
+            joinColumns = @JoinColumn(name = "quotation_ID"),
+            inverseJoinColumns = @JoinColumn(name = "checklist_ID")
+    )
+    private List<CheckList> checkLists = new ArrayList<>();
 }
