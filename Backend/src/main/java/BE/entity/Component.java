@@ -25,6 +25,7 @@ public class Component {
     @JoinColumn(name = "checklist_ID")
     private CheckList checkList;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String name;
 
     @Column(unique = true)
@@ -41,7 +42,7 @@ public class Component {
     @Column(name = "min_quantity")
     private Integer minQuantity;
 
-    @Column(name = "supplier_name")
+    @Column(name = "supplier_name", columnDefinition = "NVARCHAR(MAX)")
     private String supplierName;
 
     @Lob
