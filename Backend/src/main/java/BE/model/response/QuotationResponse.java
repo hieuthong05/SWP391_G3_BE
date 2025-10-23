@@ -13,4 +13,12 @@ public class QuotationResponse {
     private String status;
     private LocalDateTime createdDate;
     private List<QuotationDetailResponse> quotationDetails;
+
+    //Ngoài table quotation
+    private String customerName;
+    private String technicianName;
+    private String vehicleModel;
+    private String vehicleLicensePlate;
+    private List<ChecklistItemStatusResponse> checklistItemsStatus; // Danh sách hạng mục checklist và trạng thái của chúng
+    private List<MaintenanceComponentResponse> componentsUsed; // Danh sách linh kiện đã sử dụng trong maintenance
 }

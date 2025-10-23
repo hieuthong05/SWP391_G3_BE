@@ -54,4 +54,7 @@ public class Maintenance {
 
     @OneToOne(mappedBy = "maintenance", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Invoice invoice;
+
+    @OneToMany(mappedBy = "maintenance", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MaintenanceChecklist> maintenanceChecklists = new ArrayList<>();
 }
