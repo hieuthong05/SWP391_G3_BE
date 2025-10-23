@@ -6,6 +6,7 @@ import BE.model.response.ConfirmBookingResponse;
 import BE.model.response.MaintenanceResponse;
 import BE.service.MaintenanceService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,31 @@ public class MaintenanceController {
         response.put("Maintenances", maintenances);
 
         return ResponseEntity.ok(response);
+    }
+
+
+//     * Lấy maintenance theo ID
+//     * GET /api/maintenances/{maintenanceId}
+
+    @SecurityRequirement(name = "api")
+    @GetMapping("/{maintenanceId}")
+    public ResponseEntity<Map<String, Object>> getMaintenanceById(@PathVariable Long maintenanceId)
+    {
+        try
+        {
+            MaintenanceResponse maintenance = maintenanceService.getMaintenanceById(maintenanceId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Get maintenance successfully");
+            response.put("data", maintenance);
+
+            return ResponseEntity.ok(response);
+        }
+        catch (EntityNotFoundException e)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     @SecurityRequirement(name = "api")

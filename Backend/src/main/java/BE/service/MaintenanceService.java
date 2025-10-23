@@ -164,6 +164,19 @@ public class MaintenanceService {
             .collect(Collectors.toList());
     }
 
+
+     //* Lấy maintenance theo maintenance ID
+
+    @Transactional(readOnly = true)
+    public MaintenanceResponse getMaintenanceById(Long maintenanceId)
+    {
+        Maintenance maintenance = maintenanceRepository.findById(maintenanceId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Maintenance not found with ID: " + maintenanceId));
+
+        return mapToMaintenanceResponse(maintenance);
+    }
+
     public List<MaintenanceResponse> getMaintenancesByTechnicianId(Long technicianId)
     {
         Employee employee = employeeRepository.findById(technicianId)
@@ -199,6 +212,8 @@ public class MaintenanceService {
         if (maintenance.getOrders() != null)
         {
             response.setOrderID(maintenance.getOrders().getOrderID());
+            response.setCustomerName(maintenance.getOrders().getCustomer().getName());
+            response.setCustomerPhone(maintenance.getOrders().getCustomer().getPhone());
         }
 
         if (maintenance.getEmployee() != null)
@@ -209,6 +224,7 @@ public class MaintenanceService {
 
         if (maintenance.getVehicle() != null)
         {
+            response.setVehicleID(maintenance.getVehicle().getVehicleID());
             response.setLicensePlate(maintenance.getVehicle().getLicensePlate());
             response.setModel(maintenance.getVehicle().getModel().getModelName());
         }
@@ -222,6 +238,11 @@ public class MaintenanceService {
 
         response.setStatus(maintenance.getStatus());
         response.setNotes(maintenance.getNotes());
+
+        if (maintenance.getInvoice() != null)
+        {
+            response.setInvoiceID(maintenance.getInvoice().getInvoiceID());
+        }
 
         return response;
     }
