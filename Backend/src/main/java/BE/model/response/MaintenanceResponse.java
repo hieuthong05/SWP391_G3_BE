@@ -14,6 +14,7 @@ public class MaintenanceResponse {
     private Long empID;
     private String empName;
 
+    private Long vehicleID;
     private String licensePlate;
     private String model;
 
@@ -26,4 +27,6 @@ public class MaintenanceResponse {
 
     private String status;
     private String notes;
+
+    private Long invoiceID;
 }
