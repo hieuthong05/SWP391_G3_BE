@@ -9,7 +9,10 @@ import java.util.List;
 public class MaintenanceResponse {
 
     private Long maintenanceID;
+
     private Long orderID;
+    private String customerName;
+    private String customerPhone;
 
     private Long empID;
     private String empName;

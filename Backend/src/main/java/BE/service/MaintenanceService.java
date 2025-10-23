@@ -212,6 +212,8 @@ public class MaintenanceService {
         if (maintenance.getOrders() != null)
         {
             response.setOrderID(maintenance.getOrders().getOrderID());
+            response.setCustomerName(maintenance.getOrders().getCustomer().getName());
+            response.setCustomerPhone(maintenance.getOrders().getCustomer().getPhone());
         }
 
         if (maintenance.getEmployee() != null)

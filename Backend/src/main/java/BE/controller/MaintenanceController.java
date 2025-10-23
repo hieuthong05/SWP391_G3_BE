@@ -40,10 +40,10 @@ public class MaintenanceController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Lấy maintenance theo ID
-     * GET /api/maintenances/{maintenanceId}
-     */
+
+//     * Lấy maintenance theo ID
+//     * GET /api/maintenances/{maintenanceId}
+
     @SecurityRequirement(name = "api")
     @GetMapping("/{maintenanceId}")
     public ResponseEntity<Map<String, Object>> getMaintenanceById(@PathVariable Long maintenanceId)
