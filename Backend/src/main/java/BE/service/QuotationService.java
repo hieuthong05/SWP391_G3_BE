@@ -99,6 +99,14 @@ public class QuotationService {
         maintenanceRepository.save(maintenance);
     }
 
+    @Transactional(readOnly = true)
+    public List<QuotationResponse> getAllQuotation() {
+        List<Quotation> quotations = quotationRepository.findAll();
+        return quotations.stream()
+                .map(this::convertToResponse)
+                .collect(Collectors.toList());
+    }
+
     private QuotationResponse convertToResponse(Quotation quotation) {
         QuotationResponse response = modelMapper.map(quotation, QuotationResponse.class);
         response.setMaintenanceId(quotation.getMaintenance().getMaintenanceID());

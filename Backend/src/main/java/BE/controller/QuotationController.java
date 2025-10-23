@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -79,6 +80,12 @@ public class QuotationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<QuotationResponse>> getAllQuotations() {
+        List<QuotationResponse> quotations = quotationService.getAllQuotation();
+        return ResponseEntity.ok(quotations);
     }
 
 
