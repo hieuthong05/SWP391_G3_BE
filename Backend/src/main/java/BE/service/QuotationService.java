@@ -98,6 +98,16 @@ public class QuotationService {
         return convertToResponse(quotation);
     }
 
+    @Transactional(readOnly = true)
+    public QuotationResponse getQuotationByOrderId(Long orderId) {
+        Maintenance maintenance = maintenanceRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Maintenance not found for Order ID: " + orderId));
+
+        Quotation quotation = quotationRepository.findByMaintenance_MaintenanceID(maintenance.getMaintenanceID())
+                .orElseThrow(() -> new EntityNotFoundException("Quotation not found for Maintenance ID: " + maintenance.getMaintenanceID() + " (linked to Order ID: " + orderId + ")"));
+
+        return convertToResponse(quotation);
+    }
 
     @Transactional
     public void confirmQuotation(Long quotationId, boolean approved) {

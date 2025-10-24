@@ -34,15 +34,12 @@ public class QuotationController {
             response.put("data", newQuotation);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (EntityNotFoundException e) {
-            // Trường hợp không tìm thấy Maintenance
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", e.getMessage()));
         } catch (IllegalArgumentException | IllegalStateException e) {
-            // Trường hợp báo giá đã tồn tại hoặc không có component đề xuất
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            // Các lỗi không mong muốn khác
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
         }
@@ -92,7 +89,6 @@ public class QuotationController {
     @GetMapping("/maintenance/{maintenanceId}")
     public ResponseEntity<?> getQuotationByMaintenanceId(@PathVariable Long maintenanceId) {
         try {
-            // Bạn cần thêm phương thức getQuotationByMaintenanceId vào QuotationService
             QuotationResponse quotation = quotationService.getQuotationByMaintenanceId(maintenanceId);
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Get quotation by maintenance ID successfully!");
@@ -107,5 +103,21 @@ public class QuotationController {
         }
     }
 
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<?> getQuotationByOrderId(@PathVariable Long orderId) {
+        try {
+            QuotationResponse quotation = quotationService.getQuotationByOrderId(orderId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Get quotation by order ID successfully!");
+            response.put("data", quotation);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
 
 }
