@@ -119,7 +119,7 @@ public class QuotationService {
 
         if (approved) {
             quotation.setStatus("APPROVED");
-            maintenance.setStatus("CONFIRMED");
+            maintenance.setStatus("APPROVED");
             order.setStatus("PROCESSING");
 
         } else {
@@ -128,8 +128,11 @@ public class QuotationService {
             order.setStatus("CANCELLED");
         }
 
+
         quotationRepository.save(quotation);
         maintenanceRepository.save(maintenance);
+        ordersRepository.save(order);
+
     }
 
     @Transactional(readOnly = true)
@@ -219,5 +222,5 @@ public class QuotationService {
 
         return response;
     }
-    
+
 }
