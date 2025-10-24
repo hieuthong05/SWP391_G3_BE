@@ -59,7 +59,7 @@ public class MaintenanceChecklistService {
         if (!maintenanceRepository.existsById(maintenanceId)) {
             throw new EntityNotFoundException("Maintenance not found with ID: " + maintenanceId);
         }
-        List<MaintenanceChecklist> items = maintenanceChecklistRepository.findByMaintenance_MaintenanceID(maintenanceId);
+        List<MaintenanceChecklist> items = maintenanceChecklistRepository.findByMaintenance_MaintenanceIDWithChecklist(maintenanceId); // <--- SỬA DÒNG NÀY
         return items.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
