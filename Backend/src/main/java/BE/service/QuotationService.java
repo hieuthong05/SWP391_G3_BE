@@ -115,13 +115,17 @@ public class QuotationService {
                 .orElseThrow(() -> new EntityNotFoundException("Quotation not found with ID: " + quotationId));
 
         Maintenance maintenance = quotation.getMaintenance();
+        Orders order = maintenance.getOrders();
 
         if (approved) {
             quotation.setStatus("APPROVED");
             maintenance.setStatus("CONFIRMED");
+            order.setStatus("PROCESSING");
+
         } else {
             quotation.setStatus("REJECTED");
             maintenance.setStatus("CANCELLED");
+            order.setStatus("CANCELLED");
         }
 
         quotationRepository.save(quotation);
@@ -215,4 +219,5 @@ public class QuotationService {
 
         return response;
     }
+    
 }
