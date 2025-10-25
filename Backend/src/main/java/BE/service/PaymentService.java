@@ -1,10 +1,8 @@
 package BE.service;
 
-import BE.entity.Invoice;
-import BE.entity.InvoiceDetail;
-import BE.entity.Orders;
-import BE.entity.Payment;
+import BE.entity.*;
 import BE.repository.InvoiceRepository;
+import BE.repository.MaintenanceRepository;
 import BE.repository.OrdersRepository;
 import BE.repository.PaymentRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -38,15 +36,17 @@ public class PaymentService {
     private final OrdersRepository ordersRepository;
     private final ObjectMapper objectMapper;
     private final String payosChecksumKey;
+    private final MaintenanceRepository maintenanceRepository;
 
     @Autowired
-    public PaymentService(PayOS payOS, PaymentRepository paymentRepository, InvoiceRepository invoiceRepository, OrdersRepository ordersRepository, ObjectMapper objectMapper, String payosChecksumKey) {
+    public PaymentService(PayOS payOS, PaymentRepository paymentRepository, InvoiceRepository invoiceRepository, OrdersRepository ordersRepository, ObjectMapper objectMapper, String payosChecksumKey, MaintenanceRepository maintenanceRepository) {
         this.payOS = payOS;
         this.paymentRepository = paymentRepository;
         this.invoiceRepository = invoiceRepository;
         this.ordersRepository = ordersRepository;
 
         this.objectMapper = objectMapper;
+        this.maintenanceRepository = maintenanceRepository;
         this.payosChecksumKey = "cba5713a9f9d2b0d190890c175e7253b02000dd5319101457dc915ca66b85427";
     }
 
@@ -149,12 +149,19 @@ public class PaymentService {
                     invoice.setStatus("PAID");
                     invoiceRepository.save(invoice);
 
-                    // Cập nhật Orders
-                    if (invoice.getMaintenance() != null && invoice.getMaintenance().getOrders() != null) { //
-                        Orders order = invoice.getMaintenance().getOrders();
-                        order.setStatus("Completed");
-                        order.setPaymentStatus(true);
-                        ordersRepository.save(order);
+                    // Cập nhật maintenance
+                    Maintenance maintenance = invoice.getMaintenance();
+                    if (maintenance != null) {
+                        maintenance.setStatus("Completed");
+                        maintenanceRepository.save(maintenance);
+
+                        // Cập nhật Orders
+                        Orders order = maintenance.getOrders();
+                        if (order != null) {
+                            order.setStatus("Completed");
+                            order.setPaymentStatus(true);
+                            ordersRepository.save(order);
+                        }
                     }
                 }
             }
