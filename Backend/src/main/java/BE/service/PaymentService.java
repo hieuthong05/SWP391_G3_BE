@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,15 +40,21 @@ public class PaymentService {
     private final MaintenanceRepository maintenanceRepository;
 
     @Autowired
-    public PaymentService(PayOS payOS, PaymentRepository paymentRepository, InvoiceRepository invoiceRepository, OrdersRepository ordersRepository, ObjectMapper objectMapper, String payosChecksumKey, MaintenanceRepository maintenanceRepository) {
+    public PaymentService(PayOS payOS,
+                          PaymentRepository paymentRepository,
+                          InvoiceRepository invoiceRepository,
+                          OrdersRepository ordersRepository,
+                          ObjectMapper objectMapper,
+                          MaintenanceRepository maintenanceRepository,
+                          @Value("${payos.checksum-key}") String payosChecksumKey) {
+
         this.payOS = payOS;
         this.paymentRepository = paymentRepository;
         this.invoiceRepository = invoiceRepository;
         this.ordersRepository = ordersRepository;
-
         this.objectMapper = objectMapper;
         this.maintenanceRepository = maintenanceRepository;
-        this.payosChecksumKey = "cba5713a9f9d2b0d190890c175e7253b02000dd5319101457dc915ca66b85427";
+        this.payosChecksumKey = payosChecksumKey;
     }
 
     @Transactional
