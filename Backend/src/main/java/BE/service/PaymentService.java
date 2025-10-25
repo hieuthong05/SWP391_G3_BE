@@ -158,12 +158,12 @@ public class PaymentService {
 
                     // Cập nhật maintenance
                     Maintenance maintenance = invoice.getMaintenance();
-                    if (maintenance != null) {
-                        maintenance.setStatus("Completed");
-                        maintenanceRepository.save(maintenance);
+                    if (maintenance.getOrders() != null) {
+                        Long orderId = maintenance.getOrders().getOrderID();
 
-                        // Cập nhật Orders
-                        Orders order = maintenance.getOrders();
+                        Orders order = ordersRepository.findById(orderId)
+                                .orElse(null);
+
                         if (order != null) {
                             order.setStatus("Completed");
                             order.setPaymentStatus(true);
