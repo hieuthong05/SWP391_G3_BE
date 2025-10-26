@@ -1,9 +1,12 @@
 package BE.service;
 
 import BE.entity.Model;
+import BE.model.DTO.ModelDTO;
 import BE.repository.ModelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -13,9 +16,15 @@ public class ModelService {
     @Autowired
     private ModelRepository modelRepository;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
-    public Model createModel(Model model) {
-        model.setModelID(null);
+    public Model createModel(ModelDTO modelDTO) throws Exception
+    {
+        String imageUrl = cloudinaryService.uploadFile(modelDTO.getImage());
+        Model model = new Model();
+        model.setModelName(modelDTO.getModelName());
+        model.setImageUrl(imageUrl);
         return modelRepository.save(model);
     }
 

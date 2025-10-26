@@ -5,13 +5,17 @@ import BE.model.DTO.ModelDTO;
 import BE.model.response.ModelResponse;
 import BE.service.ModelService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +31,15 @@ public class ModelController {
     @Autowired
     ModelMapper modelMapper;
 
-    @PostMapping(name="/create")
-    public ResponseEntity<ModelResponse> createModel(@RequestBody ModelDTO modelDTO) {
-        Model model = modelMapper.map(modelDTO, Model.class);
-        Model createdModel = modelService.createModel(model);
+    @PostMapping(value="/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ModelResponse> createModel(@RequestPart("modelName") String modelName,
+                                                     @RequestPart("image") MultipartFile image) throws Exception
+    {
+        ModelDTO modelDTO = new ModelDTO();
+        modelDTO.setModelName(modelName);
+        modelDTO.setImage(image);
+
+        Model createdModel = modelService.createModel(modelDTO);
         return new ResponseEntity<>(modelMapper.map(createdModel, ModelResponse.class), HttpStatus.CREATED);
     }
 

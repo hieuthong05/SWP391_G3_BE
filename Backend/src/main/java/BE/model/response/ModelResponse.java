@@ -6,4 +6,5 @@ import lombok.Data;
 public class ModelResponse {
     private Long modelID;
     private String modelName;
+    private String imageUrl;
 }
