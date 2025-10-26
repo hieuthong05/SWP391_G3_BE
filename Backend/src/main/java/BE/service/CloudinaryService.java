@@ -17,10 +17,13 @@ public class CloudinaryService {
         this.cloudinary = cloudinary;
     }
 
-    public String uploadFile(MultipartFile file) throws IOException
+    // Upload ảnh và cho phép truyền folder động
+    public String uploadFile(MultipartFile file, String folderName) throws IOException
     {
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(),
-                ObjectUtils.asMap("folder", "models")); // Tạo folder "products"
-        return uploadResult.get("secure_url").toString(); // Lấy URL ảnh
+        Map uploadResult = cloudinary.uploader().upload(
+                file.getBytes(),
+                ObjectUtils.asMap("folder", folderName) // truyền folder động
+        );
+        return uploadResult.get("secure_url").toString();
     }
 }

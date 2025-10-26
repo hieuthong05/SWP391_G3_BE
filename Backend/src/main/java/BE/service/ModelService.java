@@ -21,7 +21,7 @@ public class ModelService {
 
     public Model createModel(ModelDTO modelDTO) throws Exception
     {
-        String imageUrl = cloudinaryService.uploadFile(modelDTO.getImage());
+        String imageUrl = cloudinaryService.uploadFile(modelDTO.getImage(), "models");
         Model model = new Model();
         model.setModelName(modelDTO.getModelName());
         model.setImageUrl(imageUrl);

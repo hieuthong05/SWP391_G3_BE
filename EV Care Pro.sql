@@ -4,13 +4,13 @@
 
 INSERT INTO [model] ([model_name])
 VALUES
-    (N'VF 3'),
-    (N'VF 5'),
-    (N'VF 6'),
-    (N'VF 7'),
-    (N'VF 8'),
-    (N'VF 9'),
-    (N'VF e34');
+    (N'VF3', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475245/VF3_hhgnvh.jpg'),
+    (N'VF5', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475281/VF5_migpq4.png'),
+    (N'VF6', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761446036/models/wwdifhtvnfdudghiyfz5.jpg'),
+    (N'VF7', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761473944/models/xjsyjxexmzv7t256ltb6.jpg'),
+    (N'VF8', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761474055/models/quv2cru9u4hxskyzsgw9.png'),
+    (N'VF9', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475332/VF9_bhqoaa.webp'),
+    (N'VFe34', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475355/VF_e34_z36oui.jpg');
 
 -- ================================================
 -- INSERT VinFast Service Centers into [service_center]
