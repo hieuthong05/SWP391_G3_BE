@@ -11,10 +11,12 @@ import org.json.JSONObject;
 @Service
 public class DeepSeekService {
 
+    // ✅ Reads DEEPSEEK_API_KEY from your environment or application.properties
     @Value("${DEEPSEEK_API_KEY:#{null}}")
     private String apiKey;
 
-    private static final String API_URL = "https://api.deepseek.com/chat/completions";
+    // ✅ Correct DeepSeek API URL (v1)
+    private static final String API_URL = "https://api.deepseek.com/v1/chat/completions";
 
     public String getChatResponse(String message) {
         if (apiKey == null || apiKey.isEmpty()) {
@@ -25,20 +27,21 @@ public class DeepSeekService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(apiKey);
+        headers.set("Authorization", "Bearer " + apiKey); // ✅ Set manually (avoid setBearerAuth for custom APIs)
 
-        // ⚠️ Try model deepseek-chat first
+        // ✅ DeepSeek expects a JSON like OpenAI's, but the model name must match their naming scheme
         JSONObject body = new JSONObject();
-        body.put("model", "deepseek-chat");
+        body.put("model", "deepseek-chat"); // Try "deepseek-chat" or "deepseek-reasoner" if that’s the one you picked
         body.put("messages", new org.json.JSONArray()
-                .put(new JSONObject().put("role", "user").put("content", message))
+                .put(new JSONObject()
+                        .put("role", "user")
+                        .put("content", message))
         );
 
         HttpEntity<String> requestEntity = new HttpEntity<>(body.toString(), headers);
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, requestEntity, String.class);
-
             System.out.println("✅ DeepSeek API response: " + response.getBody());
 
             JSONObject responseBody = new JSONObject(response.getBody());
