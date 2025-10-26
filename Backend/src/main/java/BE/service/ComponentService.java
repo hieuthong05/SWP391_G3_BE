@@ -26,6 +26,9 @@ public class ComponentService {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     @Transactional(readOnly = true)
     public ComponentResponse getComponentById(Long id){
         BE.entity.Component component = componentRepository.findByComponentIDAndStatus(id, "active")
@@ -43,14 +46,23 @@ public class ComponentService {
     }
 
     @Transactional
-    public ComponentResponse createComponent(ComponentDTO componentDTO) {
+    public ComponentResponse createComponent(ComponentDTO componentDTO) throws Exception
+    {
         if (componentRepository.findByCode(componentDTO.getCode()).isPresent()){
             throw new IllegalArgumentException("Component code already exists");
         }
 
         BE.entity.Component component = new BE.entity.Component();
-        modelMapper.map(componentDTO, component);
+
         component.setComponentID(null);
+        component.setName(componentDTO.getName());
+        component.setCode(componentDTO.getCode());
+        component.setType(componentDTO.getType());
+        component.setDescription(componentDTO.getDescription());
+        component.setPrice(componentDTO.getPrice());
+        component.setQuantity(componentDTO.getQuantity());
+        component.setMinQuantity(componentDTO.getMinQuantity());
+        component.setSupplierName(componentDTO.getSupplierName());
         component.setStatus("active");
 
         if (componentDTO.getServiceCenterID() != null) {
@@ -58,6 +70,8 @@ public class ComponentService {
                     .orElseThrow(() -> new EntityNotFoundException("Service Center not found"));
             component.setServiceCenter(serviceCenter);
         }
+        String imageUrl = cloudinaryService.uploadFile(componentDTO.getImage(), "components");
+        component.setImageUrl(imageUrl);
 
         BE.entity.Component savedComponent = componentRepository.save(component);
         ComponentResponse componentResponse = new ComponentResponse();

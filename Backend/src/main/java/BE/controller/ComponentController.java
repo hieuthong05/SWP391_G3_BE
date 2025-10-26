@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,8 +80,9 @@ public class ComponentController {
         return ResponseEntity.ok(components);
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<?> createComponent(@Valid @RequestBody ComponentDTO componentDTO) {
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createComponent(@Valid @ModelAttribute ComponentDTO componentDTO) throws Exception
+    {
         try {
             ComponentResponse response = componentService.createComponent(componentDTO);
             return new ResponseEntity<>(response, HttpStatus.CREATED);

@@ -45,8 +45,11 @@ public class Component {
     @Column(name = "supplier_name", columnDefinition = "NVARCHAR(MAX)")
     private String supplierName;
 
-    @Lob
-    private byte[] image;
+//    @Lob
+//    private byte[] image;
+
+    @Column(name = "image_url", columnDefinition = "NVARCHAR(500)")
+    private String imageUrl; // lưu đường dẫn ảnh
 
     private String status;
 }

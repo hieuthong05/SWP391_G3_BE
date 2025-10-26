@@ -16,5 +16,7 @@ public class ComponentResponse {
     private Integer minQuantity;
     private String supplierName;
     private String status;
-    private byte[] image;
+//    private byte[] image;
+
+    private String imageUrl;
 }
