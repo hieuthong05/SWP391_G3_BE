@@ -142,9 +142,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.openai</groupId>
-            <artifactId>openai-java</artifactId>
-            <version>4.6.1</version>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
         </dependency>
 
     </dependencies>
