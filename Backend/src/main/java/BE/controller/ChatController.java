@@ -1,6 +1,6 @@
 package BE.controller;
 
-import BE.service.OpenAIService;
+import BE.service.DeepSeekService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -8,15 +8,15 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*")
 public class ChatController {
 
-    private final OpenAIService openAIService;
+    private final DeepSeekService deepSeekService;
 
-    public ChatController(OpenAIService openAIService) {
-        this.openAIService = openAIService;
+    public ChatController(DeepSeekService deepSeekService) {
+        this.deepSeekService = deepSeekService;
     }
 
     @PostMapping
     public ChatResponse chat(@RequestBody ChatRequest request) {
-        String reply = openAIService.getChatResponse(request.message());
+        String reply = deepSeekService.getChatResponse(request.message());
         return new ChatResponse(reply);
     }
 
