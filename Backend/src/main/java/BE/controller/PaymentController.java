@@ -1,10 +1,13 @@
 package BE.controller;
 
 import BE.service.PaymentService;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
@@ -18,20 +21,29 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    // DTO này dùng để định dạng dữ liệu gửi từ frontend lên
-    // Frontend sẽ gửi một JSON có dạng: { "invoiceId": 123 }
+    //định dạng dữ liệu gửi từ frontend
     public record CreatePaymentLinkRequest(Long invoiceId) {}
 
     @PostMapping("/create")
     public ResponseEntity<String> createPaymentLink(@RequestBody CreatePaymentLinkRequest request) {
         try {
-            // gọi service để thực hiện toàn bộ logic
             String checkoutUrl = paymentService.createPaymentLink(request.invoiceId());
-            // Trả về checkoutUrl cho frontend
             return ResponseEntity.ok(checkoutUrl);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Lỗi khi tạo link thanh toán: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/payos-webhook")
+    public ResponseEntity<Map<String, String>> handlePayOSWebhook(@RequestBody JsonNode webhookData, @RequestHeader("x-payos-signature") String signature) {
+        try {
+            paymentService.handleWebhook(webhookData, signature);
+            return ResponseEntity.ok(Map.of("message", "Webhook processed successfully"));
+        } catch (Exception e) {
+            System.err.println("Error processing PayOS webhook: " + e.getMessage());
+            // Trả về lỗi 500 hoặc 400 tùy thuộc vào loại lỗi
+            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
 }

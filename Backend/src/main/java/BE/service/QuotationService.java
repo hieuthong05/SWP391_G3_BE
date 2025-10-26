@@ -98,6 +98,16 @@ public class QuotationService {
         return convertToResponse(quotation);
     }
 
+    @Transactional(readOnly = true)
+    public QuotationResponse getQuotationByOrderId(Long orderId) {
+        Maintenance maintenance = maintenanceRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Maintenance not found for Order ID: " + orderId));
+
+        Quotation quotation = quotationRepository.findByMaintenance_MaintenanceID(maintenance.getMaintenanceID())
+                .orElseThrow(() -> new EntityNotFoundException("Quotation not found for Maintenance ID: " + maintenance.getMaintenanceID() + " (linked to Order ID: " + orderId + ")"));
+
+        return convertToResponse(quotation);
+    }
 
     @Transactional
     public void confirmQuotation(Long quotationId, boolean approved) {
@@ -105,17 +115,24 @@ public class QuotationService {
                 .orElseThrow(() -> new EntityNotFoundException("Quotation not found with ID: " + quotationId));
 
         Maintenance maintenance = quotation.getMaintenance();
+        Orders order = maintenance.getOrders();
 
         if (approved) {
             quotation.setStatus("APPROVED");
-            maintenance.setStatus("CONFIRMED");
+            maintenance.setStatus("APPROVED");
+            order.setStatus("PROCESSING");
+
         } else {
             quotation.setStatus("REJECTED");
             maintenance.setStatus("CANCELLED");
+            order.setStatus("CANCELLED");
         }
+
 
         quotationRepository.save(quotation);
         maintenanceRepository.save(maintenance);
+        ordersRepository.save(order);
+
     }
 
     @Transactional(readOnly = true)
@@ -205,4 +222,5 @@ public class QuotationService {
 
         return response;
     }
+
 }
