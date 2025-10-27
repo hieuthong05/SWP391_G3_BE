@@ -21,6 +21,11 @@ public class User implements UserDetails {
     @Column(name = "user_ID")
     private Long userID;
 
+    private String email;
+    private String fullName;
+    private String pictureUrl;
+    private String provider; // "GOOGLE" hoặc "LOCAL"
+
     @Column(unique = true, nullable = false)
     private String phone;  // email hoặc username
 
