@@ -100,4 +100,12 @@ public class EmployeeController {
         }
     }
 
+    @SecurityRequirement(name = "api")
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<Map<String, String>> deleteEmployee(@PathVariable Long Id)
+    {
+        employeeService.deleteEmployee(Id);
+        return ResponseEntity.ok(Map.of("message", "Delete Employee successfully"));
+    }
+
 }
