@@ -1,9 +1,6 @@
 package BE.service;
 
-import BE.entity.Invoice;
-import BE.entity.InvoiceDetail;
-import BE.entity.Maintenance;
-import BE.entity.MaintenanceComponent;
+import BE.entity.*;
 import BE.model.response.InvoiceDetailResponse;
 import BE.model.response.InvoiceResponse;
 import BE.repository.InvoiceRepository;
@@ -41,32 +38,57 @@ public class InvoiceService {
         Maintenance maintenance = maintenanceRepository.findById(maintenanceId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phiên bảo dưỡng với ID: " + maintenanceId));
 
+        Orders order = maintenance.getOrders();
+        if (order == null) {
+            throw new EntityNotFoundException("Không tìm thấy Order liên kết với Maintenance ID: " + maintenanceId);
+        }
+
         Invoice invoice = new Invoice();
         invoice.setMaintenance(maintenance);
 
         List<InvoiceDetail> details = new ArrayList<>();
         double totalAmount = 0;
 
-        for (MaintenanceComponent mc : maintenance.getMaintenanceComponents()) {
-            InvoiceDetail detail = new InvoiceDetail();
-            detail.setInvoice(invoice);
-            detail.setItemName(mc.getComponent().getName());
-            detail.setQuantity(mc.getQuantity());
-            detail.setUnitPrice(mc.getComponent().getPrice());
+        // 1. Tính tổng tiền từ các dịch vụ (Services) trong Order
+        if (order.getServices() != null && !order.getServices().isEmpty()) {
+            // Đổi tên biến 'service' thành 'serviceEntity' để tránh trùng lặp
+            for (BE.entity.Service serviceEntity : order.getServices()) {
+                InvoiceDetail serviceDetail = new InvoiceDetail();
+                serviceDetail.setInvoice(invoice);
+                // Sử dụng serviceEntity ở đây
+                serviceDetail.setItemName("Dịch vụ: " + serviceEntity.getServiceName());
+                serviceDetail.setQuantity(1);
+                serviceDetail.setUnitPrice(serviceEntity.getPrice() != null ? serviceEntity.getPrice() : 0.0);
+                serviceDetail.setSubTotal(serviceDetail.getUnitPrice());
 
+                details.add(serviceDetail);
+                totalAmount += serviceDetail.getSubTotal();
+            }
+        }
 
-            double subTotal = mc.getQuantity() * mc.getComponent().getPrice();
-            detail.setSubTotal(subTotal);
+        // 2. Tính tổng tiền từ các linh kiện đã sử dụng (MaintenanceComponents) - Giữ nguyên
+        if (maintenance.getMaintenanceComponents() != null && !maintenance.getMaintenanceComponents().isEmpty()) {
+            for (MaintenanceComponent mc : maintenance.getMaintenanceComponents()) {
+                if (mc.getComponent() != null && mc.getComponent().getPrice() != null) {
+                    InvoiceDetail componentDetail = new InvoiceDetail();
+                    componentDetail.setInvoice(invoice);
+                    componentDetail.setItemName("Linh kiện: " + mc.getComponent().getName());
+                    componentDetail.setQuantity(mc.getQuantity());
+                    componentDetail.setUnitPrice(mc.getComponent().getPrice());
+                    double subTotal = mc.getQuantity() * mc.getComponent().getPrice();
+                    componentDetail.setSubTotal(subTotal);
 
-            details.add(detail);
-            totalAmount += subTotal;
+                    details.add(componentDetail);
+                    totalAmount += subTotal;
+                }
+            }
         }
 
         invoice.setInvoiceDetails(details);
         invoice.setTotalAmount(totalAmount);
         invoice.setStatus("PENDING");
 
-        maintenance.setStatus("Completed");
+        maintenance.setStatus("Waiting For Payment");
         maintenanceRepository.save(maintenance);
 
         Invoice savedInvoice = invoiceRepository.save(invoice);

@@ -3,7 +3,9 @@ package BE.controller;
 import BE.service.PaymentService;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,16 +36,21 @@ public class PaymentController {
             return ResponseEntity.status(500).body("Lỗi khi tạo link thanh toán: " + e.getMessage());
         }
     }
-
-    @PostMapping("/payos-webhook")
-    public ResponseEntity<Map<String, String>> handlePayOSWebhook(@RequestBody JsonNode webhookData, @RequestHeader("x-payos-signature") String signature) {
+    @PutMapping("/update-status/success/{paymentId}")
+    public ResponseEntity<?> updateStatusAfterSuccess(@PathVariable Long paymentId) {
         try {
-            paymentService.handleWebhook(webhookData, signature);
-            return ResponseEntity.ok(Map.of("message", "Webhook processed successfully"));
+            String message = paymentService.updatePaymentStatusAfterSuccess(paymentId);
+            // Trả về JSON object thay vì String đơn thuần
+            return ResponseEntity.ok(Map.of("message", message));
+        } catch (EntityNotFoundException e) {
+            // Trả về 404 nếu không tìm thấy Payment
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            System.err.println("Error processing PayOS webhook: " + e.getMessage());
-            // Trả về lỗi 500 hoặc 400 tùy thuộc vào loại lỗi
-            return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
+            // Log lỗi và trả về 500 cho các lỗi khác
+            e.printStackTrace(); // Nên dùng logger thay vì printStackTrace trong production
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi không xác định khi cập nhật trạng thái: " + e.getMessage()));
         }
     }
+
 }
