@@ -111,88 +111,38 @@ public class PaymentService {
     }
 
     @Transactional
-    public void handleWebhook(JsonNode webhookData, String signature) throws Exception {
+    public String updatePaymentStatusAfterSuccess(Long paymentId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thanh toán với ID: " + paymentId));
 
-        String webhookDataAsString = objectMapper.writeValueAsString(webhookData); // Convert JsonNode sang chuỗi JSON
-        String calculatedSignature = calculateHmacSha256(webhookDataAsString, this.payosChecksumKey);
-
-        System.out.println("Received webhook data: " + webhookDataAsString);
-        System.out.println("Received signature: " + signature);
-        System.out.println("Calculated signature: " + calculatedSignature);
-
-        if (!calculatedSignature.equalsIgnoreCase(signature)) {
-            System.err.println("Invalid PayOS webhook signature. Received: " + signature + ", Calculated: " + calculatedSignature);
-            // lỗi 400 Bad Request tùy theo PayOS
-            throw new SecurityException("Invalid PayOS webhook signature");
-        }
-        System.out.println("Webhook signature verified successfully.");
-
-        // dữ liệu webhook
-        String code = webhookData.path("code").asText(); // "00" là thành công
-        JsonNode data = webhookData.path("data");
-        if (data.isMissingNode()) { //
-            throw new IllegalArgumentException("Webhook data is missing 'data' field.");
-        }
-
-        long orderCode = data.path("orderCode").asLong(); //paymentID
-        String description = data.path("description").asText();
-        String status = data.path("status").asText(); // PAID, CANCELLED
-
-        // Tìm Payment
-        Payment payment = paymentRepository.findById(orderCode) //
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thanh toán với ID (orderCode): " + orderCode));
-
-        // Cập nhật Payment
         if ("PENDING".equalsIgnoreCase(payment.getPaymentStatus())) {
-            boolean paymentSuccess = "PAID".equalsIgnoreCase(status) && "00".equals(code);
-            String newPaymentStatus = paymentSuccess ? "PAID" : ("CANCELLED".equalsIgnoreCase(status) ? "CANCELLED" : "FAILED");
-            payment.setPaymentStatus(newPaymentStatus);
+            payment.setPaymentStatus("PAID");
             paymentRepository.save(payment);
 
-            // Cập nhật Invoice và Orders nếu thành công
-            if (paymentSuccess) { //
-                Invoice invoice = payment.getInvoice();
-                if (invoice != null) {
-                    invoice.setStatus("PAID");
-                    invoiceRepository.save(invoice);
+            Invoice invoice = payment.getInvoice();
+            if (invoice != null) {
+                invoice.setStatus("PAID");
+                invoiceRepository.save(invoice);
 
-                    // Cập nhật maintenance
-                    Maintenance maintenance = invoice.getMaintenance();
-                    if (maintenance.getOrders() != null) {
-                        Long orderId = maintenance.getOrders().getOrderID();
+                Maintenance maintenance = invoice.getMaintenance();
+                if (maintenance != null && maintenance.getOrders() != null) {
+                    Orders order = maintenance.getOrders();
 
-                        Orders order = ordersRepository.findById(orderId)
-                                .orElse(null);
-
-                        if (order != null) {
-                            order.setStatus("Completed");
-                            order.setPaymentStatus(true);
-                            ordersRepository.save(order);
-                        }
+                    if (!"Completed".equalsIgnoreCase(order.getStatus()) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
+                        order.setStatus("Completed"); // Cập nhật trạng thái Order
+                        order.setPaymentStatus(true); // Cập nhật trạng thái thanh toán Order
+                        ordersRepository.save(order);
                     }
+                    return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + paymentId;
+                } else {
+                    return "Cập nhật trạng thái Payment thành công, nhưng không tìm thấy Order liên quan.";
                 }
+            } else {
+                return "Cập nhật trạng thái Payment thành công, nhưng không tìm thấy Invoice liên quan.";
             }
-            System.out.println("Payment " + orderCode + " status updated to " + newPaymentStatus);
         } else {
-            System.out.println("Payment " + orderCode + " already processed with status: " + payment.getPaymentStatus() + ". Ignoring webhook.");
+            // Nếu trạng thái không phải PENDING, có thể webhook đã xử lý hoặc có lỗi trước đó
+            return "Trạng thái thanh toán đã được xử lý trước đó: " + payment.getPaymentStatus();
         }
     }
-
-    private String calculateHmacSha256(String data, String key) throws NoSuchAlgorithmException, InvalidKeyException {
-        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secret_key = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        sha256_HMAC.init(secret_key);
-
-        byte[] hash = sha256_HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8));
-
-        // Chuyển từ byte sang hex
-        Formatter formatter = new Formatter();
-        for (byte b : hash) {
-            formatter.format("%02x", b);
-        }
-        String result = formatter.toString();
-        formatter.close();
-        return result;
-    }
-
 }
