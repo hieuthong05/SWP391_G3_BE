@@ -112,7 +112,7 @@ public class PaymentService {
         paymentResponse.put("accountNumber", response.getAccountNumber()); // Số tài khoản VietQR
         paymentResponse.put("accountName", response.getAccountName()); // Tên tài khoản VietQR
         paymentResponse.put("paymentLinkId", response.getPaymentLinkId()); // ID link thanh toán để cập nhật status sau
-        // paymentResponse.put("checkoutUrl", response.getCheckoutUrl()); // Có thể trả thêm checkoutUrl nếu cần dự phòng
+        paymentResponse.put("checkoutUrl", response.getCheckoutUrl()); // Có thể trả thêm checkoutUrl nếu cần dự phòng
 
         return paymentResponse;
         // --- Kết thúc thay đổi ---
