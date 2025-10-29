@@ -113,7 +113,7 @@ public class MaintenanceComponentService {
         MaintenanceComponent mc = maintenanceComponentRepository.findById(maintenanceComponentId)
                 .orElseThrow(() -> new EntityNotFoundException("MaintenanceComponent not found with ID: " + maintenanceComponentId));
 
-        //kiểm tra trạng thái Quotation
+        //Lấy maintenance và quotation
         Maintenance maintenance = mc.getMaintenance();
         if (maintenance == null) {
             throw new IllegalStateException("Maintenance record not found for this component.");
@@ -121,18 +121,19 @@ public class MaintenanceComponentService {
         Quotation quotation = quotationRepository.findByMaintenance_MaintenanceID(maintenance.getMaintenanceID())
                 .orElseThrow(() -> new EntityNotFoundException("Quotation not found for Maintenance ID: " + maintenance.getMaintenanceID()));
 
+        // Kiểm tra trạng thái
         String status = quotation.getStatus();
         if (!"PENDING".equalsIgnoreCase(status) && !"AWAITING_CUSTOMER_APPROVAL".equalsIgnoreCase(status)) {
             throw new IllegalStateException("Cannot remove component when quotation status is: " + status);
         }
 
-        maintenanceComponentRepository.delete(mc);
+        maintenance.getMaintenanceComponents().remove(mc);
+        // maintenanceComponentRepository.delete(mc);
+        // Maintenance updatedMaintenance = maintenanceRepository.findById(maintenance.getMaintenanceID()).orElseThrow();
+        // quotation.setMaintenance(updatedMaintenance);
 
-        // Load maintenance nhất sau khi xóa
-        Maintenance updatedMaintenance = maintenanceRepository.findById(maintenance.getMaintenanceID()).orElseThrow();
-        quotation.setMaintenance(updatedMaintenance); // Gán maintenance mới vào quotation
+        //Tính toán  báo giá
         quotationService.recalculateAndUpdateQuotation(quotation);
-
     }
 
     private MaintenanceComponentResponse convertToResponse(MaintenanceComponent mc) {
