@@ -111,10 +111,12 @@ public class PaymentService {
     }
 
     @Transactional
-    public String updatePaymentStatusAfterSuccess(Long paymentId) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thanh toán với ID: " + paymentId));
+    public String updatePaymentStatusAfterSuccess(String paymentLinkId) { // Thay Long paymentId bằng String paymentLinkId
+        // Tìm Payment bằng paymentLinkId thay vì paymentId
+        Payment payment = paymentRepository.findByPaymentLinkId(paymentLinkId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thanh toán với Link ID: " + paymentLinkId));
 
+        // Phần còn lại giữ nguyên logic cập nhật
         if ("PENDING".equalsIgnoreCase(payment.getPaymentStatus())) {
             payment.setPaymentStatus("PAID");
             paymentRepository.save(payment);
@@ -129,11 +131,12 @@ public class PaymentService {
                     Orders order = maintenance.getOrders();
 
                     if (!"Completed".equalsIgnoreCase(order.getStatus()) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
-                        order.setStatus("Completed"); // Cập nhật trạng thái Order
-                        order.setPaymentStatus(true); // Cập nhật trạng thái thanh toán Order
+                        order.setStatus("Completed");
+                        order.setPaymentStatus(true);
                         ordersRepository.save(order);
                     }
-                    return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + paymentId;
+                    // Trả về thông báo với Payment ID (Long) để dễ theo dõi
+                    return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID() + " (Link ID: " + paymentLinkId + ")";
                 } else {
                     return "Cập nhật trạng thái Payment thành công, nhưng không tìm thấy Order liên quan.";
                 }
@@ -141,7 +144,6 @@ public class PaymentService {
                 return "Cập nhật trạng thái Payment thành công, nhưng không tìm thấy Invoice liên quan.";
             }
         } else {
-            // Nếu trạng thái không phải PENDING, có thể webhook đã xử lý hoặc có lỗi trước đó
             return "Trạng thái thanh toán đã được xử lý trước đó: " + payment.getPaymentStatus();
         }
     }

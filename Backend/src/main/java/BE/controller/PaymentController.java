@@ -36,18 +36,16 @@ public class PaymentController {
             return ResponseEntity.status(500).body("Lỗi khi tạo link thanh toán: " + e.getMessage());
         }
     }
-    @PutMapping("/update-status/success/{paymentId}")
-    public ResponseEntity<?> updateStatusAfterSuccess(@PathVariable Long paymentId) {
+    @PutMapping("/update-status/success/{paymentLinkId}")
+    public ResponseEntity<?> updateStatusAfterSuccess(@PathVariable String paymentLinkId) { // Thay Long paymentId bằng String paymentLinkId
         try {
-            String message = paymentService.updatePaymentStatusAfterSuccess(paymentId);
-            // Trả về JSON object thay vì String đơn thuần
+            // Gọi hàm service đã sửa đổi
+            String message = paymentService.updatePaymentStatusAfterSuccess(paymentLinkId);
             return ResponseEntity.ok(Map.of("message", message));
         } catch (EntityNotFoundException e) {
-            // Trả về 404 nếu không tìm thấy Payment
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            // Log lỗi và trả về 500 cho các lỗi khác
-            e.printStackTrace(); // Nên dùng logger thay vì printStackTrace trong production
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Lỗi không xác định khi cập nhật trạng thái: " + e.getMessage()));
         }
