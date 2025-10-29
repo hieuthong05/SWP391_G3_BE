@@ -24,6 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -70,7 +71,6 @@ public class PaymentService {
 
         long orderCode = savedPayment.getPaymentID();
         String description = "Thanh toán hóa đơn #" + invoice.getInvoiceID();
-        // Return URL vẫn cần thiết để PayOS biết chuyển hướng sau khi thanh toán thành công (qua app ngân hàng chẳng hạn)
         String returnUrl = "http://localhost:5173/payment-success";
         String cancelUrl = "http://localhost:5173/payment-cancel";
 
@@ -104,18 +104,16 @@ public class PaymentService {
         savedPayment.setPaymentLinkId(response.getPaymentLinkId());
         paymentRepository.save(savedPayment);
 
-        // --- Tạo Map chứa dữ liệu trả về cho Frontend ---
         Map<String, Object> paymentResponse = new HashMap<>();
-        paymentResponse.put("qrCode", response.getQrCode()); // URL ảnh QR code
-        paymentResponse.put("amount", response.getAmount()); // Số tiền
-        paymentResponse.put("description", response.getDescription()); // Mô tả
-        paymentResponse.put("accountNumber", response.getAccountNumber()); // Số tài khoản VietQR
-        paymentResponse.put("accountName", response.getAccountName()); // Tên tài khoản VietQR
-        paymentResponse.put("paymentLinkId", response.getPaymentLinkId()); // ID link thanh toán để cập nhật status sau
-        paymentResponse.put("checkoutUrl", response.getCheckoutUrl()); // Có thể trả thêm checkoutUrl nếu cần dự phòng
+        paymentResponse.put("qrCode", response.getQrCode());
+        paymentResponse.put("amount", response.getAmount());
+        paymentResponse.put("description", response.getDescription());
+        paymentResponse.put("accountNumber", response.getAccountNumber());
+        paymentResponse.put("accountName", response.getAccountName());
+        paymentResponse.put("paymentLinkId", response.getPaymentLinkId());
+        paymentResponse.put("checkoutUrl", response.getCheckoutUrl());
 
         return paymentResponse;
-        // --- Kết thúc thay đổi ---
     }
 
     @Transactional
@@ -134,26 +132,21 @@ public class PaymentService {
 
                 Maintenance maintenance = invoice.getMaintenance();
                 if (maintenance != null) {
-                    // --- Thêm cập nhật trạng thái Maintenance ---
-                    // Chỉ cập nhật Maintenance thành Completed nếu nó chưa Completed hoặc Cancelled
                     if (!"Completed".equalsIgnoreCase(maintenance.getStatus()) && !"Cancelled".equalsIgnoreCase(maintenance.getStatus())) {
                         maintenance.setStatus("Completed");
-                        maintenanceRepository.save(maintenance); // Lưu lại Maintenance
+                        maintenance.setEndTime(LocalDateTime.now());
+                        maintenanceRepository.save(maintenance);
                     }
-                    // --- Kết thúc cập nhật Maintenance ---
 
-                    // Cập nhật Order (nếu có)
                     if (maintenance.getOrders() != null) {
                         Orders order = maintenance.getOrders();
-                        // Đồng bộ trạng thái Order với Maintenance (hoặc logic riêng nếu cần)
                         if (!"Completed".equalsIgnoreCase(order.getStatus()) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
-                            order.setStatus("Completed"); // Cập nhật trạng thái Order
-                            order.setPaymentStatus(true); // Cập nhật trạng thái thanh toán Order
+                            order.setStatus("Completed");
+                            order.setPaymentStatus(true);
                             ordersRepository.save(order);
                         }
                         return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID() + " (Link ID: " + paymentLinkId + ")";
                     } else {
-                        // Vẫn trả về thành công nếu không có Order liên quan
                         return "Cập nhật trạng thái Payment và Maintenance thành công, nhưng không tìm thấy Order liên quan.";
                     }
                 } else {

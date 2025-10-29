@@ -23,19 +23,15 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    //định dạng dữ liệu gửi từ frontend
     public record CreatePaymentLinkRequest(Long invoiceId) {}
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createPaymentLink(@RequestBody CreatePaymentLinkRequest request) {
         try {
-            // Nhận Map từ service
             Map<String, Object> paymentResponse = paymentService.createPaymentLink(request.invoiceId());
-            // Trả về Map đó dưới dạng JSON
             return ResponseEntity.ok(paymentResponse);
         } catch (Exception e) {
             e.printStackTrace();
-            // Trả về lỗi dưới dạng Map cho thống nhất
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Lỗi khi tạo link thanh toán: " + e.getMessage()));
         }

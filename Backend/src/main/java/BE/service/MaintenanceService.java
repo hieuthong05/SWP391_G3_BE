@@ -301,7 +301,7 @@ public class MaintenanceService {
                 componentRepository.save(component);
             }
         }
-
+        maintenance.setEndTime(LocalDateTime.now());
         maintenance.setStatus("Completed");
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
 
