@@ -35,7 +35,7 @@ public class ModelController {
     {
         ModelDTO modelDTO = new ModelDTO();
         modelDTO.setModelName(modelName);
-        modelDTO.setImageUrl(image);
+        modelDTO.setImage(image);
 
         Model createdModel = modelService.createModel(modelDTO);
         return new ResponseEntity<>(modelMapper.map(createdModel, ModelResponse.class), HttpStatus.CREATED);
