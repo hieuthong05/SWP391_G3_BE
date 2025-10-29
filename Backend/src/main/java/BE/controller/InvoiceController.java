@@ -70,6 +70,23 @@ public class InvoiceController {
         }
     }
 
+    @GetMapping("/getby/order/{orderId}")
+    public ResponseEntity<?> getInvoiceByOrderId(@PathVariable Long orderId) {
+        try {
+            InvoiceResponse invoice = invoiceService.getInvoiceByOrderId(orderId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Get invoice by order ID successfully!");
+            response.put("data", invoice);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/getAll")
     public ResponseEntity<?> getAllInvoices() {
         try {

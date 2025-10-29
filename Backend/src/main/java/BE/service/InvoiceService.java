@@ -108,6 +108,17 @@ public class InvoiceService {
     }
 
     @Transactional(readOnly = true)
+    public InvoiceResponse getInvoiceByOrderId(Long orderId) {
+        Maintenance maintenance = maintenanceRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Maintenance cho Order ID: " + orderId));
+
+        Invoice invoice = invoiceRepository.findByMaintenance_MaintenanceID(maintenance.getMaintenanceID())
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Invoice cho Maintenance ID: " + maintenance.getMaintenanceID()));
+
+        return convertToResponse(invoice);
+    }
+
+    @Transactional(readOnly = true)
     public List<InvoiceResponse> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findAll();
         return invoices.stream()
