@@ -27,13 +27,17 @@ public class PaymentController {
     public record CreatePaymentLinkRequest(Long invoiceId) {}
 
     @PostMapping("/create")
-    public ResponseEntity<String> createPaymentLink(@RequestBody CreatePaymentLinkRequest request) {
+    public ResponseEntity<Map<String, Object>> createPaymentLink(@RequestBody CreatePaymentLinkRequest request) {
         try {
-            String checkoutUrl = paymentService.createPaymentLink(request.invoiceId());
-            return ResponseEntity.ok(checkoutUrl);
+            // Nhận Map từ service
+            Map<String, Object> paymentResponse = paymentService.createPaymentLink(request.invoiceId());
+            // Trả về Map đó dưới dạng JSON
+            return ResponseEntity.ok(paymentResponse);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Lỗi khi tạo link thanh toán: " + e.getMessage());
+            // Trả về lỗi dưới dạng Map cho thống nhất
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi khi tạo link thanh toán: " + e.getMessage()));
         }
     }
     @PutMapping("/update-status/success/{paymentLinkId}")

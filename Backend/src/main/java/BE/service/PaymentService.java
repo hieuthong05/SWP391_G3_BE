@@ -24,9 +24,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class PaymentService {
@@ -58,7 +56,8 @@ public class PaymentService {
     }
 
     @Transactional
-    public String createPaymentLink(Long invoiceId) throws Exception {
+    // --- Thay đổi kiểu trả về từ String sang Map<String, Object> ---
+    public Map<String, Object> createPaymentLink(Long invoiceId) throws Exception {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + invoiceId));
 
@@ -71,14 +70,14 @@ public class PaymentService {
 
         long orderCode = savedPayment.getPaymentID();
         String description = "Thanh toán hóa đơn #" + invoice.getInvoiceID();
+        // Return URL vẫn cần thiết để PayOS biết chuyển hướng sau khi thanh toán thành công (qua app ngân hàng chẳng hạn)
         String returnUrl = "http://localhost:5173/payment-success";
         String cancelUrl = "http://localhost:5173/payment-cancel";
 
         List<ItemData> items = new ArrayList<>();
         for (InvoiceDetail detail : invoice.getInvoiceDetails()) {
-            String itemName = "Hang muc bao duong/sua chua";
+            String itemName = detail.getItemName() != null ? detail.getItemName() : "Hạng mục hóa đơn"; // Lấy tên thật nếu có
 
-            //tạo ItemData
             ItemData item = ItemData.builder()
                     .name(itemName)
                     .quantity(detail.getQuantity())
@@ -87,7 +86,6 @@ public class PaymentService {
             items.add(item);
         }
 
-        //tạo PaymentData
         PaymentData paymentData = PaymentData.builder()
                 .orderCode(orderCode)
                 .amount((int) savedPayment.getAmount())
@@ -97,7 +95,6 @@ public class PaymentService {
                 .returnUrl(returnUrl)
                 .build();
 
-        // Gọi PayOS và nhận về CheckoutResponseData
         CheckoutResponseData response = this.payOS.createPaymentLink(paymentData);
 
         if (response == null) {
@@ -107,16 +104,25 @@ public class PaymentService {
         savedPayment.setPaymentLinkId(response.getPaymentLinkId());
         paymentRepository.save(savedPayment);
 
-        return response.getCheckoutUrl();
+        // --- Tạo Map chứa dữ liệu trả về cho Frontend ---
+        Map<String, Object> paymentResponse = new HashMap<>();
+        paymentResponse.put("qrCode", response.getQrCode()); // URL ảnh QR code
+        paymentResponse.put("amount", response.getAmount()); // Số tiền
+        paymentResponse.put("description", response.getDescription()); // Mô tả
+        paymentResponse.put("accountNumber", response.getAccountNumber()); // Số tài khoản VietQR
+        paymentResponse.put("accountName", response.getAccountName()); // Tên tài khoản VietQR
+        paymentResponse.put("paymentLinkId", response.getPaymentLinkId()); // ID link thanh toán để cập nhật status sau
+        // paymentResponse.put("checkoutUrl", response.getCheckoutUrl()); // Có thể trả thêm checkoutUrl nếu cần dự phòng
+
+        return paymentResponse;
+        // --- Kết thúc thay đổi ---
     }
 
     @Transactional
-    public String updatePaymentStatusAfterSuccess(String paymentLinkId) { // Thay Long paymentId bằng String paymentLinkId
-        // Tìm Payment bằng paymentLinkId thay vì paymentId
+    public String updatePaymentStatusAfterSuccess(String paymentLinkId) {
         Payment payment = paymentRepository.findByPaymentLinkId(paymentLinkId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thanh toán với Link ID: " + paymentLinkId));
 
-        // Phần còn lại giữ nguyên logic cập nhật
         if ("PENDING".equalsIgnoreCase(payment.getPaymentStatus())) {
             payment.setPaymentStatus("PAID");
             paymentRepository.save(payment);
@@ -127,18 +133,31 @@ public class PaymentService {
                 invoiceRepository.save(invoice);
 
                 Maintenance maintenance = invoice.getMaintenance();
-                if (maintenance != null && maintenance.getOrders() != null) {
-                    Orders order = maintenance.getOrders();
-
-                    if (!"Completed".equalsIgnoreCase(order.getStatus()) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
-                        order.setStatus("Completed");
-                        order.setPaymentStatus(true);
-                        ordersRepository.save(order);
+                if (maintenance != null) {
+                    // --- Thêm cập nhật trạng thái Maintenance ---
+                    // Chỉ cập nhật Maintenance thành Completed nếu nó chưa Completed hoặc Cancelled
+                    if (!"Completed".equalsIgnoreCase(maintenance.getStatus()) && !"Cancelled".equalsIgnoreCase(maintenance.getStatus())) {
+                        maintenance.setStatus("Completed");
+                        maintenanceRepository.save(maintenance); // Lưu lại Maintenance
                     }
-                    // Trả về thông báo với Payment ID (Long) để dễ theo dõi
-                    return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID() + " (Link ID: " + paymentLinkId + ")";
+                    // --- Kết thúc cập nhật Maintenance ---
+
+                    // Cập nhật Order (nếu có)
+                    if (maintenance.getOrders() != null) {
+                        Orders order = maintenance.getOrders();
+                        // Đồng bộ trạng thái Order với Maintenance (hoặc logic riêng nếu cần)
+                        if (!"Completed".equalsIgnoreCase(order.getStatus()) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
+                            order.setStatus("Completed"); // Cập nhật trạng thái Order
+                            order.setPaymentStatus(true); // Cập nhật trạng thái thanh toán Order
+                            ordersRepository.save(order);
+                        }
+                        return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID() + " (Link ID: " + paymentLinkId + ")";
+                    } else {
+                        // Vẫn trả về thành công nếu không có Order liên quan
+                        return "Cập nhật trạng thái Payment và Maintenance thành công, nhưng không tìm thấy Order liên quan.";
+                    }
                 } else {
-                    return "Cập nhật trạng thái Payment thành công, nhưng không tìm thấy Order liên quan.";
+                    return "Cập nhật trạng thái Payment và Invoice thành công, nhưng không tìm thấy Maintenance liên quan.";
                 }
             } else {
                 return "Cập nhật trạng thái Payment thành công, nhưng không tìm thấy Invoice liên quan.";
