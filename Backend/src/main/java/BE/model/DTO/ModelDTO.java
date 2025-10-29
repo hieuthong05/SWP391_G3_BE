@@ -7,5 +7,5 @@ import org.springframework.web.multipart.MultipartFile;
 public class ModelDTO {
 
     private String modelName;
-    private MultipartFile image;
+    private MultipartFile imageUrl;
 }
