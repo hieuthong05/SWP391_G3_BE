@@ -12,4 +12,9 @@ public class InvoiceResponse {
     private LocalDateTime issuedDate;
     private List<InvoiceDetailResponse> invoiceDetails;
     private String status;
+
+    private String customerName;
+    private String customerPhone;
+    private String vehicleLicensePlate;
+    private String vehicleModel;
 }

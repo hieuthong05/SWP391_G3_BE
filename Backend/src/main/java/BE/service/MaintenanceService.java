@@ -95,7 +95,9 @@ public class MaintenanceService {
         maintenance.setCost(savedOrder.getTotalCost());
         maintenance.setStartTime(LocalDateTime.now());
         maintenance.setStatus(savedOrder.getStatus());
-        maintenance.setNotes(savedOrder.getNotes());
+        maintenance.setNotes(request.getStaffNotes() != null && !request.getStaffNotes().isEmpty()
+                ? request.getStaffNotes()
+                : savedOrder.getNotes());
 
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
 
@@ -198,8 +200,7 @@ public class MaintenanceService {
     }
 
 
-     //* Lấy maintenance theo order ID
-
+     // Lấy maintenance theo order ID
     public Maintenance getMaintenanceByOrderId(Long orderId)
     {
         return maintenanceRepository.findByOrderId(orderId)
@@ -279,44 +280,35 @@ public class MaintenanceService {
         Maintenance maintenance = maintenanceRepository.findById(maintenanceID)
                 .orElseThrow(() -> new EntityNotFoundException("Maintenance not found"));
 
-        // *** Bắt đầu logic trừ kho component ***
         if (maintenance.getMaintenanceComponents() != null && !maintenance.getMaintenanceComponents().isEmpty()) {
             for (MaintenanceComponent mc : maintenance.getMaintenanceComponents()) {
                 Component component = mc.getComponent();
                 int quantityUsed = mc.getQuantity();
 
                 if (component == null) {
-                    // Ghi log hoặc xử lý nếu component bị null (dữ liệu không nhất quán)
                     System.err.println("Warning: Component is null for MaintenanceComponent ID: " + mc.getMaintenanceComponentID());
-                    continue; // Bỏ qua component này
+                    continue;
                 }
 
                 Integer currentStock = component.getQuantity();
                 if (currentStock == null || currentStock < quantityUsed) {
-                    // Không đủ hàng trong kho
                     throw new IllegalStateException("Không đủ số lượng tồn kho cho linh kiện: "
                             + component.getName() + " (ID: " + component.getComponentID() + "). "
                             + "Yêu cầu: " + quantityUsed + ", Tồn kho: " + (currentStock == null ? 0 : currentStock));
                 }
 
-                // Trừ số lượng tồn kho
                 component.setQuantity(currentStock - quantityUsed);
-                componentRepository.save(component); // Lưu lại thông tin component đã cập nhật
+                componentRepository.save(component);
             }
         }
-        // *** Kết thúc logic trừ kho component ***
 
-
-        // Cập nhật trạng thái Maintenance và Order
         maintenance.setStatus("Completed");
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
 
-        // Đồng bộ trạng thái Order
         if (savedMaintenance.getOrders() != null) {
             savedMaintenance.getOrders().setStatus(savedMaintenance.getStatus());
             ordersRepository.save(savedMaintenance.getOrders());
         } else {
-            // Ghi log hoặc xử lý nếu không tìm thấy Order liên quan
             System.err.println("Warning: Order not found for completed Maintenance ID: " + maintenanceID);
         }
     }

@@ -14,4 +14,5 @@ public class ConfirmBookingRequest {
 
 
     private String maintenanceDescription;
+    private String staffNotes;
 }

@@ -49,13 +49,11 @@ public class InvoiceService {
         List<InvoiceDetail> details = new ArrayList<>();
         double totalAmount = 0;
 
-        // 1. Tính tổng tiền từ các dịch vụ (Services) trong Order
+        // tổng tiền từ các Services trong Order
         if (order.getServices() != null && !order.getServices().isEmpty()) {
-            // Đổi tên biến 'service' thành 'serviceEntity' để tránh trùng lặp
             for (BE.entity.Service serviceEntity : order.getServices()) {
                 InvoiceDetail serviceDetail = new InvoiceDetail();
                 serviceDetail.setInvoice(invoice);
-                // Sử dụng serviceEntity ở đây
                 serviceDetail.setItemName("Dịch vụ: " + serviceEntity.getServiceName());
                 serviceDetail.setQuantity(1);
                 serviceDetail.setUnitPrice(serviceEntity.getPrice() != null ? serviceEntity.getPrice() : 0.0);
@@ -66,7 +64,7 @@ public class InvoiceService {
             }
         }
 
-        // 2. Tính tổng tiền từ các linh kiện đã sử dụng (MaintenanceComponents) - Giữ nguyên
+        // tổng tiền từ MaintenanceComponents
         if (maintenance.getMaintenanceComponents() != null && !maintenance.getMaintenanceComponents().isEmpty()) {
             for (MaintenanceComponent mc : maintenance.getMaintenanceComponents()) {
                 if (mc.getComponent() != null && mc.getComponent().getPrice() != null) {
@@ -112,23 +110,44 @@ public class InvoiceService {
     @Transactional(readOnly = true)
     public List<InvoiceResponse> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findAll();
-
-        // Sử dụng lại hàm convertToResponse để chuyển đổi danh sách
         return invoices.stream()
-                .map(this::convertToResponse) // 'this::convertToResponse' tương đương 'invoice -> convertToResponse(invoice)'
+                .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
 
-    // Hàm helper private để chuyển đổi từ Entity sang DTO
+
     private InvoiceResponse convertToResponse(Invoice invoice) {
         InvoiceResponse response = modelMapper.map(invoice, InvoiceResponse.class);
-        response.setMaintenanceId(invoice.getMaintenance().getMaintenanceID());
 
-        List<InvoiceDetailResponse> detailResponses = invoice.getInvoiceDetails().stream()
-                .map(detail -> modelMapper.map(detail, InvoiceDetailResponse.class))
-                .collect(Collectors.toList());
+        Maintenance maintenance = invoice.getMaintenance();
+        if (maintenance != null) {
+            response.setMaintenanceId(maintenance.getMaintenanceID());
 
-        response.setInvoiceDetails(detailResponses);
+            Vehicle vehicle = maintenance.getVehicle();
+            if (vehicle != null) {
+                response.setVehicleLicensePlate(vehicle.getLicensePlate());
+                if (vehicle.getModel() != null) {
+                    response.setVehicleModel(vehicle.getModel().getModelName());
+                }
+            }
+
+            Orders order = maintenance.getOrders();
+            if (order != null && order.getCustomer() != null) {
+                Customer customer = order.getCustomer();
+                response.setCustomerName(customer.getName());
+                response.setCustomerPhone(customer.getPhone());
+            }
+        }
+
+        if (invoice.getInvoiceDetails() != null) {
+            List<InvoiceDetailResponse> detailResponses = invoice.getInvoiceDetails().stream()
+                    .map(detail -> modelMapper.map(detail, InvoiceDetailResponse.class))
+                    .collect(Collectors.toList());
+            response.setInvoiceDetails(detailResponses);
+        } else {
+            response.setInvoiceDetails(new ArrayList<>());
+        }
+
         return response;
     }
 }

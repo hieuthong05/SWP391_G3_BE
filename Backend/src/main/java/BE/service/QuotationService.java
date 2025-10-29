@@ -143,6 +143,44 @@ public class QuotationService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional // Đảm bảo các thay đổi được commit
+    public QuotationResponse recalculateAndUpdateQuotation(Quotation quotation) {
+        Maintenance maintenance = quotation.getMaintenance();
+
+        List<QuotationDetail> newDetails = new ArrayList<>();
+        double newTotalAmount = 0;
+
+        // Lặp qua MaintenanceComponent mới nhất của Maintenance
+        if (maintenance.getMaintenanceComponents() != null && !maintenance.getMaintenanceComponents().isEmpty()) {
+            for (MaintenanceComponent mc : maintenance.getMaintenanceComponents()) {
+                Component component = mc.getComponent();
+
+                // Chỉ tính component và giá hợp lệ
+                if (component != null && component.getPrice() != null) {
+                    QuotationDetail detail = new QuotationDetail();
+                    detail.setQuotation(quotation);
+                    detail.setItemName(component.getName());
+                    detail.setQuantity(mc.getQuantity());
+                    detail.setUnitPrice(component.getPrice());
+                    double subTotal = mc.getQuantity() * component.getPrice();
+                    detail.setSubTotal(subTotal);
+
+                    newDetails.add(detail);
+                    newTotalAmount += subTotal;
+                }
+            }
+        }
+
+        quotation.getQuotationDetails().clear();
+        quotation.getQuotationDetails().addAll(newDetails);
+        quotation.setTotalAmount(newTotalAmount);
+
+
+        Quotation savedQuotation = quotationRepository.save(quotation);
+
+        return convertToResponse(savedQuotation);
+    }
+
     private QuotationResponse convertToResponse(Quotation quotation) {
         QuotationResponse response = modelMapper.map(quotation, QuotationResponse.class);
 
