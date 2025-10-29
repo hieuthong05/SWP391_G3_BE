@@ -136,8 +136,10 @@ public class VehicleService {
         }
 
         // Map model
-        if (vehicle.getModel() != null) {
-            response.setModel(modelMapper.map(vehicle.getModel(), BE.model.DTO.ModelDTO.class));
+        if (vehicle.getModel() != null)
+        {
+            response.setModelName(vehicle.getModel().getModelName());
+            response.setModelImageUrl(vehicle.getModel().getImageUrl());
         }
 
         return response;
