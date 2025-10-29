@@ -17,4 +17,7 @@ public class InvoiceResponse {
     private String customerPhone;
     private String vehicleLicensePlate;
     private String vehicleModel;
+    private String customerEmail;
+    private LocalDateTime startTime; // Ngày nhận
+    private LocalDateTime endTime;
 }

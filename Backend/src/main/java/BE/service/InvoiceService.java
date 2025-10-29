@@ -133,6 +133,8 @@ public class InvoiceService {
         Maintenance maintenance = invoice.getMaintenance();
         if (maintenance != null) {
             response.setMaintenanceId(maintenance.getMaintenanceID());
+            response.setStartTime(maintenance.getStartTime());
+            response.setEndTime(maintenance.getEndTime());
 
             Vehicle vehicle = maintenance.getVehicle();
             if (vehicle != null) {
@@ -147,6 +149,7 @@ public class InvoiceService {
                 Customer customer = order.getCustomer();
                 response.setCustomerName(customer.getName());
                 response.setCustomerPhone(customer.getPhone());
+                response.setCustomerEmail(customer.getEmail());
             }
         }
 
