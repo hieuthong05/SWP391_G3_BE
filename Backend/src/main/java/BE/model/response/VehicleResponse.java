@@ -15,7 +15,7 @@ public class VehicleResponse {
     private String licensePlate;
     private String vin;
     private String type;
-    private ModelDTO model;
+    private ModelResponse model;
     private Integer year;
     private Integer mileage;
     private LocalDateTime dayCreated;
