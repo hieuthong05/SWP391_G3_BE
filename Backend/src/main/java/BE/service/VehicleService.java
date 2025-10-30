@@ -4,6 +4,7 @@ import BE.entity.Customer;
 import BE.entity.Model;
 import BE.entity.Vehicle;
 import BE.model.DTO.VehicleDTO;
+import BE.model.response.ModelResponse;
 import BE.model.response.VehicleResponse;
 import BE.repository.CustomerRepository;
 import BE.repository.ModelRepository;
@@ -137,7 +138,7 @@ public class VehicleService {
 
         // Map model
         if (vehicle.getModel() != null) {
-            response.setModel(modelMapper.map(vehicle.getModel(), BE.model.DTO.ModelDTO.class));
+            response.setModel(modelMapper.map(vehicle.getModel(), ModelResponse.class));
         }
 
         return response;
