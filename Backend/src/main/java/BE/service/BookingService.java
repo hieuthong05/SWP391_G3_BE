@@ -23,26 +23,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingService {
 
-    @Autowired
-    OrdersRepository ordersRepository;
-
-    @Autowired
-    CustomerRepository customerRepository;
-
-    @Autowired
-    VehicleRepository vehicleRepository;
-
-    @Autowired
-    ServiceCenterRepository serviceCenterRepository;
-
-    @Autowired
-    ServiceRepository serviceRepository;
-
-    @Autowired
-    ServicePackageRepository servicePackageRepository;
-
-    @Autowired
-    ModelMapper modelMapper;
+    private final OrdersRepository ordersRepository;
+    private final CustomerRepository customerRepository;
+    private final VehicleRepository vehicleRepository;
+    private final ServiceCenterRepository serviceCenterRepository;
+    private final ServiceRepository serviceRepository;
+    private final ServicePackageRepository servicePackageRepository;
+    private final ModelMapper modelMapper;
 
     private static final int MAX_BOOKINGS_PER_SLOT = 8;
     private static final LocalTime OPENING_TIME = LocalTime.of(8, 0);
