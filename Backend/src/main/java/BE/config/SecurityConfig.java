@@ -41,7 +41,7 @@ public class SecurityConfig {
 
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
-                
+
                 return http.build();
 //                .userDetailsService(authenticationService)
 //                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
