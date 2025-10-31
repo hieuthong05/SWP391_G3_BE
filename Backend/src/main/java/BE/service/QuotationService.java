@@ -109,6 +109,15 @@ public class QuotationService {
         return convertToResponse(quotation);
     }
 
+
+    @Transactional
+    public QuotationResponse updateQuotationByMaintenanceId(Long maintenanceId) {
+        Quotation quotation = quotationRepository.findByMaintenance_MaintenanceID(maintenanceId)
+                .orElseThrow(() -> new EntityNotFoundException("Quotation not found for Maintenance ID: " + maintenanceId));
+
+        return recalculateAndUpdateQuotation(quotation);
+    }
+
     @Transactional
     public void confirmQuotation(Long quotationId, boolean approved) {
         Quotation quotation = quotationRepository.findById(quotationId)
@@ -143,7 +152,7 @@ public class QuotationService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional // Đảm bảo các thay đổi được commit
+    @Transactional
     public QuotationResponse recalculateAndUpdateQuotation(Quotation quotation) {
         Maintenance maintenance = quotation.getMaintenance();
 
@@ -174,7 +183,6 @@ public class QuotationService {
         quotation.getQuotationDetails().clear();
         quotation.getQuotationDetails().addAll(newDetails);
         quotation.setTotalAmount(newTotalAmount);
-
 
         Quotation savedQuotation = quotationRepository.save(quotation);
 

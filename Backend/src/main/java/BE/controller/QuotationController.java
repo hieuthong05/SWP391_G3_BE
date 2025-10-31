@@ -120,4 +120,21 @@ public class QuotationController {
         }
     }
 
+    @PutMapping("/maintenance/{maintenanceId}")
+    public ResponseEntity<?> updateQuotationByMaintenanceId(@PathVariable Long maintenanceId) {
+        try {
+            QuotationResponse updatedQuotation = quotationService.updateQuotationByMaintenanceId(maintenanceId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Quotation updated and recalculated successfully!");
+            response.put("data", updatedQuotation);
+            return ResponseEntity.ok(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+        }
+    }
+
 }
