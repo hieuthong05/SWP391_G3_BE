@@ -1,7 +1,9 @@
 package BE.controller;
 
 import BE.model.DTO.QuotationDTO;
+import BE.model.response.MaintenanceComponentResponse;
 import BE.model.response.QuotationResponse;
+import BE.service.MaintenanceComponentService;
 import BE.service.QuotationService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +26,9 @@ public class QuotationController {
 
     @Autowired
     private final QuotationService quotationService;
+
+    @Autowired
+    private final MaintenanceComponentService maintenanceComponentService;
 
     @PostMapping("/create")
     public ResponseEntity<?> createQuotation(@Valid @RequestBody QuotationDTO requestDTO) {
@@ -120,20 +125,24 @@ public class QuotationController {
         }
     }
 
-    @PutMapping("/maintenance/{maintenanceId}")
-    public ResponseEntity<?> updateQuotationByMaintenanceId(@PathVariable Long maintenanceId) {
+    @PutMapping("/{maintenanceComponentId}/quantity")
+    public ResponseEntity<?> updateComponentQuantity(
+            @PathVariable Long maintenanceId,
+            @PathVariable Long maintenanceComponentId,
+            @RequestBody Map<String, Integer> body) {
         try {
-            QuotationResponse updatedQuotation = quotationService.updateQuotationByMaintenanceId(maintenanceId);
-            Map<String, Object> response = new HashMap<>();
-            response.put("message", "Quotation updated and recalculated successfully!");
-            response.put("data", updatedQuotation);
-            return ResponseEntity.ok(response);
+            int quantity = body.get("quantity");
+            MaintenanceComponentResponse response = maintenanceComponentService.updateComponentQuantity(maintenanceComponentId, quantity);
+            Map<String, Object> result = new HashMap<>();
+            result.put("message", "Quantity updated successfully!");
+            result.put("data", response);
+            return ResponseEntity.ok(result);
         } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "An unexpected error occurred: " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Failed to update quantity: " + e.getMessage()));
         }
     }
 
