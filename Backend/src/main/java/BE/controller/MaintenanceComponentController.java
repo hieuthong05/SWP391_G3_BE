@@ -63,8 +63,9 @@ public class MaintenanceComponentController {
     public ResponseEntity<?> updateComponentQuantity(
             @PathVariable Long maintenanceId,
             @PathVariable Long maintenanceComponentId,
-            @RequestParam int quantity) {
+            @RequestBody Map<String, Integer> body) {
         try {
+            int quantity = body.get("quantity");
             MaintenanceComponentResponse response = maintenanceComponentService.updateComponentQuantity(maintenanceComponentId, quantity);
             Map<String, Object> result = new HashMap<>();
             result.put("message", "Quantity updated successfully!");
