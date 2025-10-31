@@ -23,4 +23,5 @@ public interface ComponentRepository extends JpaRepository<BE.entity.Component, 
     // Query cho low stock components
     @Query("SELECT c FROM Component c WHERE c.status = :status AND c.quantity <= c.minQuantity")
     List<BE.entity.Component> findByStatusAndQuantityLessThanEqualMinQuantity(@Param("status") String status);
+
 }

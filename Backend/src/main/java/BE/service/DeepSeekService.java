@@ -1,24 +1,24 @@
+/*
 package BE.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClientException;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 @Service
 public class DeepSeekService {
 
-    @Value("${DEEPSEEK_API_KEY:#{null}}")
-    private String apiKey;
+    private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-    private static final String API_URL = "https://api.deepseek.com/chat/completions";
+    @Value("${OPENROUTER_API_KEY}")
+    private String apiKey;
 
     public String getChatResponse(String message) {
         if (apiKey == null || apiKey.isEmpty()) {
-            throw new RuntimeException("❌ Missing API key! Please set DEEPSEEK_API_KEY environment variable.");
+            throw new RuntimeException("❌ Missing OpenRouter API key! Set OPENROUTER_API_KEY environment variable.");
         }
 
         RestTemplate restTemplate = new RestTemplate();
@@ -26,33 +26,32 @@ public class DeepSeekService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(apiKey);
+        headers.set("HTTP-Referer", "http://localhost:5173");
+        headers.set("X-Title", "EV Service Center ChatBot");
 
-        // ⚠️ Try model deepseek-chat first
         JSONObject body = new JSONObject();
-        body.put("model", "deepseek-chat");
-        body.put("messages", new org.json.JSONArray()
-                .put(new JSONObject().put("role", "user").put("content", message))
-        );
+        body.put("model", "deepseek/deepseek-r1:free");
+
+        JSONArray messages = new JSONArray();
+        messages.put(new JSONObject().put("role", "user").put("content", message));
+        body.put("messages", messages);
 
         HttpEntity<String> requestEntity = new HttpEntity<>(body.toString(), headers);
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(API_URL, HttpMethod.POST, requestEntity, String.class);
 
-            System.out.println("✅ DeepSeek API response: " + response.getBody());
-
-            JSONObject responseBody = new JSONObject(response.getBody());
-            return responseBody.getJSONArray("choices")
+            JSONObject json = new JSONObject(response.getBody());
+            return json
+                    .getJSONArray("choices")
                     .getJSONObject(0)
                     .getJSONObject("message")
                     .getString("content");
 
-        } catch (HttpClientErrorException e) {
-            System.err.println("❌ DeepSeek API returned " + e.getStatusCode() + ": " + e.getResponseBodyAsString());
-            throw new RuntimeException("DeepSeek API Error: " + e.getStatusCode() + " - " + e.getResponseBodyAsString());
-        } catch (RestClientException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to connect to DeepSeek API: " + e.getMessage());
+            throw new RuntimeException("⚠️ Error connecting to OpenRouter/DeepSeek: " + e.getMessage());
         }
     }
 }
+*/

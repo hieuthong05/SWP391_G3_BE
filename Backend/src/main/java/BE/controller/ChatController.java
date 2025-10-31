@@ -1,4 +1,4 @@
-package BE.controller;
+/*package BE.controller;
 
 import BE.service.DeepSeekService;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +16,7 @@ public class ChatController {
 
     @PostMapping
     public ChatResponse chat(@RequestBody ChatRequest request) {
+        System.out.println("📩 Chat endpoint hit! Message: " + request.message());
         String reply = deepSeekService.getChatResponse(request.message());
         return new ChatResponse(reply);
     }
@@ -23,3 +24,4 @@ public class ChatController {
     public record ChatRequest(String message) {}
     public record ChatResponse(String reply) {}
 }
+*/
