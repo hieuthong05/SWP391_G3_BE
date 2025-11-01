@@ -36,6 +36,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
     @Query("SELECT DISTINCT o FROM Orders o JOIN o.services s WHERE s.serviceID = :serviceId")
     List<Orders> findOrdersByServiceId(@Param("serviceId") Long serviceId);
 
+    long count();
+
     @Query("SELECT o FROM Orders o " +
             "LEFT JOIN FETCH o.services " +
 //            "LEFT JOIN FETCH o.servicePackages " +

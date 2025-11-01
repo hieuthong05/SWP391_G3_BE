@@ -1,6 +1,8 @@
 package BE.controller;
 
+import BE.model.DTO.DashboardStatisticsDTO;
 import BE.service.StatisticService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,5 +28,13 @@ public class StatisticController {
     {
         List<Map<String, Object>> stats = statisticService.getMonthlyStatistics();
         return ResponseEntity.ok(stats);
+    }
+
+    @Operation(summary = "Get system dashboard statistics")
+    @GetMapping("/dashboard")
+    public ResponseEntity<DashboardStatisticsDTO> getDashboardStatistics()
+    {
+        DashboardStatisticsDTO statistics = statisticService.getDashboardStatistics();
+        return ResponseEntity.ok(statistics);
     }
 }
