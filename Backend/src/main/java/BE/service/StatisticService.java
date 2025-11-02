@@ -1,6 +1,8 @@
 package BE.service;
 
-import BE.repository.InvoiceRepository;
+import BE.model.DTO.DashboardStatisticsDTO;
+import BE.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +12,24 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class StatisticService {
 
     @Autowired
     private InvoiceRepository invoiceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private VehicleRepository vehicleRepository;
+
+    @Autowired
+    private OrdersRepository ordersRepository;
+
+    @Autowired
+    private MaintenanceRepository maintenanceRepository;
+
 
     public List<Map<String, Object>> getMonthlyStatistics()
     {
@@ -40,5 +56,26 @@ public class StatisticService {
         }
 
         return result;
+    }
+
+    public DashboardStatisticsDTO getDashboardStatistics()
+    {
+        long customers = userRepository.countActiveCustomers();
+        long staff = userRepository.countActiveStaff();
+        long technicians = userRepository.countActiveTechnicians();
+        long totalActiveUsers = userRepository.countAllActiveUsers();
+        long activeVehicles = vehicleRepository.countActiveVehicles();
+        long totalOrders = ordersRepository.count();
+        long totalMaintenances = maintenanceRepository.count();
+
+        return new DashboardStatisticsDTO(
+                customers,
+                staff,
+                technicians,
+                totalActiveUsers,
+                activeVehicles,
+                totalOrders,
+                totalMaintenances
+        );
     }
 }

@@ -10,6 +10,8 @@ import java.util.Optional;
 
 public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> {
 
+    long count();
+
 
      //* Kiểm tra xem order đã có maintenance chưa
 
