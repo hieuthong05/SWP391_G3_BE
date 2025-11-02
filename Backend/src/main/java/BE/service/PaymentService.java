@@ -5,11 +5,8 @@ import BE.repository.InvoiceRepository;
 import BE.repository.MaintenanceRepository;
 import BE.repository.OrdersRepository;
 import BE.repository.PaymentRepository;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,12 +15,6 @@ import vn.payos.type.CheckoutResponseData;
 import vn.payos.type.ItemData;
 import vn.payos.type.PaymentData;
 
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -34,8 +25,6 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final InvoiceRepository invoiceRepository;
     private final OrdersRepository ordersRepository;
-    private final ObjectMapper objectMapper;
-    private final String payosChecksumKey;
     private final MaintenanceRepository maintenanceRepository;
 
     @Autowired
@@ -43,21 +32,16 @@ public class PaymentService {
                           PaymentRepository paymentRepository,
                           InvoiceRepository invoiceRepository,
                           OrdersRepository ordersRepository,
-                          ObjectMapper objectMapper,
-                          MaintenanceRepository maintenanceRepository,
-                          @Value("${payos.checksum-key}") String payosChecksumKey) {
+                          MaintenanceRepository maintenanceRepository) {
 
         this.payOS = payOS;
         this.paymentRepository = paymentRepository;
         this.invoiceRepository = invoiceRepository;
         this.ordersRepository = ordersRepository;
-        this.objectMapper = objectMapper;
         this.maintenanceRepository = maintenanceRepository;
-        this.payosChecksumKey = payosChecksumKey;
     }
 
     @Transactional
-    // --- Thay đổi kiểu trả về từ String sang Map<String, Object> ---
     public Map<String, Object> createPaymentLink(Long invoiceId) throws Exception {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + invoiceId));
@@ -118,45 +102,57 @@ public class PaymentService {
 
     @Transactional
     public String updatePaymentStatusAfterSuccess(String paymentLinkId) {
+        // Tìm Payment
         Payment payment = paymentRepository.findByPaymentLinkId(paymentLinkId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thanh toán với Link ID: " + paymentLinkId));
 
-        if ("PENDING".equalsIgnoreCase(payment.getPaymentStatus())) {
-            payment.setPaymentStatus("PAID");
-            paymentRepository.save(payment);
-
-            Invoice invoice = payment.getInvoice();
-            if (invoice != null) {
-                invoice.setStatus("PAID");
-                invoiceRepository.save(invoice);
-
-                Maintenance maintenance = invoice.getMaintenance();
-                if (maintenance != null) {
-                    if (!"Completed".equalsIgnoreCase(maintenance.getStatus()) && !"Cancelled".equalsIgnoreCase(maintenance.getStatus())) {
-                        maintenance.setStatus("Completed");
-                        maintenance.setEndTime(LocalDateTime.now());
-                        maintenanceRepository.save(maintenance);
-                    }
-
-                    if (maintenance.getOrders() != null) {
-                        Orders order = maintenance.getOrders();
-                        if (!"Completed".equalsIgnoreCase(order.getStatus()) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
-                            order.setStatus("Completed");
-                            order.setPaymentStatus(true);
-                            ordersRepository.save(order);
-                        }
-                        return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID() + " (Link ID: " + paymentLinkId + ")";
-                    } else {
-                        return "Cập nhật trạng thái Payment và Maintenance thành công, nhưng không tìm thấy Order liên quan.";
-                    }
-                } else {
-                    return "Cập nhật trạng thái Payment và Invoice thành công, nhưng không tìm thấy Maintenance liên quan.";
-                }
-            } else {
-                return "Cập nhật trạng thái Payment thành công, nhưng không tìm thấy Invoice liên quan.";
-            }
-        } else {
+        if (!"PENDING".equalsIgnoreCase(payment.getPaymentStatus())) {
             return "Trạng thái thanh toán đã được xử lý trước đó: " + payment.getPaymentStatus();
+        }
+        payment.setPaymentStatus("PAID");
+        paymentRepository.save(payment);
+
+        // Cập nhật Invoice
+        Invoice invoice = payment.getInvoice();
+        if (invoice == null) {
+            return "Cập nhật trạng thái Payment thành công, nhưng không tìm thấy Invoice liên quan.";
+        }
+
+        invoice.setStatus("PAID");
+        invoiceRepository.save(invoice);
+
+        // Cập nhật Maintenance
+        Maintenance maintenance = invoice.getMaintenance();
+        if (maintenance == null) {
+            return "Cập nhật trạng thái Payment và Invoice thành công, nhưng không tìm thấy Maintenance liên quan.";
+        }
+
+        updateMaintenanceStatusOnPayment(maintenance);
+
+        // Cập nhật Order
+        Orders order = maintenance.getOrders();
+        if (order == null) {
+            return "Cập nhật trạng thái Payment và Maintenance thành công, nhưng không tìm thấy Order liên quan.";
+        }
+
+        updateOrderStatusOnPayment(order);
+
+        return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID() + " (Link ID: " + paymentLinkId + ")";
+    }
+
+    private void updateMaintenanceStatusOnPayment(Maintenance maintenance) {
+        if (!"Completed".equalsIgnoreCase(maintenance.getStatus()) && !"Cancelled".equalsIgnoreCase(maintenance.getStatus())) {
+            maintenance.setStatus("Completed");
+            maintenance.setEndTime(LocalDateTime.now());
+            maintenanceRepository.save(maintenance);
+        }
+    }
+
+    private void updateOrderStatusOnPayment(Orders order) {
+        if (!"Completed".equalsIgnoreCase(order.getStatus()) && !"Cancelled".equalsIgnoreCase(order.getStatus())) {
+            order.setStatus("Completed");
+            order.setPaymentStatus(true);
+            ordersRepository.save(order);
         }
     }
 }
