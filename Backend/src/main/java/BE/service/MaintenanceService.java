@@ -269,6 +269,29 @@ public class MaintenanceService {
         Maintenance maintenance = maintenanceRepository.findById(maintenanceID)
                 .orElseThrow(() -> new EntityNotFoundException("Maintenance not found"));
 
+        if (maintenance.getMaintenanceComponents() != null && !maintenance.getMaintenanceComponents().isEmpty()) {
+            for (MaintenanceComponent mc : maintenance.getMaintenanceComponents()) {
+                Component component = mc.getComponent();
+                int quantityUsed = mc.getQuantity();
+
+                if (component == null) {
+                    System.err.println("Warning: Component is null for MaintenanceComponent ID: " + mc.getMaintenanceComponentID());
+                    continue;
+                }
+
+                Integer currentStock = component.getQuantity();
+                if (currentStock == null || currentStock < quantityUsed) {
+                    throw new IllegalStateException("Không đủ số lượng tồn kho cho linh kiện: "
+                            + component.getName() + " (ID: " + component.getComponentID() + "). "
+                            + "Yêu cầu: " + quantityUsed + ", Tồn kho: " + (currentStock == null ? 0 : currentStock));
+                }
+
+                component.setQuantity(currentStock - quantityUsed);
+                componentRepository.save(component);
+            }
+        }
+        maintenance.setEndTime(LocalDateTime.now());
+
         maintenance.setStatus("Waiting For Payment");
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
         savedMaintenance.getOrders().setStatus(savedMaintenance.getStatus());
