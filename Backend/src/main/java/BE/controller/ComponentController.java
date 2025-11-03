@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -96,7 +97,7 @@ public class ComponentController {
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateComponent(
             @PathVariable Long id,
-            @Valid @RequestBody ComponentDTO componentDTO) {
+            @Valid @RequestBody ComponentDTO componentDTO) throws IOException {
         try {
             ComponentResponse response = componentService.updateComponent(id, componentDTO);
             return ResponseEntity.ok(response);

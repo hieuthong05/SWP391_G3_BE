@@ -14,14 +14,14 @@ public class AIPartController {
 
     private final AIPartService aiPartService;
 
-    // ✅ AI Suggestion Endpoint
+    // AI Suggestion Endpoint
     @GetMapping("/suggested-min/{code}")
     public ResponseEntity<AIPartResponse> getSuggestedMin(@PathVariable String code) {
         AIPartResponse response = aiPartService.calculateSuggestedMin(code);
         return ResponseEntity.ok(response);
     }
 
-    // ✅ Apply AI Suggestion Endpoint
+    // Apply AI Suggestion Endpoint
     @PostMapping("/apply-suggested-min/{code}")
     public ResponseEntity<String> applySuggestedMin(
             @PathVariable String code,
@@ -29,6 +29,6 @@ public class AIPartController {
 
         int suggestedMin = payload.get("suggestedMin");
         aiPartService.updateMinQuantityByCode(code, suggestedMin);
-        return ResponseEntity.ok("✅ Đã cập nhật số lượng tối thiểu theo gợi ý AI.");
+        return ResponseEntity.ok("Đã cập nhật số lượng tối thiểu theo gợi ý AI.");
     }
 }

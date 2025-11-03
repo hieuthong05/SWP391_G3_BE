@@ -1,9 +1,11 @@
 package BE.model.DTO;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
+@JsonIgnoreProperties(value = {"image"}, allowGetters = true)
 public class ComponentDTO {
 
     private Long serviceCenterID;

@@ -8,10 +8,10 @@ import BE.repository.ServiceCenterRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -30,7 +30,7 @@ public class ComponentService {
     private CloudinaryService cloudinaryService;
 
     @Transactional(readOnly = true)
-    public ComponentResponse getComponentById(Long id){
+    public ComponentResponse getComponentById(Long id) {
         BE.entity.Component component = componentRepository.findByComponentIDAndStatus(id, "active")
                 .orElseThrow(() -> new EntityNotFoundException("Component not found with id: " + id));
 
@@ -46,9 +46,8 @@ public class ComponentService {
     }
 
     @Transactional
-    public ComponentResponse createComponent(ComponentDTO componentDTO) throws Exception
-    {
-        if (componentRepository.findByCode(componentDTO.getCode()).isPresent()){
+    public ComponentResponse createComponent(ComponentDTO componentDTO) throws Exception {
+        if (componentRepository.findByCode(componentDTO.getCode()).isPresent()) {
             throw new IllegalArgumentException("Component code already exists");
         }
 
@@ -70,7 +69,12 @@ public class ComponentService {
                     .orElseThrow(() -> new EntityNotFoundException("Service Center not found"));
             component.setServiceCenter(serviceCenter);
         }
-        String imageUrl = cloudinaryService.uploadFile(componentDTO.getImage(), "components");
+
+        // Upload image if available
+        String imageUrl = null;
+        if (componentDTO.getImage() != null && !componentDTO.getImage().isEmpty()) {
+            imageUrl = cloudinaryService.uploadFile(componentDTO.getImage(), "components");
+        }
         component.setImageUrl(imageUrl);
 
         BE.entity.Component savedComponent = componentRepository.save(component);
@@ -85,24 +89,38 @@ public class ComponentService {
         return componentResponse;
     }
 
+    // ✅ FIXED UPDATE METHOD (no more foreign key errors)
     @Transactional
-    public ComponentResponse updateComponent(Long id, ComponentDTO componentDTO) {
+    public ComponentResponse updateComponent(Long id, ComponentDTO componentDTO) throws IOException {
         BE.entity.Component component = componentRepository.findByComponentIDAndStatus(id, "active")
                 .orElseThrow(() -> new EntityNotFoundException("Component not found with id: " + id));
 
-        if (componentRepository.findByCodeAndComponentIDNot(componentDTO.getCode(), id).isPresent()){
+        if (componentRepository.findByCodeAndComponentIDNot(componentDTO.getCode(), id).isPresent()) {
             throw new IllegalArgumentException("Component code already exists");
         }
 
-        modelMapper.map(componentDTO, component);
+        // ✅ Only update editable fields, ignore checklist_id & status
+        component.setPrice(componentDTO.getPrice());
+        component.setQuantity(componentDTO.getQuantity());
+        component.setMinQuantity(componentDTO.getMinQuantity());
+        component.setSupplierName(componentDTO.getSupplierName());
+        component.setDescription(componentDTO.getDescription());
 
+        // ✅ Update Service Center if provided
         if (componentDTO.getServiceCenterID() != null) {
             ServiceCenter serviceCenter = serviceCenterRepository.findById(componentDTO.getServiceCenterID())
                     .orElseThrow(() -> new EntityNotFoundException("Service Center not found"));
             component.setServiceCenter(serviceCenter);
         }
 
+        // ✅ Only update image if new image is provided
+        if (componentDTO.getImage() != null && !componentDTO.getImage().isEmpty()) {
+            String imageUrl = cloudinaryService.uploadFile(componentDTO.getImage(), "components");
+            component.setImageUrl(imageUrl);
+        }
+
         BE.entity.Component updatedComponent = componentRepository.save(component);
+
         ComponentResponse componentResponse = new ComponentResponse();
         modelMapper.map(updatedComponent, componentResponse);
 
@@ -115,7 +133,7 @@ public class ComponentService {
     }
 
     @Transactional
-    public void deleteComponent(Long id){
+    public void deleteComponent(Long id) {
         BE.entity.Component component = componentRepository.findByComponentIDAndStatus(id, "active")
                 .orElseThrow(() -> new EntityNotFoundException("Component not found with id: " + id));
         component.setStatus("inactive");
@@ -123,7 +141,7 @@ public class ComponentService {
     }
 
     @Transactional(readOnly = true)
-    public List<ComponentResponse> getAllComponent(){
+    public List<ComponentResponse> getAllComponent() {
         return componentRepository.findByStatus("active")
                 .stream()
                 .map(component -> {
@@ -139,7 +157,7 @@ public class ComponentService {
     }
 
     @Transactional(readOnly = true)
-    public List<ComponentResponse> getComponentByServiceCenter(Long serviceCenterID){
+    public List<ComponentResponse> getComponentByServiceCenter(Long serviceCenterID) {
         ServiceCenter serviceCenter = serviceCenterRepository.findById(serviceCenterID)
                 .orElseThrow(() -> new EntityNotFoundException("Service Center not found"));
 
@@ -156,7 +174,7 @@ public class ComponentService {
     }
 
     @Transactional(readOnly = true)
-    public List<ComponentResponse> getComponentByType(String type){
+    public List<ComponentResponse> getComponentByType(String type) {
         return componentRepository.findByTypeAndStatus(type, "active")
                 .stream()
                 .map(component -> {
@@ -172,7 +190,7 @@ public class ComponentService {
     }
 
     @Transactional(readOnly = true)
-    public List<ComponentResponse> getComponentByName(String name){
+    public List<ComponentResponse> getComponentByName(String name) {
         return componentRepository.findByNameContainingAndStatus(name, "active")
                 .stream()
                 .map(component -> {
@@ -188,7 +206,7 @@ public class ComponentService {
     }
 
     @Transactional(readOnly = true)
-    public List<ComponentResponse> getLowStockComponent(){
+    public List<ComponentResponse> getLowStockComponent() {
         return componentRepository.findByStatusAndQuantityLessThanEqualMinQuantity("active")
                 .stream()
                 .map(component -> {
