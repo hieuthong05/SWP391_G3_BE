@@ -12,6 +12,14 @@ public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> 
 
     long count();
 
+    // Đếm tổng số maintenance có order theo tháng
+    @Query("SELECT MONTH(m.orders.orderDate) AS month, COUNT(m) AS total " +
+            "FROM Maintenance m " +
+            "WHERE YEAR(m.orders.orderDate) = :year AND m.orders IS NOT NULL " +
+            "GROUP BY MONTH(m.orders.orderDate) " +
+            "ORDER BY MONTH(m.orders.orderDate)")
+    List<Object[]> countMaintenanceByMonth(int year);
+
 
      //* Kiểm tra xem order đã có maintenance chưa
 

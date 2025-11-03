@@ -18,4 +18,14 @@ public interface MaintenanceChecklistRepository extends JpaRepository<Maintenanc
     List<MaintenanceChecklist> findByMaintenance_MaintenanceID(Long maintenanceId);
 
     Optional<MaintenanceChecklist> findByMaintenance_MaintenanceIDAndCheckList_CheckListId(Long maintenanceId, Long checkListId);
+
+    // Đếm số lượng fail theo từng checklist
+    @Query("""
+           SELECT c.checkList.checkListId, c.checkList.checkListName, COUNT(c)
+           FROM MaintenanceChecklist c
+           WHERE LOWER(c.status) = 'fail'
+           GROUP BY c.checkList.checkListId, c.checkList.checkListName
+           ORDER BY COUNT(c) DESC
+           """)
+    List<Object[]> countFailedChecklists();
 }
