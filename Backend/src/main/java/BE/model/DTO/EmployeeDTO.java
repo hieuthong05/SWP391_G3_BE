@@ -12,6 +12,7 @@ public class EmployeeDTO {
     @Size(min = 2, max = 100, message = "Name must be between 2 and 100 characters")
     private String name;
 
+    @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
 
@@ -32,11 +33,11 @@ public class EmployeeDTO {
     private Long serviceCenter;
     private Long shift;
 
-    private boolean status = true;
-
-    @NotNull(message = "Salary is required")
-    @DecimalMin(value = "0.0", message = "Salary must be greater than or equal to 0")
-    private Double salary;
+//    private boolean status = true;
+//
+//    @NotNull(message = "Salary is required")
+//    @DecimalMin(value = "0.0", message = "Salary must be greater than or equal to 0")
+//    private Double salary;
 
     @NotBlank(message = "Address is required")
     private String address;
