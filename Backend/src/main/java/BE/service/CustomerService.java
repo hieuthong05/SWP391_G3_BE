@@ -53,11 +53,11 @@ public class CustomerService {
             throw new IllegalArgumentException("Email already exists");
         }
 
+        modelMapper.map(dto, customer);
+
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()){
             customer.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
-
-        modelMapper.map(dto, customer);
 
         Customer updatedCustomer = customerRepository.save(customer);
         CustomerResponse customerResponse = new CustomerResponse();

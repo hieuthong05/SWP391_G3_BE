@@ -49,7 +49,7 @@ public class TokenService {
         return extractClaim(token, Claims :: getExpiration);
     }
 
-    private boolean isTokenExpired(String token){
+    public boolean isTokenExpired(String token){
         return extractExpiration(token).before(new Date());
     }
 
