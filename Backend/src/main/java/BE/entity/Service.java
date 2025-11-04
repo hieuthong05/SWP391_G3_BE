@@ -22,7 +22,7 @@ public class Service {
     @Column(name = "service_name")
     private String serviceName;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "service_type")

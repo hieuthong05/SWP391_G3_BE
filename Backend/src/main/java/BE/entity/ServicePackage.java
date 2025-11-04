@@ -18,7 +18,7 @@ public class ServicePackage {
     @Column(nullable = false, unique = true)
     private String name;   // Ví dụ: "Bảo dưỡng định kỳ 5000km"
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String description; // Mô tả chi tiết gói dịch vụ
 
     @Column(name = "interval_km")

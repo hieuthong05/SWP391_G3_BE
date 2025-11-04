@@ -25,7 +25,7 @@ public class Component {
     @JoinColumn(name = "checklist_ID")
     private CheckList checkList;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String name;
 
     @Column(unique = true)
@@ -33,7 +33,7 @@ public class Component {
 
     private String type;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private Double price;
@@ -42,13 +42,13 @@ public class Component {
     @Column(name = "min_quantity")
     private Integer minQuantity;
 
-    @Column(name = "supplier_name", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "supplier_name", columnDefinition = "TEXT")
     private String supplierName;
 
 //    @Lob
 //    private byte[] image;
 
-    @Column(name = "image_url", columnDefinition = "NVARCHAR(500)")
+    @Column(name = "image_url", columnDefinition = "VARCHAR(500)")
     private String imageUrl; // lưu đường dẫn ảnh
 
     private String status;
