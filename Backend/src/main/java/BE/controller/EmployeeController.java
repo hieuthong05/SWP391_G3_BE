@@ -5,6 +5,7 @@ import BE.model.DTO.EmployeeDTO;
 import BE.model.response.EmployeeResponse;
 import BE.service.AuthenticationService;
 import BE.service.EmployeeService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
@@ -20,6 +21,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/employees")
+@SecurityRequirement(name = "api")
 @RequiredArgsConstructor
 public class EmployeeController {
 
@@ -50,6 +52,14 @@ public class EmployeeController {
         response.put("List Of Employees", employees);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "Lấy tất cả nhân viên đang hoạt động (status = true)")
+    @GetMapping("/active")
+    public ResponseEntity<List<EmployeeResponse>> getAllActiveEmployees()
+    {
+        List<EmployeeResponse> employees = employeeService.getAllActiveEmployees();
+        return ResponseEntity.ok(employees);
     }
 
      //* Lấy active employees theo role (useful cho assign technician)

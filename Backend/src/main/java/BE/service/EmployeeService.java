@@ -3,8 +3,10 @@ package BE.service;
 import BE.entity.Employee;
 import BE.entity.ServiceCenter;
 import BE.entity.Shift;
+import BE.entity.User;
 import BE.model.DTO.EmployeeDTO;
 import BE.model.response.EmployeeResponse;
+import BE.repository.AuthenticationRepository;
 import BE.repository.EmployeeRepository;
 import BE.repository.ServiceCenterRepository;
 import BE.repository.ShiftRepository;
@@ -22,6 +24,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class EmployeeService {
+
+    @Autowired
+    AuthenticationRepository authenticationRepository;
 
     @Autowired
     EmployeeRepository employeeRepository;
@@ -44,6 +49,15 @@ public class EmployeeService {
         List<Employee> employees = employeeRepository.findAllWithDetails();
 
         return employees.stream()
+                .map(this::mapToEmployeeResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<EmployeeResponse> getAllActiveEmployees()
+    {
+        List<Employee> activeEmployees = employeeRepository.findByStatusTrue();
+        return activeEmployees.stream()
                 .map(this::mapToEmployeeResponse)
                 .collect(Collectors.toList());
     }
@@ -114,7 +128,17 @@ public class EmployeeService {
                     .orElseThrow(() -> new EntityNotFoundException("Shift not found"));
             employee.setShift(shift);
         }
-        return employeeRepository.save(employee);
+        Employee savedEmployee = employeeRepository.save(employee);
+
+        User user = modelMapper.map(dto, User.class);
+        user.setPassword(savedEmployee.getPassword());
+        user.setRole(savedEmployee.getRole());
+        user.setRefId(savedEmployee.getEmployeeID());
+        user.setRefType(savedEmployee.getRole());
+        user.setStatus(true);
+        authenticationRepository.save(user);
+
+        return savedEmployee;
     }
 
     //Soft Delete Employee
@@ -162,6 +186,7 @@ public class EmployeeService {
         response.setGender(employee.getGender());
         response.setRole(employee.getRole());
 
+        response.setStatus(employee.isStatus());
         response.setSalary(employee.getSalary());
         response.setAddress(employee.getAddress());
         response.setBirth(employee.getBirth());

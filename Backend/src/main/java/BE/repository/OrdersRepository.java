@@ -38,6 +38,14 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     long count();
 
+    // Đếm tổng số order theo tháng trong năm
+    @Query("SELECT MONTH(o.orderDate) AS month, COUNT(o) AS total " +
+            "FROM Orders o " +
+            "WHERE YEAR(o.orderDate) = :year " +
+            "GROUP BY MONTH(o.orderDate) " +
+            "ORDER BY MONTH(o.orderDate)")
+    List<Object[]> countOrdersByMonth(int year);
+
     @Query("SELECT o FROM Orders o " +
             "LEFT JOIN FETCH o.services " +
 //            "LEFT JOIN FETCH o.servicePackages " +
