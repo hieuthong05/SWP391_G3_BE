@@ -17,7 +17,7 @@ public class EmployeeResponse {
     private String address;
     private LocalDate birth;
 
-
+    private boolean status;
 
     private String serviceCenterName;
     private String shiftName;

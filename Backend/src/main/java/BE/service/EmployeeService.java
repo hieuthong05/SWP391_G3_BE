@@ -186,6 +186,7 @@ public class EmployeeService {
         response.setGender(employee.getGender());
         response.setRole(employee.getRole());
 
+        response.setStatus(employee.isStatus());
         response.setSalary(employee.getSalary());
         response.setAddress(employee.getAddress());
         response.setBirth(employee.getBirth());
