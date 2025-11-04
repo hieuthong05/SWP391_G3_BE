@@ -62,25 +62,15 @@ public class AdminService {
             throw new IllegalArgumentException("Email already exists");
         }
 
+        modelMapper.map(dto, admin);
+
         if (dto.getPassword() != null && !dto.getPassword().isEmpty()){
             admin.setPassword(passwordEncoder.encode(dto.getPassword()));
         }
 
-        modelMapper.map(dto, admin);
-
-//        if (dto.getShift() != null) {
-//            Shift shift = shiftRepository.findById(dto.getShift())
-//                    .orElseThrow(() -> new EntityNotFoundException("Shift not found"));
-//            admin.setShift(shift);
-//        }
-
         Admin updatedAdmin = adminRepository.save(admin);
         AdminResponse adminResponse = new AdminResponse();
         modelMapper.map(updatedAdmin,adminResponse);
-
-//        if (updatedAdmin.getShift() != null) {
-//            adminResponse.setShift(updatedAdmin.getShift().getName());
-//        }
 
         return adminResponse;
     }

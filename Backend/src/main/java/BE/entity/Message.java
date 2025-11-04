@@ -26,7 +26,7 @@ public class Message {
     @JoinColumn(name = "customer_ID")
     private Customer customer;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private String status;

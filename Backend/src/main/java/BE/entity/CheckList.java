@@ -18,13 +18,13 @@ public class CheckList {
     @Column(name = "checklist_ID")
     private Long checkListId;
 
-    @Column(name = "checklist_name", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "checklist_name", columnDefinition = "VARCHAR(255)")
     private String checkListName;
 
-    @Column(name = "checklist_type", columnDefinition = "NVARCHAR(100)")
+    @Column(name = "checklist_type", columnDefinition = "VARCHAR(100)")
     private String checkListType;
 
-    @Column(name = "description", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @CreationTimestamp

@@ -12,29 +12,29 @@ import java.util.List;
 public interface CheckListRepository extends JpaRepository<CheckList, Long> {
 
 
-     // Tìm checklist theo type
+    // Tìm checklist theo type
 
     List<CheckList> findByCheckListType(String checkListType);
 
 
-     // Tìm checklist active
+    // Tìm checklist active
 
     List<CheckList> findByIsActiveTrue();
 
 
-     // Tìm checklist theo type và active
+    // Tìm checklist theo type và active
 
     @Query("SELECT c FROM CheckList c WHERE c.checkListType = :type AND c.isActive = true")
     List<CheckList> findActiveByType(@Param("type") String type);
 
 
-     // Tìm checklist theo name (like search)
+    // Tìm checklist theo name (like search)
 
     @Query("SELECT c FROM CheckList c WHERE c.checkListName LIKE %:name% AND c.isActive = true")
     List<CheckList> searchByName(@Param("name") String name);
 
 
-     // Check checklist name đã tồn tại chưa
+    // Check checklist name đã tồn tại chưa
 
     boolean existsByCheckListNameAndIsActiveTrue(String checkListName);
 }

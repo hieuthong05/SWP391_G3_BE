@@ -31,7 +31,7 @@ public class Maintenance {
     @JoinColumn(name = "vehicle_ID")
     private Vehicle vehicle;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private Double cost;

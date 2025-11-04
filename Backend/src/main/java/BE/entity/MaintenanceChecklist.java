@@ -24,7 +24,7 @@ public class MaintenanceChecklist {
     @Column(name = "status", length = 50) // "PASSED", "FAILED", "RECOMMENDED_REPLACEMENT", "NOT_CHECKED"
     private String status;
 
-    @Column(name = "notes", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
 
 }

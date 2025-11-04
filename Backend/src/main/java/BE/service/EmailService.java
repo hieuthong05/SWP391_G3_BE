@@ -46,4 +46,29 @@ public class EmailService {
             e.printStackTrace();
         }
     }
+
+    public void sendPasswordResetEmail(EmailDetail emailDetail) {
+        try {
+            Context context = new Context();
+            context.setVariable("name", emailDetail.getFullName());
+            context.setVariable("resetLink", emailDetail.getLink());
+
+            String text = templateEngine.process("forgot-password-template", context);
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
+
+            mimeMessageHelper.setFrom("admin@gmail.com");
+            mimeMessageHelper.setTo(emailDetail.getRecipient());
+            mimeMessageHelper.setText(text , true);
+            mimeMessageHelper.setSubject(emailDetail.getSubject());
+
+            mailSender.send(mimeMessage);
+
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Gửi email thất bại: " + e.getMessage(), e);
+        }
+    }
 }

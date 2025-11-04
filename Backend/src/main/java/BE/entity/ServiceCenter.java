@@ -18,13 +18,13 @@ public class ServiceCenter {
     @Column(name = "service_center_ID")
     private Long serviceCenterID;
 
-    @Column(columnDefinition = "NVARCHAR(255)")
+    @Column(columnDefinition = "VARCHAR(255)")
     private String name;
 
-    @Column(columnDefinition = "NVARCHAR(500)")
+    @Column(columnDefinition = "VARCHAR(500)")
     private String address;
 
-    @Column(columnDefinition = "NVARCHAR(100)")
+    @Column(columnDefinition = "VARCHAR(100)")
     private String location;
 
     private String phone;

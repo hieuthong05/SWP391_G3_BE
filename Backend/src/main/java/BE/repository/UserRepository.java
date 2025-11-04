@@ -26,15 +26,15 @@ public interface UserRepository extends JpaRepository<User, Long> {
     long countAllActiveUsers();
 
     // Đếm số lượng theo role và tháng/năm
-    @Query("""
-        SELECT FUNCTION('MONTH', u.createdAt) AS month,
-               FUNCTION('YEAR', u.createdAt) AS year,
+    @Query(value = """
+        SELECT EXTRACT(MONTH FROM u.created_at) AS month,
+               EXTRACT(YEAR FROM u.created_at) AS year,
                u.role AS role,
-               COUNT(u.userID) AS count
-        FROM User u
+               COUNT(u.user_id) AS count
+        FROM user_account u
         WHERE u.status = true
-        GROUP BY FUNCTION('YEAR', u.createdAt), FUNCTION('MONTH', u.createdAt), u.role
+        GROUP BY EXTRACT(YEAR FROM u.created_at), EXTRACT(MONTH FROM u.created_at), u.role
         ORDER BY year, month
-    """)
+    """, nativeQuery = true)
     List<Object[]> countUsersByRoleAndMonth();
 }

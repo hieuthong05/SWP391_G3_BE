@@ -20,7 +20,7 @@ public class Shift {
     @Column(name="shift_ID")
     private Long shiftID;
 
-    @Column(name = "name", columnDefinition = "NVARCHAR(255)")
+    @Column(name = "name", columnDefinition = "VARCHAR(255)")
     private String name;
 
     @ManyToOne(fetch = FetchType.LAZY)

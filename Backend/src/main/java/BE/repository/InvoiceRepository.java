@@ -15,14 +15,14 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
     boolean existsByMaintenance_MaintenanceID(Long maintenanceId);
 
     @Query(value = """
-        SELECT 
-            MONTH(i.issued_date) AS month,
-            YEAR(i.issued_date) AS year,
-            SUM(i.total_amount) AS totalRevenue
-        FROM invoice i
-        WHERE i.status = 'PAID'
-        GROUP BY YEAR(i.issued_date), MONTH(i.issued_date)
-        ORDER BY YEAR(i.issued_date), MONTH(i.issued_date)
-        """, nativeQuery = true)
+    SELECT 
+        EXTRACT(MONTH FROM i.issued_date) AS month,
+        EXTRACT(YEAR FROM i.issued_date) AS year,
+        SUM(i.total_amount) AS totalRevenue
+    FROM invoice i
+    WHERE i.status = 'PAID'
+    GROUP BY EXTRACT(YEAR FROM i.issued_date), EXTRACT(MONTH FROM i.issued_date)
+    ORDER BY EXTRACT(YEAR FROM i.issued_date), EXTRACT(MONTH FROM i.issued_date)
+    """, nativeQuery = true)
     List<Map<String, Object>> getMonthlyRevenue();
 }

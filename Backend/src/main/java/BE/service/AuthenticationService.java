@@ -2,14 +2,17 @@ package BE.service;
 
 
 import BE.entity.*;
+import BE.exception.AuthenticationException;
 import BE.model.DTO.AdminDTO;
 import BE.model.DTO.CustomerDTO;
 import BE.model.DTO.EmployeeDTO;
+import BE.model.EmailDetail;
 import BE.model.request.LoginRequest;
 import BE.model.response.UserResponse;
 import BE.repository.*;
+import io.jsonwebtoken.Jwts;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.hibernate.proxy.HibernateProxy;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,6 +25,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -57,6 +61,12 @@ public class AuthenticationService implements UserDetailsService {
 
     @Autowired
     ServiceCenterRepository serviceCenterRepository;
+
+    @Autowired
+    EmailService emailService;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Transactional
     public CustomerDTO registerCus(CustomerDTO customerDTO){
@@ -145,6 +155,105 @@ public class AuthenticationService implements UserDetailsService {
         userResponse.setToken(token);
 
         return userResponse;
+    }
+
+    @Transactional
+    public String forgotPassword(String emailOrPhone) {
+        // Tìm user bằng email hoặc SĐT
+        User user = userRepository.findByEmail(emailOrPhone)
+                .orElseGet(() -> authenticationRepository.findUserByPhone(emailOrPhone));
+
+        if (user == null) {
+            return "Nếu tài khoản tồn tại, email đặt lại mật khẩu đã được gửi.";
+        }
+
+        // Tạo token reset mật khẩu (ví dụ: 15 phút)
+        String resetToken = Jwts.builder()
+                .subject(user.getPhone())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 15)) // 15 phút
+                .signWith(tokenService.getSignInKey())
+                .compact();
+
+        // Lấy thông tin chi tiết (tên, email) để gửi mail
+        Object userDetail = getEntityInfo(user);
+        String userEmail = "";
+        String userName = "";
+
+        if (userDetail instanceof Customer customer) {
+            userEmail = customer.getEmail();
+            userName = customer.getName();
+        } else if (userDetail instanceof Employee employee) {
+            userEmail = employee.getEmail();
+            userName = employee.getName();
+        } else if (userDetail instanceof Admin admin) {
+            userEmail = admin.getEmail();
+            userName = admin.getName();
+        } else {
+            throw new RuntimeException("Không tìm thấy thông tin người dùng để gửi email.");
+        }
+
+        if (userEmail == null || userEmail.isEmpty()) {
+            throw new RuntimeException("Người dùng không có email để đặt lại mật khẩu.");
+        }
+
+        String resetLink = "http://localhost:5173/reset-password?token=" + resetToken;
+
+        EmailDetail emailDetail = new EmailDetail();
+        emailDetail.setRecipient(userEmail);
+        emailDetail.setSubject("Yêu cầu đặt lại mật khẩu (EV Care)");
+        emailDetail.setFullName(userName);
+        emailDetail.setLink(resetLink);
+
+        System.out.println("Gửi email reset tới: " + userEmail);
+        System.out.println("Reset Token (gửi qua link): " + resetToken);
+        emailService.sendPasswordResetEmail(emailDetail);
+
+        return "Nếu tài khoản tồn tại, email đặt lại mật khẩu đã được gửi.";
+    }
+
+    @Transactional
+    public String resetPassword(String token, String newPassword) {
+        if (newPassword == null || newPassword.isEmpty() || newPassword.length() < 6) {
+            throw new IllegalArgumentException("Mật khẩu mới phải có ít nhất 6 ký tự.");
+        }
+
+        String phone;
+        try {
+            // 1. Xác thực token
+            phone = tokenService.extractPhone(token);
+            if (tokenService.isTokenExpired(token)) {
+                throw new RuntimeException("Token đã hết hạn.");
+            }
+        } catch (Exception e) {
+            throw new AuthenticationException("Token không hợp lệ hoặc đã hết hạn: " + e.getMessage());
+        }
+
+        // 2. Tìm User chung
+        User user = authenticationRepository.findUserByPhone(phone);
+        if (user == null) {
+            throw new EntityNotFoundException("Không tìm thấy người dùng cho token này.");
+        }
+
+        // 3. Mã hóa và cập nhật mật khẩu
+        String hashedNewPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(hashedNewPassword);
+        authenticationRepository.save(user);
+
+        // 4. Cập nhật mật khẩu ở bảng cụ thể (Customer, Admin, Employee)
+        Object userDetail = getEntityInfo(user);
+        if (userDetail instanceof Customer customer) {
+            customer.setPassword(hashedNewPassword);
+            customerRepository.save(customer);
+        } else if (userDetail instanceof Employee employee) {
+            employee.setPassword(hashedNewPassword);
+            employeeRepository.save(employee);
+        } else if (userDetail instanceof Admin admin) {
+            admin.setPassword(hashedNewPassword);
+            adminRepository.save(admin);
+        }
+
+        return "Cập nhật mật khẩu thành công.";
     }
 
     public List<User> getAllUser(){
