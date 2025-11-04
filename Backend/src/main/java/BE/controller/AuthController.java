@@ -26,13 +26,18 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<?> loginWithGoogle(@RequestBody Map<String, String> request)
     {
-        try {
-            String tokenId = request.get("tokenId");
+        try
+        {
+            // Cho phép cả hai key "token" và "tokenId"
+            String tokenId = request.getOrDefault("tokenId", request.get("token"));
             User user = googleAuthService.verifyAndLogin(tokenId);
             return ResponseEntity.ok(user);
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", e.getMessage()));
         }
     }
+
 }
