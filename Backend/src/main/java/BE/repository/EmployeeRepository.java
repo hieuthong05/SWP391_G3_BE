@@ -15,6 +15,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     Optional<Employee> findByPhoneAndEmployeeIDNot(String phone, Long employeeID);
     Optional<Employee> findByEmailAndEmployeeIDNot(String email, Long employeeID);
 
+    List<Employee> findByStatusTrue(); // lấy tất cả employee có status = true
+
 
      //* Lấy tất cả employees với eager loading
      //* Tránh N+1 query problem

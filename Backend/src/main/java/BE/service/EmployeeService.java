@@ -54,6 +54,15 @@ public class EmployeeService {
     }
 
     @Transactional(readOnly = true)
+    public List<EmployeeResponse> getAllActiveEmployees()
+    {
+        List<Employee> activeEmployees = employeeRepository.findByStatusTrue();
+        return activeEmployees.stream()
+                .map(this::mapToEmployeeResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<EmployeeResponse> getAllActiveTechnicians()
     {
         List<Employee> employees = employeeRepository.findByRoleAndStatus("technician", true);
