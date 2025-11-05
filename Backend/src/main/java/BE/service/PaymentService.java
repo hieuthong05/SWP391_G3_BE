@@ -46,14 +46,15 @@ public class PaymentService {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + invoiceId));
 
+        long orderCode = System.currentTimeMillis();
         Payment newPayment = new Payment();
         newPayment.setInvoice(invoice);
         newPayment.setAmount(invoice.getTotalAmount());
         newPayment.setPaymentMethod("PayOS");
         newPayment.setPaymentStatus("PENDING");
+        newPayment.setOrderCode(orderCode);
         Payment savedPayment = paymentRepository.save(newPayment);
 
-        long orderCode = savedPayment.getPaymentID();
         String description = "Thanh toán hóa đơn #" + invoice.getInvoiceID();
         String returnUrl = "http://localhost:5173/payment-success";
         String cancelUrl = "http://localhost:5173/payment-cancel";

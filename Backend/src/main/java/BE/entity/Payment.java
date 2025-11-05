@@ -31,5 +31,8 @@ public class Payment {
     @Column(name = "payment_date", updatable = false)
     private LocalDateTime paymentDate;
 
+    @Column(unique = true)
+    private Long orderCode;
+
     private String paymentLinkId;
 }
