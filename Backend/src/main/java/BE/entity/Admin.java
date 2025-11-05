@@ -19,24 +19,33 @@ public class Admin {
     @Column(name = "admin_ID")
     private Long adminID;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String name;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String password;
 
-    @Column(unique = true)
+    @Column(unique = true, columnDefinition = "NVARCHAR(MAX)")
     private String email;
 
-    @Column(unique = true)
+    @Column(unique = true, columnDefinition = "NVARCHAR(MAX)")
     private String phone;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String role;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "service_center_ID",nullable = true)
 //    private ServiceCenter serviceCenter;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String gender;
+
     private Double salary;
+
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String address;
+
     private LocalDate birth;
 
 //    @ManyToOne(fetch = FetchType.LAZY)

@@ -2,7 +2,7 @@
 -- INSERT VinFast Electric Car Models into [model]
 -- ================================================
 
-INSERT INTO [model] ([model_name])
+INSERT INTO [model] ([model_name], [image_url])
 VALUES
     (N'VF3', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475245/VF3_hhgnvh.jpg'),
     (N'VF5', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475281/VF5_migpq4.png'),
@@ -118,6 +118,32 @@ VALUES
      'active', 
      NULL);
 
+	 INSERT INTO [service]
+(
+    [service_name],
+    [description],
+    [service_type],
+    [estimated_time],
+    [price],
+    [warranty_peroid],
+    [service_status],
+    [component],
+    [date]
+)
+VALUES
+(
+    N'Bảo Dưỡng Định Kì',
+    N'Kiểm tra toàn bộ hỏng hóc cho xe',
+    N'Combo',
+    N'02:00:00',  -- estimated_time (ví dụ 2 tiếng)
+    0,
+    1,            -- warrantyPeriod: 1 năm
+    N'active',
+    NULL,
+    GETDATE()     -- date hiện tại
+);
+
+
 INSERT INTO [checklist] (
     [checklist_name],
     [checklist_type],
@@ -166,32 +192,32 @@ ALTER COLUMN supplier_name NVARCHAR(MAX);
 
 INSERT INTO [component]
 ([service_centerID], [checklist_ID], [name], [code], [type], [description], 
- [price], [quantity], [min_quantity], [supplier_name], [image], [status])
+ [price], [quantity], [min_quantity], [supplier_name], [image], [status], [image_url])
 VALUES
 -- 1. Hệ thống pin & quản lý pin (checklist_ID = 1)
-(1, 1, N'Pin cao áp (Battery Pack)', 'VF-BAT-001', 'battery', N'Bộ pin cao áp chính của xe điện', 2000, 30, 10, N'CATL', NULL, 'active'),
-(2, 1, N'Battery Management System (BMS)', 'VF-BMS-002', 'bms', N'Bo mạch điều khiển quản lý pin', 2000, 25, 10, N'LG Energy Solution', NULL, 'active'),
-(3, 1, N'Contactor cao áp', 'VF-CT-003', 'contactor', N'Relay cao áp điều khiển kết nối pin', 1000, 40, 15, N'Bosch', NULL, 'active'),
-(4, 1, N'Bơm làm mát pin', 'VF-COOL-004', 'cooling_pump', N'Bơm tuần hoàn dung dịch làm mát pin', 1000, 35, 12, N'Valeo', NULL, 'active'),
+(1, 1, N'Pin cao áp (Battery Pack)', 'VF-BAT-001', 'battery', N'Bộ pin cao áp chính của xe điện', 2000, 30, 10, N'CATL', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761486133/components/bangbrbwijysvrx9fdmk.png'),
+(2, 1, N'Battery Management System (BMS)', 'VF-BMS-002', 'bms', N'Bo mạch điều khiển quản lý pin', 2000, 25, 10, N'LG Energy Solution', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307328/Battery_Management_System_BMS_n5ljkg.avif'),
+(3, 1, N'Contactor cao áp', 'VF-CT-003', 'contactor', N'Relay cao áp điều khiển kết nối pin', 1000, 40, 15, N'Bosch', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307327/Contactor_cao_%C3%A1p_hkmjvi.jpg'),
+(4, 1, N'Bơm làm mát pin', 'VF-COOL-004', 'cooling_pump', N'Bơm tuần hoàn dung dịch làm mát pin', 1000, 35, 12, N'Valeo', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307327/B%C6%A1m_l%C3%A0m_m%C3%A1t_pin_kfh27m.jpg'),
 
 -- 2. Hệ thống sạc & chuyển đổi (checklist_ID = 2)
-(1, 2, N'Cổng sạc Type 2', 'VF-CHP-101', 'charging_port', N'Cổng sạc chuẩn Type 2', 1000, 50, 15, N'Phoenix Contact', NULL, 'active'),
-(2, 2, N'Bộ sạc Onboard (OBC)', 'VF-OBC-102', 'charger', N'Bộ sạc gắn trên xe', 2000, 25, 10, N'Delta Electronics', NULL, 'active'),
-(3, 2, N'DC-DC Converter', 'VF-DCDC-103', 'converter', N'Bộ chuyển đổi điện cao áp sang 12V', 2000, 20, 10, N'Denso', NULL, 'active'),
+(1, 2, N'Cổng sạc Type 2', 'VF-CHP-101', 'charging_port', N'Cổng sạc chuẩn Type 2', 1000, 50, 15, N'Phoenix Contact', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307821/C%E1%BB%95ng_s%E1%BA%A1c_Type_2_wxtypf.jpg'),
+(2, 2, N'Bộ sạc Onboard (OBC)', 'VF-OBC-102', 'charger', N'Bộ sạc gắn trên xe', 2000, 25, 10, N'Delta Electronics', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1761498074/components/m0huojl4lm1zzoduu9zd.jpg'),
+(3, 2, N'DC-DC Converter', 'VF-DCDC-103', 'converter', N'Bộ chuyển đổi điện cao áp sang 12V', 2000, 20, 10, N'Denso', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307805/DC-DC_Converter_twxqgw.jpg'),
 
 -- 3. Truyền động điện (checklist_ID = 3)
-(4, 3, N'Mô-tơ điện truyền động', 'VF-MOTOR-201', 'motor', N'Mô-tơ kéo chính', 2000, 25, 10, N'Nidec', NULL, 'active'),
-(5, 3, N'Bộ inverter điều khiển mô-tơ', 'VF-INV-202', 'inverter', N'Bộ nghịch lưu điều khiển mô-tơ điện', 2000, 30, 10, N'Hitachi', NULL, 'active'),
-(6, 3, N'Hộp giảm tốc 1 cấp', 'VF-GBOX-203', 'gearbox', N'Hộp số đơn giản giảm tốc mô-tơ', 2000, 20, 10, N'ZF Friedrichshafen', NULL, 'active'),
+(4, 3, N'Mô-tơ điện truyền động', 'VF-MOTOR-201', 'motor', N'Mô-tơ kéo chính', 2000, 25, 10, N'Nidec', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762315797/M%C3%B4-t%C6%A1_%C4%91i%E1%BB%87n_truy%E1%BB%81n_%C4%91%E1%BB%99ng_qzjo87.jpg'),
+(5, 3, N'Bộ inverter điều khiển mô-tơ', 'VF-INV-202', 'inverter', N'Bộ nghịch lưu điều khiển mô-tơ điện', 2000, 30, 10, N'Hitachi', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762315797/B%E1%BB%99_inverter_%C4%91i%E1%BB%81u_khi%E1%BB%83n_m%C3%B4-t%C6%A1_sjuwmu.jpg'),
+(6, 3, N'Hộp giảm tốc 1 cấp', 'VF-GBOX-203', 'gearbox', N'Hộp số đơn giản giảm tốc mô-tơ', 2000, 20, 10, N'ZF Friedrichshafen', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762315797/H%E1%BB%99p_gi%E1%BA%A3m_t%E1%BB%91c_1_c%E1%BA%A5p_nxqoqg.webp'),
 
 -- 4. Hệ thống làm mát & điều hòa điện tử (checklist_ID = 4)
-(7, 4, N'Két nước làm mát pin', 'VF-RAD-301', 'radiator', N'Két nước tản nhiệt pin và inverter', 1000, 30, 10, N'Denso', NULL, 'active'),
-(8, 4, N'Bơm nước làm mát', 'VF-PUMP-302', 'pump', N'Bơm tuần hoàn nước làm mát', 1000, 35, 10, N'Valeo', NULL, 'active'),
+(7, 4, N'Két nước làm mát pin', 'VF-RAD-301', 'radiator', N'Két nước tản nhiệt pin và inverter', 1000, 30, 10, N'Denso', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762316664/K%C3%A9t_n%C6%B0%E1%BB%9Bc_l%C3%A0m_m%C3%A1t_pin_f3vvwq.jpg'),
+(8, 4, N'Bơm nước làm mát', 'VF-PUMP-302', 'pump', N'Bơm tuần hoàn nước làm mát', 1000, 35, 10, N'Valeo', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762316665/B%C6%A1m_n%C6%B0%E1%BB%9Bc_l%C3%A0m_m%C3%A1t_yv3vai.jpg'),
 
 -- 5. Hệ thống phanh (checklist_ID = 5)
-(9, 5, N'Má phanh trước', 'VF-BPAD-401', 'brake_pad', N'Má phanh trước ma sát cao', 1000, 40, 12, N'Brembo', NULL, 'active'),
-(10, 5, N'Đĩa phanh sau', 'VF-BDISC-402', 'brake_disc', N'Đĩa phanh bằng thép carbon', 1000, 30, 10, N'Bosch', NULL, 'active'),
-(1, 5, N'Caliper phanh', 'VF-CAL-403', 'caliper', N'Cụm phanh kẹp bánh xe', 2000, 25, 10, N'TR-W Automotive', NULL, 'active'),
+(9, 5, N'Má phanh trước', 'VF-BPAD-401', 'brake_pad', N'Má phanh trước ma sát cao', 1000, 40, 12, N'Brembo', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762317210/M%C3%A1_phanh_tr%C6%B0%E1%BB%9Bc_ukx5gh.png'),
+(10, 5, N'Đĩa phanh sau', 'VF-BDISC-402', 'brake_disc', N'Đĩa phanh bằng thép carbon', 1000, 30, 10, N'Bosch', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762317209/%C4%90%C4%A9a_phanh_sau_p728qx.jpg'),
+(1, 5, N'Caliper phanh', 'VF-CAL-403', 'caliper', N'Cụm phanh kẹp bánh xe', 2000, 25, 10, N'TR-W Automotive', NULL, 'active', N'https://res.cloudinary.com/dq5skmidv/image/upload/v1762317210/Caliper_phanh_xyywlp.jpg'),
 
 -- 6. Hệ thống gầm / treo / lái (checklist_ID = 6)
 (2, 6, N'Giảm xóc trước', 'VF-SHOCK-501', 'shock_absorber', N'Giảm xóc dầu cho bánh trước', 1000, 35, 10, N'KYB', NULL, 'active'),

@@ -19,16 +19,16 @@ public class Service {
     @Column(name = "serviceID")
     private Long serviceID;
 
-    @Column(name = "service_name")
+    @Column(name = "service_name", columnDefinition = "NVARCHAR(MAX)")
     private String serviceName;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "service_type")
+    @Column(name = "service_type", columnDefinition = "NVARCHAR(MAX)")
     private String serviceType;
 
-    @Column(name = "estimated_time")
+    @Column(name = "estimated_time", columnDefinition = "NVARCHAR(MAX)")
     private String estimatedTime;
 
     private Double price;
@@ -39,6 +39,7 @@ public class Service {
     @Column(name = "service_status")
     private String serviceStatus;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String component;
 
     private LocalDateTime date;

@@ -1,0 +1,200 @@
+-- ================================================
+-- INSERT VinFast Electric Car Models into model
+-- ================================================
+
+INSERT INTO model (model_name, image_url)
+VALUES
+    ('VF3', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475245/VF3_hhgnvh.jpg'),
+    ('VF5', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475281/VF5_migpq4.png'),
+    ('VF6', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761446036/models/wwdifhtvnfdudghiyfz5.jpg'),
+    ('VF7', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761473944/models/xjsyjxexmzv7t256ltb6.jpg'),
+    ('VF8', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761474055/models/quv2cru9u4hxskyzsgw9.png'),
+    ('VF9', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475332/VF9_bhqoaa.webp'),
+    ('VFe34', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761475355/VF_e34_z36oui.jpg');
+
+-- ================================================
+-- INSERT VinFast Service Centers into service_center
+-- ================================================
+
+ALTER TABLE service_center
+ALTER COLUMN name TYPE VARCHAR(255);
+
+ALTER TABLE service_center
+ALTER COLUMN address TYPE VARCHAR(500);
+
+ALTER TABLE service_center
+ALTER COLUMN location TYPE VARCHAR(100);
+
+INSERT INTO service_center
+(name, address, location, phone, email, open_time, close_time, status, image)
+VALUES
+    ('VinFast Phan Trọng Tuệ', 
+     'Km 2+500, đường Phan Trọng Tuệ, Xã Thanh Liệt, Huyện Thanh Trì, TP. Hà Nội', 
+     'Hà Nội', 
+     '02435551111', 
+     'vinfast_phantrongtue_hanoi@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Long Biên', 
+     'Tầng 1, TTTM Vincom Plaza, KĐT Vinhomes Riverside, Phường Phúc Lợi, Quận Long Biên, TP. Hà Nội', 
+     'Hà Nội', 
+     '02436662222', 
+     'vinfast_longbien_hanoi@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Ocean Park', 
+     'TTTM Vincom Ocean Park, KĐT Vinhomes Ocean Park, Cổng số 9 – Khu Kiêu Kỵ, Gia Lâm, Hà Nội', 
+     'Hà Nội', 
+     '02437773333', 
+     'vinfast_oceanpark_hanoi@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Smart City', 
+     'TTTM Vincom Smart City, KĐT Vinhomes Smart City, Phường Tây Mỗ, Quận Nam Từ Liêm, Hà Nội', 
+     'Hà Nội', 
+     '02438884444', 
+     'vinfast_smartcity_hanoi@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Đồng Khởi', 
+     'Tầng 1, TTTM Vincom Center Đồng Khởi, 72 Lê Thánh Tôn, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh', 
+     'TP. Hồ Chí Minh', 
+     '02835551111', 
+     'vinfast_dongkhoi_hcm@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Landmark 81', 
+     'Tầng L1, Vincom Center Landmark 81, 208 Nguyễn Hữu Cảnh, Quận Bình Thạnh, TP. Hồ Chí Minh', 
+     'TP. Hồ Chí Minh', 
+     '02836662222', 
+     'vinfast_landmark81_hcm@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Phú Mỹ Hưng', 
+     '54 Nguyễn Thị Thập, Phường Bình Thuận, Quận 7, TP. Hồ Chí Minh', 
+     'TP. Hồ Chí Minh', 
+     '02837773333', 
+     'vinfast_phumyhung_hcm@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Cần Thơ', 
+     'Tầng L1, TTTM Vincom Plaza Xuân Khánh, Số 209 Đường 30 Tháng 4, Phường Xuân Khánh, Quận Ninh Kiều, TP. Cần Thơ', 
+     'Cần Thơ', 
+     '02923881111', 
+     'vinfast_cantho@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Đà Nẵng', 
+     'Tầng 1, TTTM Vincom Plaza Đà Nẵng, Số 910A Ngô Quyền, P. An Hải Bắc, Quận Sơn Trà, TP. Đà Nẵng', 
+     'Đà Nẵng', 
+     '02363882222', 
+     'vinfast_danang@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL),
+
+    ('VinFast Nam Bình Cà Mau', 
+     'Số 139 Nguyễn Tất Thành, Phường 8, TP. Cà Mau', 
+     'Cà Mau', 
+     '02903883333', 
+     'vinfast_camau@gmail.com',
+     '08:00', '20:00', 
+     'active', 
+     NULL);
+
+-- ================================================
+-- INSERT Service
+-- ================================================
+
+INSERT INTO service
+(service_name, description, service_type, estimated_time, price, warranty_peroid, service_status, component, date)
+VALUES
+(
+    'Bảo Dưỡng Định Kì',
+    'Kiểm tra toàn bộ hỏng hóc cho xe',
+    'Combo',
+    '02:00:00',
+    0,
+    1,
+    'active',
+    NULL,
+    NOW()
+);
+
+-- ================================================
+-- INSERT Checklist
+-- ================================================
+
+INSERT INTO checklist (checklist_name, checklist_type, description, is_active, created_at)
+VALUES
+('Hệ thống pin & quản lý pin', 'Điện - Điện tử', 'Kiểm tra tình trạng pin, cell, hệ thống làm mát và hiệu suất pin.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống sạc & chuyển đổi', 'Điện - Điện tử', 'Kiểm tra bộ sạc, cổng sạc, dây sạc, bộ chuyển đổi AC/DC, sạc nhanh.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống động cơ điện & truyền động', 'Cơ khí - Điện', 'Kiểm tra mô-tơ điện, trục truyền động, hộp giảm tốc và hệ thống điều khiển mô-tơ.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống phanh', 'An toàn', 'Kiểm tra má phanh, đĩa phanh, dầu phanh, phanh tái sinh và cảm biến ABS.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống treo & giảm xóc', 'Cơ khí', 'Kiểm tra phuộc, lò xo, cao su chân phuộc, thanh cân bằng và khớp nối.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống lái', 'Cơ khí', 'Kiểm tra trục lái, trợ lực lái điện, rô tuyn, thanh răng và cân chỉnh góc lái.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống khung gầm & thân vỏ', 'Cơ khí', 'Kiểm tra sườn gầm, bu lông liên kết, điểm hàn, chống rỉ và khung chịu lực.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống điện - điện tử nội thất', 'Điện - Điện tử', 'Kiểm tra đèn, đồng hồ, nút điều khiển, camera, cảm biến và hệ thống giải trí.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống điều hòa & làm mát', 'Tiện nghi', 'Kiểm tra gas lạnh, máy nén, lọc gió, quạt gió và ống dẫn khí.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống lốp & mâm xe', 'Cơ khí', 'Kiểm tra áp suất lốp, độ mòn, cân bằng động và tình trạng mâm.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống chiếu sáng & tín hiệu', 'An toàn', 'Kiểm tra đèn pha, đèn hậu, đèn phanh, xi-nhan, cảm biến và camera hỗ trợ.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống an toàn & hỗ trợ lái', 'An toàn', 'Kiểm tra túi khí, dây an toàn, hệ thống cảnh báo, cảm biến va chạm và camera 360.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống phần mềm & kết nối thông minh', 'Điện - Điều khiển', 'Cập nhật phần mềm ECU, kiểm tra kết nối ứng dụng, OTA và giao thức chẩn đoán.', TRUE, '2025-10-23 19:15:00'),
+('Hệ thống nội thất & ngoại thất', 'Tiện nghi', 'Kiểm tra ghế, cửa, kính, cần gạt nước, sơn, và vật liệu hoàn thiện.', TRUE, '2025-10-23 19:15:00');
+
+-- ================================================
+-- ALTER COMPONENT TABLE (PostgreSQL)
+-- ================================================
+
+ALTER TABLE component
+ALTER COLUMN name TYPE TEXT;
+
+ALTER TABLE component
+ALTER COLUMN supplier_name TYPE TEXT;
+
+-- ================================================
+-- INSERT Components (Spare Parts)
+-- ================================================
+
+INSERT INTO component
+(service_centerID, checklist_ID, name, code, type, description, price, quantity, min_quantity, supplier_name, image, status, image_url)
+VALUES
+(1, 1, 'Pin cao áp (Battery Pack)', 'VF-BAT-001', 'battery', 'Bộ pin cao áp chính của xe điện', 2000, 30, 10, 'CATL', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761486133/components/bangbrbwijysvrx9fdmk.png'),
+(2, 1, 'Battery Management System (BMS)', 'VF-BMS-002', 'bms', 'Bo mạch điều khiển quản lý pin', 2000, 25, 10, 'LG Energy Solution', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307328/Battery_Management_System_BMS_n5ljkg.avif'),
+(3, 1, 'Contactor cao áp', 'VF-CT-003', 'contactor', 'Relay cao áp điều khiển kết nối pin', 1000, 40, 15, 'Bosch', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307327/Contactor_cao_%C3%A1p_hkmjvi.jpg'),
+(4, 1, 'Bơm làm mát pin', 'VF-COOL-004', 'cooling_pump', 'Bơm tuần hoàn dung dịch làm mát pin', 1000, 35, 12, 'Valeo', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307327/B%C6%A1m_l%C3%A0m_m%C3%A1t_pin_kfh27m.jpg'),
+
+-- 2. Hệ thống sạc & chuyển đổi (checklist_ID = 2)
+(1, 2, 'Cổng sạc Type 2', 'VF-CHP-101', 'charging_port', 'Cổng sạc chuẩn Type 2', 1000, 50, 15, 'Phoenix Contact', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307821/C%E1%BB%95ng_s%E1%BA%A1c_Type_2_wxtypf.jpg'),
+(2, 2, 'Bộ sạc Onboard (OBC)', 'VF-OBC-102', 'charger', 'Bộ sạc gắn trên xe', 2000, 25, 10, 'Delta Electronics', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1761498074/components/m0huojl4lm1zzoduu9zd.jpg'),
+(3, 2, 'DC-DC Converter', 'VF-DCDC-103', 'converter', 'Bộ chuyển đổi điện cao áp sang 12V', 2000, 20, 10, 'Denso', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762307805/DC-DC_Converter_twxqgw.jpg'),
+
+-- 3. Truyền động điện (checklist_ID = 3)
+(4, 3, 'Mô-tơ điện truyền động', 'VF-MOTOR-201', 'motor', 'Mô-tơ kéo chính', 2000, 25, 10, 'Nidec', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762315797/M%C3%B4-t%C6%A1_%C4%91i%E1%BB%87n_truy%E1%BB%81n_%C4%91%E1%BB%99ng_qzjo87.jpg'),
+(5, 3, 'Bộ inverter điều khiển mô-tơ', 'VF-INV-202', 'inverter', 'Bộ nghịch lưu điều khiển mô-tơ điện', 2000, 30, 10, 'Hitachi', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762315797/B%E1%BB%99_inverter_%C4%91i%E1%BB%81u_khi%E1%BB%83n_m%C3%B4-t%C6%A1_sjuwmu.jpg'),
+(6, 3, 'Hộp giảm tốc 1 cấp', 'VF-GBOX-203', 'gearbox', 'Hộp số đơn giản giảm tốc mô-tơ', 2000, 20, 10, 'ZF Friedrichshafen', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762315797/H%E1%BB%99p_gi%E1%BA%A3m_t%E1%BB%91c_1_c%E1%BA%A5p_nxqoqg.webp'),
+
+-- 4. Hệ thống làm mát & điều hòa điện tử (checklist_ID = 4)
+(7, 4, 'Két nước làm mát pin', 'VF-RAD-301', 'radiator', 'Két nước tản nhiệt pin và inverter', 1000, 30, 10, 'Denso', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762316664/K%C3%A9t_n%C6%B0%E1%BB%9Bc_l%C3%A0m_m%C3%A1t_pin_f3vvwq.jpg'),
+(8, 4, 'Bơm nước làm mát', 'VF-PUMP-302', 'pump', 'Bơm tuần hoàn nước làm mát', 1000, 35, 10, 'Valeo', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762316665/B%C6%A1m_n%C6%B0%E1%BB%9Bc_l%C3%A0m_m%C3%A1t_yv3vai.jpg'),
+
+-- 5. Hệ thống phanh (checklist_ID = 5)
+(9, 5, 'Má phanh trước', 'VF-BPAD-401', 'brake_pad', 'Má phanh trước ma sát cao', 1000, 40, 12, 'Brembo', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762317210/M%C3%A1_phanh_tr%C6%B0%E1%BB%9Bc_ukx5gh.png'),
+(10, 5, 'Đĩa phanh sau', 'VF-BDISC-402', 'brake_disc', 'Đĩa phanh bằng thép carbon', 1000, 30, 10, 'Bosch', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762317209/%C4%90%C4%A9a_phanh_sau_p728qx.jpg'),
+(1, 5, 'Caliper phanh', 'VF-CAL-403', 'caliper', 'Cụm phanh kẹp bánh xe', 2000, 25, 10, 'TR-W Automotive', NULL, 'active', 'https://res.cloudinary.com/dq5skmidv/image/upload/v1762317210/Caliper_phanh_xyywlp.jpg');

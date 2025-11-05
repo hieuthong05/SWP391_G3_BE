@@ -25,15 +25,16 @@ public class Component {
     @JoinColumn(name = "checklist_ID")
     private CheckList checkList;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String name;
 
-    @Column(unique = true)
+    @Column(unique = true, columnDefinition = "NVARCHAR(MAX)")
     private String code;
 
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String type;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "NVARCHAR(MAX)")
     private String description;
 
     private Double price;
@@ -42,7 +43,7 @@ public class Component {
     @Column(name = "min_quantity")
     private Integer minQuantity;
 
-    @Column(name = "supplier_name", columnDefinition = "TEXT")
+    @Column(name = "supplier_name", columnDefinition = "NVARCHAR(MAX)")
     private String supplierName;
 
 //    @Lob
