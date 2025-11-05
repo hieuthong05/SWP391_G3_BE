@@ -137,6 +137,13 @@ VALUES
     NOW()
 );
 
+INSERT INTO shift (name, service_centerid, shift_date, start_time, end_time, status)
+VALUES 
+('Ca Sáng', NULL, NULL, '08:00', '12:00', TRUE),
+('Ca Trưa', NULL, NULL, '12:00', '16:00', TRUE),
+('Ca Tối', NULL, NULL, '16:00', '20:00', TRUE);
+
+
 -- ================================================
 -- INSERT Checklist
 -- ================================================
