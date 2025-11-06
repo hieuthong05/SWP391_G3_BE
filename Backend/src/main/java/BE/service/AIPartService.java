@@ -13,7 +13,7 @@ public class AIPartService {
 
     private final ComponentRepository componentRepository;
 
-    // ✅ Improved AI logic using real database data
+    // Improved AI logic using real database data
     public AIPartResponse calculateSuggestedMin(String code) {
         Component component = componentRepository.findByCode(code)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phụ tùng có mã: " + code));
@@ -21,15 +21,15 @@ public class AIPartService {
         int currentQuantity = component.getQuantity();
         int currentMin = component.getMinQuantity();
 
-        // ⚙️ Step 1: Estimate daily usage (simple heuristic)
+        // Step 1: Estimate daily usage (simple heuristic)
         // Assume the "minQuantity" was based on ~30 days of expected usage
         double avgDaily = Math.max(0.5, currentMin / 30.0); // ensure not zero
 
-        // ⚙️ Step 2: Safety stock & buffer levels
+        // Step 2: Safety stock & buffer levels
         int safetyStock = (int) Math.ceil(avgDaily * 5);  // ~5 days of safety
         int buffer = (int) Math.ceil(avgDaily * 2);       // small buffer
 
-        // ⚙️ Step 3: Suggest adjustment based on current quantity vs min
+        // Step 3: Suggest adjustment based on current quantity vs min
         int suggestedMin;
 
         if (currentQuantity <= 0) {
@@ -49,7 +49,7 @@ public class AIPartService {
         // Ensure suggestedMin is at least above safety threshold
         suggestedMin = Math.max(suggestedMin, safetyStock + buffer);
 
-        // ⚙️ Step 4: Prepare response object
+        // Step 4: Prepare response object
         AIPartResponse response = new AIPartResponse();
         response.setCode(code);
         response.setCurrentMin(currentMin);
@@ -63,7 +63,7 @@ public class AIPartService {
         return response;
     }
 
-    // ✅ Apply suggestion (update minQuantity)
+    // Apply suggestion (update minQuantity)
     public void updateMinQuantityByCode(String code, int newMin) {
         Component component = componentRepository.findByCode(code)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phụ tùng có mã: " + code));
