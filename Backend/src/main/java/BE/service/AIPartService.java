@@ -7,35 +7,55 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Random;
-
 @Service
 @RequiredArgsConstructor
 public class AIPartService {
 
     private final ComponentRepository componentRepository;
 
-    // ✅ Dummy AI logic for now — can replace with actual predictive model later
+    // ✅ Improved AI logic using real database data
     public AIPartResponse calculateSuggestedMin(String code) {
         Component component = componentRepository.findByCode(code)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phụ tùng có mã: " + code));
 
-        // --- Simple AI Simulation ---
-        Random rand = new Random();
-        double avgDaily = 5 + rand.nextDouble() * 10; // giả định mức tiêu thụ/ngày
-        int lookbackDays = 30;
-        int forecast = (int) Math.ceil(avgDaily * 7);
-        int safetyStock = (int) Math.ceil(avgDaily * 3);
-        int buffer = (int) Math.ceil(avgDaily);
-        int suggestedMin = (int) Math.ceil(avgDaily * 5 + buffer);
+        int currentQuantity = component.getQuantity();
+        int currentMin = component.getMinQuantity();
 
-        // --- Prepare response ---
+        // ⚙️ Step 1: Estimate daily usage (simple heuristic)
+        // Assume the "minQuantity" was based on ~30 days of expected usage
+        double avgDaily = Math.max(0.5, currentMin / 30.0); // ensure not zero
+
+        // ⚙️ Step 2: Safety stock & buffer levels
+        int safetyStock = (int) Math.ceil(avgDaily * 5);  // ~5 days of safety
+        int buffer = (int) Math.ceil(avgDaily * 2);       // small buffer
+
+        // ⚙️ Step 3: Suggest adjustment based on current quantity vs min
+        int suggestedMin;
+
+        if (currentQuantity <= 0) {
+            // Out of stock → keep or slightly raise min
+            suggestedMin = currentMin + safetyStock;
+        } else if (currentQuantity < currentMin) {
+            // Running low → raise min moderately
+            suggestedMin = currentMin + (int) Math.ceil((currentMin - currentQuantity) * 0.5);
+        } else if (currentQuantity > currentMin * 1.5) {
+            // Often excess → reduce min a bit
+            suggestedMin = (int) Math.ceil(currentMin * 0.9);
+        } else {
+            // Normal → keep similar
+            suggestedMin = currentMin;
+        }
+
+        // Ensure suggestedMin is at least above safety threshold
+        suggestedMin = Math.max(suggestedMin, safetyStock + buffer);
+
+        // ⚙️ Step 4: Prepare response object
         AIPartResponse response = new AIPartResponse();
         response.setCode(code);
-        response.setCurrentMin(component.getMinQuantity());
+        response.setCurrentMin(currentMin);
         response.setAvgDaily(avgDaily);
-        response.setLookbackDays(lookbackDays);
-        response.setForecast(forecast);
+        response.setLookbackDays(30);
+        response.setForecast((int) Math.ceil(avgDaily * 7)); // 7-day forecast
         response.setSafetyStock(safetyStock);
         response.setBuffer(buffer);
         response.setSuggestedMin(suggestedMin);
