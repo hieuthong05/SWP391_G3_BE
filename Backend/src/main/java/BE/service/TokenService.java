@@ -28,24 +28,56 @@ public class TokenService {
     }
 
     public String generateToken(User user){
+//        return Jwts.builder()
+//                .subject(user.getPhone())
+//                .issuedAt(new Date(System.currentTimeMillis()))
+//                .expiration(new Date(System.currentTimeMillis()+1000*60*60*6))
+//                .signWith(getSignInKey())
+//                .compact();
+        //=============================================================
+        // Ưu tiên phone, nếu null thì dùng email
+        String subject = (user.getPhone() != null && !user.getPhone().isEmpty())
+                ? user.getPhone()
+                : user.getEmail();
+
         return Jwts.builder()
-                .subject(user.getPhone())
+                .subject(subject)  // phone hoặc email
+                .claim("email", user.getEmail())  //Luôn thêm email
+                .claim("userId", user.getUserID())  //Thêm userId
+                .claim("role", user.getRole())  //Thêm role
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis()+1000*60*60*6))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 6))
                 .signWith(getSignInKey())
                 .compact();
     }
 
     public User extractToken(String token){
-        String value = extractClaim(token, Claims ::getSubject);
-        return authenticationRepository.findUserByPhone(value);
+        String value = extractClaim(token, Claims::getSubject);
+
+        //Thử tìm theo phone trước
+        User user = authenticationRepository.findUserByPhone(value);
+
+        //Nếu không có, thử tìm theo email
+        if (user == null) {
+            user = authenticationRepository.findByEmail(value)
+                    .orElse(null);
+        }
+
+        return user;
     }
 
-    public  String extractPhone(String token){
+    public  String extractPhone(String token)
+    {
         return extractClaim(token,Claims :: getSubject);
     }
 
-    private Date extractExpiration(String token){
+    public String extractEmail(String token)
+    {
+        return extractClaim(token, claims -> claims.get("email", String.class));
+    }
+
+    private Date extractExpiration(String token)
+    {
         return extractClaim(token, Claims :: getExpiration);
     }
 
@@ -71,7 +103,27 @@ public class TokenService {
                 .getPayload();
     }
 
-    public UserDetails loadUserByPhone(String phone){
+    public UserDetails loadUserByPhone(String phone)
+    {
         return  authenticationRepository.findUserByPhone(phone);
+    }
+
+    //THÊM: Load user by email (cho OAuth2)
+    public UserDetails loadUserByEmail(String email){
+        User user = authenticationRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user;
+    }
+
+    //THÊM: Load user by subject (phone hoặc email)
+    public UserDetails loadUserBySubject(String subject){
+        User user = authenticationRepository.findUserByPhone(subject);
+
+        if (user == null) {
+            user = authenticationRepository.findByEmail(subject)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        }
+
+        return user;
     }
 }

@@ -2,6 +2,7 @@ package BE.security;
 
 import BE.entity.User;
 import BE.repository.UserRepository;
+import BE.service.TokenService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,7 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final JwtUtil jwtUtil;
+    private final TokenService tokenService;
     private final UserRepository userRepository;
 
     @Override
@@ -29,12 +30,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
         String email = oauth2User.getAttribute("email");
 
-        // Generate JWT token
-        String token = jwtUtil.generateToken(email);
-
         // Get user info
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        //Generate JWT token bằng TokenService (giống normal login)
+        String token = tokenService.generateToken(user);
 
         // Redirect to frontend with token
         String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:5173/oauth2/redirect")
