@@ -158,16 +158,16 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     @Transactional
-    public String forgotPassword(String emailOrPhone) {
-        // Tìm user bằng email hoặc SĐT
-        User user = userRepository.findByEmail(emailOrPhone)
-                .orElseGet(() -> authenticationRepository.findUserByPhone(emailOrPhone));
+    public String forgotPassword(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElse(null);
 
         if (user == null) {
             return "Nếu tài khoản tồn tại, email đặt lại mật khẩu đã được gửi.";
         }
 
-        // Tạo token reset mật khẩu (ví dụ: 15 phút)
+        // Tạo token reset mật khẩu (15 phút)
         String resetToken = Jwts.builder()
                 .subject(user.getPhone())
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -175,7 +175,7 @@ public class AuthenticationService implements UserDetailsService {
                 .signWith(tokenService.getSignInKey())
                 .compact();
 
-        // Lấy thông tin chi tiết (tên, email) để gửi mail
+        // Lấy thông tin chi tiết (tên, email)
         Object userDetail = getEntityInfo(user);
         String userEmail = "";
         String userName = "";
@@ -211,7 +211,6 @@ public class AuthenticationService implements UserDetailsService {
 
         return "Nếu tài khoản tồn tại, email đặt lại mật khẩu đã được gửi.";
     }
-
     @Transactional
     public String resetPassword(String token, String newPassword) {
         if (newPassword == null || newPassword.isEmpty() || newPassword.length() < 6) {

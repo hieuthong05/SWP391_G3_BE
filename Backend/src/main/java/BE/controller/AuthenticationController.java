@@ -67,13 +67,13 @@ public class AuthenticationController {
     @PostMapping("/api/auth/forgot-password")
     public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
         try {
-            String emailOrPhone = request.get("emailOrPhone");
-            if (emailOrPhone == null || emailOrPhone.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("message", "Email hoặc số điện thoại là bắt buộc."));
+            String email = request.get("email");
+
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Email là bắt buộc."));
             }
 
-            String message = authenticationService.forgotPassword(emailOrPhone);
-
+            String message = authenticationService.forgotPassword(email);
             return ResponseEntity.ok(Map.of("message", message));
 
         } catch (Exception e) {
