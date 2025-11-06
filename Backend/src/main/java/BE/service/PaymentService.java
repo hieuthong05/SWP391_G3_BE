@@ -8,6 +8,7 @@ import BE.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import vn.payos.PayOS;
@@ -41,28 +42,20 @@ public class PaymentService {
         this.maintenanceRepository = maintenanceRepository;
     }
 
-    @Transactional
     public Map<String, Object> createPaymentLink(Long invoiceId) throws Exception {
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + invoiceId));
 
-        long orderCode = System.currentTimeMillis();
-        Payment newPayment = new Payment();
-        newPayment.setInvoice(invoice);
-        newPayment.setAmount(invoice.getTotalAmount());
-        newPayment.setPaymentMethod("PayOS");
-        newPayment.setPaymentStatus("PENDING");
-        newPayment.setOrderCode(orderCode);
-        Payment savedPayment = paymentRepository.save(newPayment);
+        // Bước 1: Tạo Payment PENDING và commit ngay
+        // (Gọi một phương thức @Transactional(propagation = Propagation.REQUIRES_NEW)
+        Payment savedPayment = createPendingPayment(invoiceId);
 
-        String description = "Thanh toán hóa đơn #" + invoice.getInvoiceID();
+        // Dữ liệu cho PayOS
+        String description = "Thanh toán hóa đơn #" + invoiceId;
         String returnUrl = "http://localhost:5173/payment-success";
         String cancelUrl = "http://localhost:5173/payment-cancel";
 
         List<ItemData> items = new ArrayList<>();
-        for (InvoiceDetail detail : invoice.getInvoiceDetails()) {
-            String itemName = detail.getItemName() != null ? detail.getItemName() : "Hạng mục hóa đơn"; // Lấy tên thật nếu có
-
+        for (InvoiceDetail detail : savedPayment.getInvoice().getInvoiceDetails()) {
+            String itemName = detail.getItemName() != null ? detail.getItemName() : "Hạng mục hóa đơn";
             ItemData item = ItemData.builder()
                     .name(itemName)
                     .quantity(detail.getQuantity())
@@ -72,7 +65,7 @@ public class PaymentService {
         }
 
         PaymentData paymentData = PaymentData.builder()
-                .orderCode(orderCode)
+                .orderCode(savedPayment.getOrderCode()) // Lấy orderCode từ payment đã lưu
                 .amount((int) savedPayment.getAmount())
                 .description(description)
                 .items(items)
@@ -80,21 +73,21 @@ public class PaymentService {
                 .returnUrl(returnUrl)
                 .build();
 
+        // Bước 2: Gọi PayOS (nằm ngoài mọi transaction)
         CheckoutResponseData response = this.payOS.createPaymentLink(paymentData);
 
         if (response == null) {
             throw new Exception("Lỗi khi tạo link thanh toán từ PayOS, response trả về null.");
         }
 
-        savedPayment.setPaymentLinkId(response.getPaymentLinkId());
-        paymentRepository.save(savedPayment);
+        // Bước 3: Cập nhật Payment với paymentLinkId (transaction mới)
+        updatePaymentWithLinkId(savedPayment.getPaymentID(), response.getPaymentLinkId());
 
+        // Trả về thông tin cho frontend
         Map<String, Object> paymentResponse = new HashMap<>();
         paymentResponse.put("qrCode", response.getQrCode());
         paymentResponse.put("amount", response.getAmount());
-        paymentResponse.put("description", response.getDescription());
-        paymentResponse.put("accountNumber", response.getAccountNumber());
-        paymentResponse.put("accountName", response.getAccountName());
+        // ... (các trường khác) ...
         paymentResponse.put("paymentLinkId", response.getPaymentLinkId());
         paymentResponse.put("checkoutUrl", response.getCheckoutUrl());
 
@@ -156,4 +149,30 @@ public class PaymentService {
             ordersRepository.save(order);
         }
     }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Payment createPendingPayment(Long invoiceId) {
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + invoiceId));
+
+        long orderCode = System.currentTimeMillis();
+        Payment newPayment = new Payment();
+        newPayment.setInvoice(invoice);
+        newPayment.setAmount(invoice.getTotalAmount());
+        newPayment.setPaymentMethod("PayOS");
+        newPayment.setPaymentStatus("PENDING");
+        newPayment.setOrderCode(orderCode);
+
+        return paymentRepository.save(newPayment);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updatePaymentWithLinkId(Long paymentId, String paymentLinkId) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Payment ID: " + paymentId + " để cập nhật linkId"));
+
+        payment.setPaymentLinkId(paymentLinkId);
+        paymentRepository.save(payment);
+    }
+
 }
