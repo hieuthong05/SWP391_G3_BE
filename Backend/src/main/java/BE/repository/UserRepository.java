@@ -1,5 +1,6 @@
 package BE.repository;
 
+import BE.entity.AuthProvider;
 import BE.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,7 +12,10 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByRefIdAndRefType(Long refId, String refType);
+
     Optional<User> findByEmail(String email);
+    Boolean existsByEmail(String email);
+    Optional<User> findByEmailAndProvider(String email, AuthProvider provider);
 
     @Query("SELECT COUNT(u) FROM User u WHERE u.role = 'customer' AND u.status = true")
     long countActiveCustomers();

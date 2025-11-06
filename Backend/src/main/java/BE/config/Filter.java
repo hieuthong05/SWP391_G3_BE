@@ -8,12 +8,14 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class Filter extends OncePerRequestFilter {
 
     @Autowired
@@ -38,6 +41,12 @@ public class Filter extends OncePerRequestFilter {
             "GET: /api/reminders/customer/{customerId}",
             "POST:/api/auth/google",
 
+            // ✅ THÊM CÁC DÒNG NÀY CHO OAUTH2
+            "GET:/oauth2/**",
+            "POST:/oauth2/**",
+            "GET:/login/oauth2/**",
+            "POST:/login/oauth2/**",
+            "GET:/login/**",
 
             "GET:/swagger-ui/**",
             "GET:/v3/api-docs/**",
@@ -106,7 +115,11 @@ public class Filter extends OncePerRequestFilter {
 
     public String getToken(HttpServletRequest request){
         String authHeader = request.getHeader("Authorization");
-        if(authHeader == null) return null;
-        return authHeader.substring(7);
+//        if(authHeader == null) return null;
+//        return authHeader.substring(7);
+        if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
     }
 }

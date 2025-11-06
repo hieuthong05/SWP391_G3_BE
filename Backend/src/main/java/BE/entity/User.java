@@ -21,15 +21,25 @@ public class User implements UserDetails {
     @Column(name = "user_ID")
     private Long userID;
 
+    @Column(nullable = false, unique = true)
     private String email;
+
+    @Column(nullable = false)
     private String fullName;
+
     private String pictureUrl;
-    private String provider; // "GOOGLE" hoặc "LOCAL"
+
+    @Enumerated(EnumType.STRING)
+    private AuthProvider provider; // LOCAL, GOOGLE
+
+    private String providerId; // Google ID
+
+    @Column(nullable = false)
+    private Boolean enabled = true;
 
     @Column(unique = true, nullable = false)
     private String phone;  // email hoặc username
 
-    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
