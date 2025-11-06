@@ -34,7 +34,7 @@ public class User implements UserDetails {
 
     private String providerId; // Google ID
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Boolean enabled = true;
 
     @Column(unique = true, nullable = false)

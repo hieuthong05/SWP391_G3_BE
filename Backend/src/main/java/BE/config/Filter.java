@@ -40,8 +40,9 @@ public class Filter extends OncePerRequestFilter {
             "POST:/api/employee/register",
             "GET: /api/reminders/customer/{customerId}",
             "POST:/api/auth/google",
+            "POST:/api/auth/forgot-password",
+            "POST:/api/auth/reset-password",
 
-            // ✅ THÊM CÁC DÒNG NÀY CHO OAUTH2
             "GET:/oauth2/**",
             "POST:/oauth2/**",
             "GET:/login/oauth2/**",
