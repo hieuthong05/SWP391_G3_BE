@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
@@ -94,22 +95,39 @@ public class Filter extends OncePerRequestFilter {
             }
             try {
                 tokenService.extractToken(token);
-                String phone = tokenService.extractPhone(token);
-                var userInfo = tokenService.loadUserByPhone(phone);
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userInfo,null,userInfo.getAuthorities());
+
+                //SỬA: Lấy subject (có thể là phone hoặc email)
+                String subject = tokenService.extractPhone(token);  // subject = phone hoặc email
+
+                //Load user by subject (tự động phân biệt phone/email)
+                UserDetails userInfo = tokenService.loadUserBySubject(subject);
+
+                UsernamePasswordAuthenticationToken authenticationToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userInfo, null, userInfo.getAuthorities()
+                        );
 
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                filterChain.doFilter(request,response);
+                filterChain.doFilter(request, response);
 
-            }catch (ExpiredJwtException expiredJwtException){
-                resolver.resolveException(request,response,null,new AuthenticationException("Expired token!"));
-                return;
-            }catch (MalformedJwtException malformedJwtException){
-                resolver.resolveException(request,response,null,new AuthenticationException("Invalid token!"));
-                return;
             }
-
-
+//            catch (ExpiredJwtException expiredJwtException){
+//                resolver.resolveException(request,response,null,new AuthenticationException("Expired token!"));
+//                return;
+//            }catch (MalformedJwtException malformedJwtException){
+//                resolver.resolveException(request,response,null,new AuthenticationException("Invalid token!"));
+//                return;
+//            }
+            catch (ExpiredJwtException expiredJwtException) {
+                resolver.resolveException(request, response, null,
+                        new AuthenticationException("Expired token!"));
+            } catch (MalformedJwtException malformedJwtException) {
+                resolver.resolveException(request, response, null,
+                        new AuthenticationException("Invalid token!"));
+            } catch (Exception e) {
+                resolver.resolveException(request, response, null,
+                        new AuthenticationException("Token error: " + e.getMessage()));
+            }
 
         }
     }
