@@ -296,6 +296,21 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     public UserResponse getUserInfo(User user) {
+
+        if (user.getRefId() == null)
+        {
+            System.out.println("⚠️ OAuth2 user detected (no refId): " + user.getEmail());
+
+            UserResponse userResponse = new UserResponse();
+            userResponse.setUserID(user.getUserID());
+            userResponse.setName(user.getFullName());
+            userResponse.setEmail(user.getEmail());
+            userResponse.setRole(user.getRole());
+            userResponse.setPhone(user.getPhone());
+
+            return userResponse;
+        }
+
         Object userDetail = getEntityInfo(user);
 
         if(userDetail == null) {

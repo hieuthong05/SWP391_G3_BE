@@ -1,7 +1,9 @@
 package BE.security;
 
 import BE.entity.AuthProvider;
+import BE.entity.Customer;
 import BE.entity.User;
+import BE.repository.CustomerRepository;
 import BE.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -17,6 +19,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -50,6 +53,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 user.setPictureUrl(picture);
             } else {
                 System.out.println("✨ Creating new OAuth2 user");
+
+                //TẠO CUSTOMER TRƯỚC
+                Customer customer = new Customer();
+                customer.setName(name);
+                customer.setEmail(email);
+                customer.setPhone(null);
+                customer.setPassword(null);
+                customer.setGender(null);
+                customer.setAddress(null);
+                customer.setBirth(null);
+                customer.setStatus(true);
+
+                Customer savedCus = customerRepository.save(customer);
+                System.out.println("✅ Customer created: ID=" + savedCus.getCustomerID());
+
                 // Tạo user mới
                 user = new User();
                 user.setEmail(email);
@@ -64,8 +82,8 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 user.setPassword(null);
 
                 //SET ref_id và ref_type = null cho OAuth2 users
-                user.setRefId(null);
-                user.setRefType(null);
+                user.setRefId(savedCus.getCustomerID());
+                user.setRefType("customer");
             }
 
             userRepository.save(user);

@@ -69,14 +69,23 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
 
             // Redirect to frontend with token
-            String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl)
-                    .queryParam("token", token)
-                    .queryParam("email", email)
-                    .queryParam("name", encodedName)
-                    .queryParam("avatar", encodedAvatar)
-                    .queryParam("role", user.getRole())
-                    .build(true)
-                    .toUriString();
+//            String targetUrl = UriComponentsBuilder.fromUriString(redirectUrl)
+//                    .queryParam("token", token)
+//                    .queryParam("email", email)
+//                    .queryParam("name", encodedName)
+//                    .queryParam("avatar", encodedAvatar)
+//                    .queryParam("role", user.getRole())
+//                    .build(true)
+//                    .toUriString();
+
+            String targetUrl = redirectUrl +
+                    "?token=" + token +
+                    "&email=" + user.getEmail() +
+                    "&name=" + encodedName +
+                    "&avatar=" + encodedAvatar +
+                    "&role=" + user.getRole() +
+                    "&userID=" + user.getUserID() +
+                    "&refId=" + (user.getRefId() != null ? user.getRefId() : "");
 
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }

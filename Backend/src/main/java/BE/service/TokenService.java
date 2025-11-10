@@ -125,9 +125,9 @@ public class TokenService {
         if (user == null)
         {
             user = authenticationRepository.findByEmail(subject)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new RuntimeException("User not found: " + subject));
         }
-
+        System.out.println("✅ Loaded user: " + user.getEmail() + " (ID: " + user.getUserID() + ")");
         return user;
     }
 }

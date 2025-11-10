@@ -95,13 +95,16 @@ public class Filter extends OncePerRequestFilter {
                 return;
             }
             try {
+                System.out.println("🔑 Processing token for: " + uri);
                 tokenService.extractToken(token);
 
                 //SỬA: Lấy subject (có thể là phone hoặc email)
-                String subject = tokenService.extractPhone(token);  // subject = phone hoặc email
+                String subject = tokenService.extractPhone(token);
+                System.out.println("👤 Token subject: " + subject);// subject = phone hoặc email
 
                 //Load user by subject (tự động phân biệt phone/email)
                 UserDetails userInfo = tokenService.loadUserBySubject(subject);
+                System.out.println("✅ User loaded: " + userInfo.getUsername());
 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
@@ -112,6 +115,7 @@ public class Filter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
 
             }
+
 //            catch (ExpiredJwtException expiredJwtException){
 //                resolver.resolveException(request,response,null,new AuthenticationException("Expired token!"));
 //                return;

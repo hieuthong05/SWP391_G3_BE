@@ -49,19 +49,33 @@ public class AuthenticationController {
     @SecurityRequirement(name = "api")
     @GetMapping("/api/auth/getUserInfo")
     public ResponseEntity<UserResponse> getUserInfo(@AuthenticationPrincipal User user, HttpServletRequest request) {
+
+        System.out.println("🔍 getUserInfo called");
+        System.out.println("📧 User email: " + (user != null ? user.getEmail() : "null"));
+        System.out.println("🆔 User ID: " + (user != null ? user.getUserID() : "null"));
+        System.out.println("🔑 RefId: " + (user != null ? user.getRefId() : "null"));
+
         if (user == null) {
             return ResponseEntity.status(401).build();
         }
+        try
+        {
+            UserResponse userResponse = authenticationService.getUserInfo(user);
 
-        UserResponse userResponse = authenticationService.getUserInfo(user);
+            String authHeader = request.getHeader("Authorization");
+            if(authHeader != null && authHeader.startsWith("Bearer ")) {
+                String token = authHeader.substring(7);
+                userResponse.setToken(token);
+            }
 
-        String authHeader = request.getHeader("Authorization");
-        if(authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            userResponse.setToken(token);
+            return ResponseEntity.ok(userResponse);
         }
-
-        return ResponseEntity.ok(userResponse);
+        catch (Exception e)
+        {
+            System.err.println("❌ Error in getUserInfo: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
     }
 
     @PostMapping("/api/auth/forgot-password")
