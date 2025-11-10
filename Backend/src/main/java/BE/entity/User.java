@@ -38,7 +38,6 @@ public class User implements UserDetails {
     @Column(nullable = true)
     private Boolean enabled = true;
 
-    @Column(unique = true, nullable = false)
     private String phone;  // email hoặc username
 
     private String password;
@@ -46,10 +45,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String role;      // CUSTOMER, STAFF, TECHNICIAN, ADMIN
 
-    @Column(name = "ref_id", nullable = false)
+    @Column(name = "ref_id", nullable = true)
     private Long refId;       // id của bảng gốc
 
-    @Column(name = "ref_type", nullable = false)
+    @Column(name = "ref_type", nullable = true)
     private String refType;   // CUSTOMER, EMPLOYEE, ADMIN
 
     private Boolean status;
@@ -57,6 +56,13 @@ public class User implements UserDetails {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        if (enabled == null) enabled = true;
+        if (status == null) status = true;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

@@ -51,7 +51,8 @@ public class TokenService {
                 .compact();
     }
 
-    public User extractToken(String token){
+    public User extractToken(String token)
+    {
         String value = extractClaim(token, Claims::getSubject);
 
         //Thử tìm theo phone trước
@@ -109,17 +110,20 @@ public class TokenService {
     }
 
     //THÊM: Load user by email (cho OAuth2)
-    public UserDetails loadUserByEmail(String email){
+    public UserDetails loadUserByEmail(String email)
+    {
         User user = authenticationRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return user;
     }
 
     //THÊM: Load user by subject (phone hoặc email)
-    public UserDetails loadUserBySubject(String subject){
+    public UserDetails loadUserBySubject(String subject)
+    {
         User user = authenticationRepository.findUserByPhone(subject);
 
-        if (user == null) {
+        if (user == null)
+        {
             user = authenticationRepository.findByEmail(subject)
                     .orElseThrow(() -> new RuntimeException("User not found"));
         }

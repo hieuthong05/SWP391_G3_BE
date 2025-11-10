@@ -44,12 +44,13 @@ public class SecurityConfig {
                 // ✅ Session Management - STATELESS
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                                .sessionFixation().none()
                 )
 
                 // ✅ Authorization - GIỮ NGUYÊN LOGIC HIỆN TẠI
                 .authorizeHttpRequests(req -> req
                         // Cho phép OAuth2 endpoints
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**", "/login/**").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**", "/login/**", "/error").permitAll()
 
                         // ✅ GIỮ NGUYÊN - Filter sẽ xử lý phân quyền
                         .requestMatchers("/**").permitAll()
@@ -63,6 +64,11 @@ public class SecurityConfig {
                                 userInfo.userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            System.err.println("❌ OAuth2 Login Failed: " + exception.getMessage());
+                            exception.printStackTrace();
+                            response.sendRedirect("http://localhost:5173/login?error=oauth_failed");
+                        })
                 )
 
                 // ✅ GIỮ NGUYÊN Filter hiện tại
