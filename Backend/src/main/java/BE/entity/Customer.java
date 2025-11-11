@@ -1,6 +1,7 @@
 package BE.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,9 +25,9 @@ public class Customer {
     private String name;
 
     @Column(unique = true, nullable = false)
+    @Email
     private String email;
 
-    @Column(unique = true, nullable = false)
     private String phone;
 
     private String password;
