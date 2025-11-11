@@ -27,25 +27,26 @@ public class PaymentService {
     private final InvoiceRepository invoiceRepository;
     private final OrdersRepository ordersRepository;
     private final MaintenanceRepository maintenanceRepository;
+    private final EmailService emailService;
 
     @Autowired
     public PaymentService(PayOS payOS,
                           PaymentRepository paymentRepository,
                           InvoiceRepository invoiceRepository,
                           OrdersRepository ordersRepository,
-                          MaintenanceRepository maintenanceRepository) {
+                          MaintenanceRepository maintenanceRepository,
+                          EmailService emailService) {
 
         this.payOS = payOS;
         this.paymentRepository = paymentRepository;
         this.invoiceRepository = invoiceRepository;
         this.ordersRepository = ordersRepository;
         this.maintenanceRepository = maintenanceRepository;
+        this.emailService = emailService;
     }
 
     public Map<String, Object> createPaymentLink(Long invoiceId) throws Exception {
 
-        // Bước 1: Tạo Payment PENDING và commit ngay
-        // (Gọi một phương thức @Transactional(propagation = Propagation.REQUIRES_NEW)
         Payment savedPayment = createPendingPayment(invoiceId);
 
         // Dữ liệu cho PayOS
@@ -65,7 +66,7 @@ public class PaymentService {
         }
 
         PaymentData paymentData = PaymentData.builder()
-                .orderCode(savedPayment.getOrderCode()) // Lấy orderCode từ payment đã lưu
+                .orderCode(savedPayment.getOrderCode()) // Lấy orderCode từ payment
                 .amount((int) savedPayment.getAmount())
                 .description(description)
                 .items(items)
@@ -73,21 +74,19 @@ public class PaymentService {
                 .returnUrl(returnUrl)
                 .build();
 
-        // Bước 2: Gọi PayOS (nằm ngoài mọi transaction)
+        // Gọi PayOS (nằm ngoài mọi transaction)
         CheckoutResponseData response = this.payOS.createPaymentLink(paymentData);
 
         if (response == null) {
             throw new Exception("Lỗi khi tạo link thanh toán từ PayOS, response trả về null.");
         }
 
-        // Bước 3: Cập nhật Payment với paymentLinkId (transaction mới)
+        // Cập nhật Payment với paymentLinkId
         updatePaymentWithLinkId(savedPayment.getPaymentID(), response.getPaymentLinkId());
 
-        // Trả về thông tin cho frontend
         Map<String, Object> paymentResponse = new HashMap<>();
         paymentResponse.put("qrCode", response.getQrCode());
         paymentResponse.put("amount", response.getAmount());
-        // ... (các trường khác) ...
         paymentResponse.put("paymentLinkId", response.getPaymentLinkId());
         paymentResponse.put("checkoutUrl", response.getCheckoutUrl());
 
@@ -130,6 +129,14 @@ public class PaymentService {
         }
 
         updateOrderStatusOnPayment(order);
+        try {
+            emailService.sendInvoiceEmail(invoice);
+        } catch (Exception e) {
+            // Ghi log lỗi gửi email, nhưng không rollback transaction vì thanh toán đã thành công
+            // (Bạn nên sử dụng Logger thay vì System.err)
+            System.err.println("Quan trọng: Thanh toán thành công (Link ID: " + paymentLinkId + ") nhưng gửi email hóa đơn thất bại. Lỗi: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID() + " (Link ID: " + paymentLinkId + ")";
     }

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Hóa đơn dịch vụ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        body { margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #333; }
+        .container { width: 90%; max-width: 600px; margin: 20px auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+        .header { background-color: #f8f8f8; padding: 20px 30px; border-bottom: 1px solid #ddd; }
+        .header h1 { margin: 0; color: #0056b3; font-size: 24px; }
+        .header p { margin: 5px 0 0; color: #555; font-size: 14px; }
+        .content { padding: 30px; }
+        .content-block { margin-bottom: 20px; }
+        .content-block h2 { color: #0056b3; margin-top: 0; margin-bottom: 10px; font-size: 18px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        .content-block p { margin: 0 0 5px; }
+        .invoice-details { width: 100%; margin-bottom: 20px; }
+        .invoice-details td { padding: 5px 0; }
+        .invoice-details .label { font-weight: bold; color: #555; width: 150px; }
+        .item-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .item-table th, .item-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        .item-table th { background-color: #f8f8f8; font-size: 14px; }
+        .item-table td { font-size: 14px; }
+        .item-table .text-right { text-align: right; }
+        .total-row { font-weight: bold; font-size: 18px; color: #0056b3; }
+        .total-row td { border-top: 2px solid #0056b3; }
+        .footer { background-color: #f8f8f8; padding: 20px 30px; border-top: 1px solid #ddd; text-align: center; color: #888; font-size: 12px; }
+        .footer p { margin: 5px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1 th:text="${centerName}">EV Care Pro</h1>
+        <p th:text="${centerAddress}">Địa chỉ trung tâm</p>
+        <p>
+            <span th:text="'SĐT: ' + ${centerPhone}">SĐT: 0123456789</span> |
+            <span th:text="'Email: ' + ${centerEmail}">Email: support@trungtam.com</span>
+        </p>
+    </div>
+
+    <div class="content">
+        <div class="content-block">
+            <table class="invoice-details">
+                <tr>
+                    <td class="label">Hóa đơn số:</td>
+                    <td th:text="${invoiceId}">#000001</td>
+                </tr>
+                <tr>
+                    <td class="label">Ngày phát hành:</td>
+                    <td th:text="${#temporals.format(issuedDate, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
+                </tr>
+                <tr>
+                    <td class="label">Khách hàng:</td>
+                    <td th:text="${customerName}">Nguyễn Văn A</td>
+                </tr>
+                <tr>
+                    <td class="label">Điện thoại:</td>
+                    <td th:text="${customerPhone}">0987654321</td>
+                </tr>
+                <tr>
+                    <td class="label">Email:</td>
+                    <td th:text="${customerEmail}">email@khachhang.com</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="content-block">
+            <h2>Chi tiết hóa đơn</h2>
+            <table class="item-table">
+                <thead>
+                <tr>
+                    <th>Hạng mục</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th class="text-right">Thành tiền</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="detail : ${invoiceDetails}">
+                    <td th:text="${detail.itemName}">Tên dịch vụ/Phụ tùng</td>
+                    <td th:text="${detail.quantity}">1</td>
+                    <td th:text="${#numbers.formatDecimal(detail.unitPrice, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">100,000 VNĐ</td>
+                    <td class="text-right" th:text="${#numbers.formatDecimal(detail.subTotal, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">100,000 VNĐ</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr class="total-row">
+                    <td colspan="3">TỔNG CỘNG</td>
+                    <td class="text-right" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">1,000,000 VNĐ</td>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <div class="content-block">
+            <p>Cảm ơn bạn đã tin tưởng và sử dụng dịch vụ của chúng tôi!</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Đây là email tự động, vui lòng không trả lời.</p>
+        <p>&copy; <span th:text="${#temporals.year(#temporals.createNow())}">2025</span> <span th:text="${centerName}">Tên Trung Tâm</span>. Bảo lưu mọi quyền.</p>
+    </div>
+</div>
+</body>
+</html>
