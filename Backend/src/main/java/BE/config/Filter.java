@@ -84,13 +84,20 @@ public class Filter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         String method = request.getMethod();
 
+        System.out.println("🔍 Filter - URI: " + uri + " | Method: " + method);
+
         if(isPublicAPI(uri,method)){
-            filterChain.doFilter(request,response);
+            System.out.println("✅ Public API - bypass filter");
+            filterChain.doFilter(request, response);
             return;
         }else{
 
             String token = getToken(request);
+
+            System.out.println("🔑 Token: " + (token != null ? token.substring(0, Math.min(20, token.length())) + "..." : "NULL"));
+
             if(token ==null) {
+                System.err.println("❌ No token found in request!");
                 resolver.resolveException(request, response, null, new AuthenticationException("Empty token"));
                 return;
             }
@@ -112,6 +119,8 @@ public class Filter extends OncePerRequestFilter {
                         );
 
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                System.out.println("✅ Authentication set successfully");
+
                 filterChain.doFilter(request, response);
 
             }

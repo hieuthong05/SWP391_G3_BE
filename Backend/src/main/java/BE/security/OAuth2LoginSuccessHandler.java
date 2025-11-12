@@ -53,6 +53,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
             //Generate JWT token bằng TokenService (giống normal login)
             String token = tokenService.generateToken(user);
+            System.out.println("🔑 Token generated: " + token.substring(0, 30) + "...");
+            System.out.println("📋 Token details:");
+            System.out.println("   - Subject: " + tokenService.extractPhone(token));
+            System.out.println("   - Email from token: " + tokenService.extractEmail(token));
+            System.out.println("   - Expired: " + tokenService.isTokenExpired(token));
+
 
             System.out.println("🔑 Token generated successfully");
 
@@ -87,6 +93,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     "&userID=" + user.getUserID() +
                     "&refId=" + (user.getRefId() != null ? user.getRefId() : "");
 
+            System.out.println("🔄 Redirecting to: " + targetUrl.substring(0, Math.min(100, targetUrl.length())) + "...");
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
         }
         catch (Exception e)
