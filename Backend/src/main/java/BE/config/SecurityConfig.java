@@ -54,7 +54,7 @@ public class SecurityConfig {
 
                         // ✅ GIỮ NGUYÊN - Filter sẽ xử lý phân quyền
                         .requestMatchers("/**").permitAll()
-
+//                                .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
