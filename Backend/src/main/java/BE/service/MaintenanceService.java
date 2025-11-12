@@ -86,6 +86,12 @@ public class MaintenanceService {
         order.setStatus("Confirmed");
         Orders savedOrder = ordersRepository.save(order);
 
+        Vehicle vehicleToUpdate = savedOrder.getVehicle();
+        if (vehicleToUpdate != null) {
+            vehicleToUpdate.setStatus(false);
+            vehicleRepository.save(vehicleToUpdate);
+        }
+
         Maintenance maintenance = new Maintenance();
         maintenance.setOrders(savedOrder);
         maintenance.setEmployee(employee);
@@ -269,11 +275,7 @@ public class MaintenanceService {
         maintenance.setStatus("In Progress");
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
         savedMaintenance.getOrders().setStatus(savedMaintenance.getStatus());
-        Vehicle vehicle = savedMaintenance.getVehicle();
-        if (vehicle != null && vehicle.getStatus()) { // Chỉ cập nhật nếu đang là 'true'
-            vehicle.setStatus(false); // Set thành 'In Maintenance'
-            vehicleRepository.save(vehicle);
-        }
+
         ordersRepository.save(savedMaintenance.getOrders());
     }
 
