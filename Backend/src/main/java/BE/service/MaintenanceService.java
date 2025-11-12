@@ -5,10 +5,7 @@ import BE.model.request.ConfirmBookingRequest;
 import BE.model.response.BookingResponse;
 import BE.model.response.ConfirmBookingResponse;
 import BE.model.response.MaintenanceResponse;
-import BE.repository.ComponentRepository;
-import BE.repository.EmployeeRepository;
-import BE.repository.MaintenanceRepository;
-import BE.repository.OrdersRepository;
+import BE.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +33,8 @@ public class MaintenanceService {
     @Autowired
     private ComponentRepository componentRepository;
 
+    @Autowired
+    private VehicleRepository vehicleRepository;
 
     @Transactional
     public ConfirmBookingResponse confirmBookingAndCreateMaintenance(ConfirmBookingRequest request)
@@ -46,6 +45,16 @@ public class MaintenanceService {
         if (order == null)
         {
             errors.add("Order not found with ID: " + request.getOrderId());
+        }
+        Vehicle vehicle = order.getVehicle();
+        if (vehicle != null) {
+            if (!vehicle.getStatus()) {
+                errors.add("Vehicle (ID: " + vehicle.getVehicleID()
+                        + ", Plate: " + vehicle.getLicensePlate()
+                        + ") is already marked as 'In Maintenance'.");
+            }
+        } else {
+            errors.add("Order (ID: " + request.getOrderId() + ") is not associated with any vehicle.");
         }
 
         if (!"Pending".equals(order.getStatus()))
@@ -260,6 +269,11 @@ public class MaintenanceService {
         maintenance.setStatus("In Progress");
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
         savedMaintenance.getOrders().setStatus(savedMaintenance.getStatus());
+        Vehicle vehicle = savedMaintenance.getVehicle();
+        if (vehicle != null && vehicle.getStatus()) { // Chỉ cập nhật nếu đang là 'true'
+            vehicle.setStatus(false); // Set thành 'In Maintenance'
+            vehicleRepository.save(vehicle);
+        }
         ordersRepository.save(savedMaintenance.getOrders());
     }
 
@@ -290,7 +304,9 @@ public class MaintenanceService {
                 componentRepository.save(component);
             }
         }
-        maintenance.setEndTime(LocalDateTime.now());
+        LocalDateTime endTime = LocalDateTime.now();
+        maintenance.setEndTime(endTime);
+        maintenance.setNextDueDate(endTime.plusMonths(6));
 
         maintenance.setStatus("Waiting For Payment");
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
@@ -324,7 +340,9 @@ public class MaintenanceService {
                 componentRepository.save(component);
             }
         }
-        maintenance.setEndTime(LocalDateTime.now());
+        LocalDateTime endTime = LocalDateTime.now();
+        maintenance.setEndTime(endTime);
+        maintenance.setNextDueDate(endTime.plusMonths(6));
         maintenance.setStatus("Completed");
         Maintenance savedMaintenance = maintenanceRepository.save(maintenance);
 
@@ -333,6 +351,11 @@ public class MaintenanceService {
             ordersRepository.save(savedMaintenance.getOrders());
         } else {
             System.err.println("Warning: Order not found for completed Maintenance ID: " + maintenanceID);
+        }
+        Vehicle vehicle = savedMaintenance.getVehicle();
+        if (vehicle != null && !vehicle.getStatus()) {
+            vehicle.setStatus(true);
+            vehicleRepository.save(vehicle);
         }
     }
 }

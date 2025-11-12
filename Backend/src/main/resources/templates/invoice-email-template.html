@@ -51,6 +51,10 @@
                     <td th:text="${#temporals.format(issuedDate, 'dd/MM/yyyy HH:mm')}">01/01/2025</td>
                 </tr>
                 <tr>
+                    <td style="padding: 5px; font-weight: bold;">Lần bảo dưỡng kế tiếp:</td>
+                    <td style="padding: 5px;" th:text="${nextMaintenanceDate}">[dd/MM/yyyy]</td>
+                </tr>
+                <tr>
                     <td class="label">Khách hàng:</td>
                     <td th:text="${customerName}">Nguyễn Văn A</td>
                 </tr>

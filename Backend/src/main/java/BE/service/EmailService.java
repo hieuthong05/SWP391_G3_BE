@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 @Service
@@ -108,7 +110,15 @@ public class EmailService {
             context.setVariable("invoiceId", String.format("#%06d", invoice.getInvoiceID())); // Định dạng cho đẹp
             context.setVariable("issuedDate", invoice.getIssuedDate());
             context.setVariable("totalAmount", invoice.getTotalAmount());
-            context.setVariable("invoiceDetails", invoice.getInvoiceDetails()); //
+            context.setVariable("invoiceDetails", invoice.getInvoiceDetails());
+
+            // Lấy và định dạng ngày bảo dưỡng kế tiếp
+            LocalDateTime nextDueDate = maintenance.getNextDueDate();
+            String formattedNextDueDate = "N/A";
+            if (nextDueDate != null) {
+                formattedNextDueDate = nextDueDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            }
+            context.setVariable("nextMaintenanceDate", formattedNextDueDate);
 
             // Xử lý template mới
             String text = templateEngine.process("invoice-email-template", context);
