@@ -1,12 +1,21 @@
 package BE.service;
 
+import BE.entity.Employee;
+import BE.entity.Maintenance;
+import BE.model.DTO.AllMonthsPerformanceReportDTO;
 import BE.model.DTO.DashboardStatisticsDTO;
+import BE.model.DTO.MonthlyPerformanceReportDTO;
+import BE.model.DTO.TechnicianPerformanceDTO;
 import BE.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -206,5 +215,126 @@ public class StatisticService {
         response.put("top2_failure_trends", top2Fails);
 
         return response;
+    }
+
+    //=========================================PERFORMANCE=================================
+
+    @Transactional(readOnly = true)
+    public AllMonthsPerformanceReportDTO getAllMonthsPerformanceReport() {
+        // Lấy tất cả maintenance của technician
+        List<Maintenance> allMaintenances = maintenanceRepository.findAllByTechnician();
+
+        if (allMaintenances.isEmpty()) {
+            return new AllMonthsPerformanceReportDTO(new ArrayList<>(), 0, null, null);
+        }
+
+        // Nhóm maintenance theo tháng/năm
+        Map<String, List<Maintenance>> maintenancesByMonth = allMaintenances.stream()
+                .filter(m -> m.getEndTime() != null && m.getEmployee() != null)
+                .collect(Collectors.groupingBy(m -> {
+                    LocalDateTime endTime = m.getEndTime();
+                    return endTime.getYear() + "-" + String.format("%02d", endTime.getMonthValue());
+                }));
+
+        // Tạo báo cáo cho từng tháng
+        List<MonthlyPerformanceReportDTO> monthlyReports = maintenancesByMonth.entrySet().stream()
+                .map(entry -> {
+                    String[] yearMonth = entry.getKey().split("-");
+                    int year = Integer.parseInt(yearMonth[0]);
+                    int month = Integer.parseInt(yearMonth[1]);
+                    List<Maintenance> monthMaintenances = entry.getValue();
+
+                    return createMonthlyReport(year, month, monthMaintenances);
+                })
+                .sorted(Comparator
+                        .comparing(MonthlyPerformanceReportDTO::getYear)
+                        .thenComparing(MonthlyPerformanceReportDTO::getMonth)
+                        .reversed())
+                .collect(Collectors.toList());
+
+        // Tính thời gian từ - đến
+        LocalDateTime minDate = allMaintenances.stream()
+                .map(Maintenance::getEndTime)
+                .filter(Objects::nonNull)
+                .min(LocalDateTime::compareTo)
+                .orElse(null);
+
+        LocalDateTime maxDate = allMaintenances.stream()
+                .map(Maintenance::getEndTime)
+                .filter(Objects::nonNull)
+                .max(LocalDateTime::compareTo)
+                .orElse(null);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/yyyy");
+        String periodFrom = minDate != null ? minDate.format(formatter) : null;
+        String periodTo = maxDate != null ? maxDate.format(formatter) : null;
+
+        return new AllMonthsPerformanceReportDTO(
+                monthlyReports,
+                monthlyReports.size(),
+                periodFrom,
+                periodTo
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public MonthlyPerformanceReportDTO getMonthlyPerformanceReport(Integer month, Integer year) {
+        // Validate input
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Tháng phải từ 1 đến 12");
+        }
+        if (year < 2000 || year > 2100) {
+            throw new IllegalArgumentException("Năm không hợp lệ");
+        }
+
+        // Lấy tất cả maintenance của technician trong tháng
+        List<Maintenance> maintenances = maintenanceRepository.findByTechnicianAndMonthYear(month, year);
+
+        return createMonthlyReport(year, month, maintenances);
+    }
+
+    private MonthlyPerformanceReportDTO createMonthlyReport(Integer year, Integer month, List<Maintenance> maintenances) {
+        // Nhóm theo employee và đếm số lượng maintenance
+        Map<Employee, Long> employeeMaintenanceCount = maintenances.stream()
+                .filter(m -> m.getEmployee() != null)
+                .collect(Collectors.groupingBy(
+                        Maintenance::getEmployee,
+                        Collectors.counting()
+                ));
+
+        // Chuyển đổi sang DTO
+        List<TechnicianPerformanceDTO> allTechnicians = employeeMaintenanceCount.entrySet().stream()
+                .map(entry -> new TechnicianPerformanceDTO(
+                        entry.getKey().getEmployeeID(),
+                        entry.getKey().getName(),
+                        entry.getKey().getEmail(),
+                        entry.getKey().getPhone(),
+                        entry.getValue()
+                ))
+                .sorted(Comparator.comparing(TechnicianPerformanceDTO::getMaintenanceCount).reversed())
+                .collect(Collectors.toList());
+
+        // Lấy top 3 nhiều nhất
+        List<TechnicianPerformanceDTO> top3 = allTechnicians.stream()
+                .limit(3)
+                .collect(Collectors.toList());
+
+        // Lấy top 3 ít nhất
+        List<TechnicianPerformanceDTO> bottom3 = allTechnicians.stream()
+                .sorted(Comparator.comparing(TechnicianPerformanceDTO::getMaintenanceCount))
+                .limit(3)
+                .collect(Collectors.toList());
+
+        // Tính tổng số maintenance
+        Long totalMaintenances = (long) maintenances.size();
+
+        return new MonthlyPerformanceReportDTO(
+                month,
+                year,
+                totalMaintenances,
+                allTechnicians,
+                top3,
+                bottom3
+        );
     }
 }

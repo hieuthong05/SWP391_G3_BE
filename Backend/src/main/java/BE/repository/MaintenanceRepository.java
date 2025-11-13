@@ -41,4 +41,29 @@ public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> 
      //* Kiểm tra order đã có maintenance chưa
 
     boolean existsByOrders_OrderID(Long orderId);
+
+    //==============================STATISTIC======================================
+
+
+    @Query("SELECT m FROM Maintenance m " +
+            "WHERE m.employee.role = 'technician' " +
+            "AND YEAR(m.endTime) = :year " +
+            "AND MONTH(m.endTime) = :month " +
+            "AND m.endTime IS NOT NULL")
+    List<Maintenance> findByTechnicianAndMonthYear(
+            @Param("month") Integer month,
+            @Param("year") Integer year
+    );
+
+    @Query("SELECT DISTINCT YEAR(m.endTime) as year, MONTH(m.endTime) as month " +
+            "FROM Maintenance m " +
+            "WHERE m.employee.role = 'technician' " +
+            "AND m.endTime IS NOT NULL " +
+            "ORDER BY year DESC, month DESC")
+    List<Object[]> findDistinctMonthsAndYears();
+
+    @Query("SELECT m FROM Maintenance m " +
+            "WHERE m.employee.role = 'technician' " +
+            "AND m.endTime IS NOT NULL")
+    List<Maintenance> findAllByTechnician();
 }
