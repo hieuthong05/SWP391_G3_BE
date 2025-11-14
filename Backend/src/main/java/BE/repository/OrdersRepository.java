@@ -117,6 +117,13 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             "ORDER BY o.orderDate DESC")
     List<Orders> findByCustomerIdWithDetails(@Param("customerId") Long customerId);
 
+    @Query("SELECT DISTINCT o FROM Orders o " +
+            "LEFT JOIN FETCH o.customer c " +
+            "LEFT JOIN FETCH o.vehicle v " +
+            "LEFT JOIN o.services s " +
+            "ORDER BY o.orderDate DESC") // Tạm thời bỏ JOIN Maintenance để ứng dụng khởi động
+    List<Orders> findAllWithDetailsAndTechnician();
+
 
 //    /**
 //     * Lấy bookings theo customer và status

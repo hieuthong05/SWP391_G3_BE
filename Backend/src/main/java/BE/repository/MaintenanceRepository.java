@@ -12,6 +12,10 @@ public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> 
 
     long count();
 
+
+    @Query("SELECT m FROM Maintenance m LEFT JOIN FETCH m.employee t WHERE m.orders.orderID = :orderId")
+    Maintenance findByOrder_OrderID(@Param("orderId") Long orderId);
+
     // Đếm tổng số maintenance có order theo tháng
     @Query("SELECT MONTH(m.orders.orderDate) AS month, COUNT(m) AS total " +
             "FROM Maintenance m " +

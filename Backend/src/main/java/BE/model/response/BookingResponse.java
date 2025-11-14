@@ -34,6 +34,11 @@ public class BookingResponse {
     private String vehiclePlateNumber;
     private String vehicleModel;
 
+    // Thông tin technician
+    private Long technicianId;
+    private String technicianName;
+    private String technicianPhone;
+
     private String message;
 
 

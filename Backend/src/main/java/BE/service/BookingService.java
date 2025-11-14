@@ -29,6 +29,7 @@ public class BookingService {
     private final ServiceCenterRepository serviceCenterRepository;
     private final ServiceRepository serviceRepository;
     private final ServicePackageRepository servicePackageRepository;
+    private final MaintenanceRepository maintenanceRepository;
     private final ModelMapper modelMapper;
 
     private static final int MAX_BOOKINGS_PER_SLOT = 8;
@@ -304,7 +305,7 @@ public class BookingService {
     @Transactional
     public List<BookingResponse> getAllBookings()
     {
-        List<Orders> orders = ordersRepository.findAll();
+        List<Orders> orders = ordersRepository.findAllWithDetailsAndTechnician();
 
         return orders.stream().map(order -> {
             BookingResponse response = new BookingResponse();
@@ -353,6 +354,9 @@ public class BookingService {
                 response.setServiceNames(serviceNames);
                 response.setServiceType(String.join(", ", serviceNames));
             }
+
+            setTechnicianDetails(order, response);
+
             return response;
         }).collect(Collectors.toList());
     }
@@ -433,6 +437,8 @@ public class BookingService {
             response.setVehiclePlateNumber(order.getVehicle().getLicensePlate());
             response.setVehicleModel(order.getVehicle().getModel().getModelName());
         }
+
+        setTechnicianDetails(order, response);
 
         return response;
     }
@@ -528,6 +534,19 @@ public class BookingService {
             response.setVehicleModel(order.getVehicle().getModel().getModelName());
         }
         return response;
+    }
+
+    private void setTechnicianDetails(Orders order, BookingResponse response) {
+        // Tìm kiếm Maintenance liên quan đến Order này
+        Maintenance maintenance = maintenanceRepository.findByOrder_OrderID(order.getOrderID());
+
+        if (maintenance != null && maintenance.getEmployee() != null) {
+            Employee technician = maintenance.getEmployee();
+
+            response.setTechnicianId(technician.getEmployeeID());
+            response.setTechnicianName(technician.getName());
+            response.setTechnicianPhone(technician.getPhone());
+        }
     }
 
 //    /**
