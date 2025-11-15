@@ -22,4 +22,5 @@ public class VehicleResponse {
     private LocalDate lastMaintenanceDate;
     private Integer lastMaintenanceMileage;
     private boolean status;
+    private String imageUrl;
 }

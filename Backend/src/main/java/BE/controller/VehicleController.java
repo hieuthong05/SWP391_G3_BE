@@ -10,8 +10,10 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +28,11 @@ public class VehicleController {
     VehicleService vehicleService;
 
     @SecurityRequirement(name = "api")
-    @PostMapping("/create")
-    public ResponseEntity<VehicleResponse> createVehicle(@Valid @RequestBody VehicleDTO vehicleDTO){
-        VehicleResponse newVel = vehicleService.createVehicle(vehicleDTO);
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<VehicleResponse> createVehicle(@Valid @RequestPart(value = "vehicleDTO") VehicleDTO vehicleDTO,
+                                                         @RequestPart(value = "image") MultipartFile image) throws Exception
+    {
+        VehicleResponse newVel = vehicleService.createVehicle(vehicleDTO, image);
         return ResponseEntity.ok(newVel);
     }
 

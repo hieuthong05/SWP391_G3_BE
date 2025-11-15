@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,8 +32,12 @@ public class VehicleService {
     @Autowired
     ModelMapper modelMapper;
 
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
     @Transactional
-    public VehicleResponse createVehicle(VehicleDTO vehicleDTO) {
+    public VehicleResponse createVehicle(VehicleDTO vehicleDTO, MultipartFile image) throws Exception
+    {
         if (vehicleRepository.findByLicensePlate(vehicleDTO.getLicensePlate()).isPresent()) {
             throw new IllegalArgumentException("License plate already exists");
         }
@@ -44,8 +49,12 @@ public class VehicleService {
         Model model = modelRepository.findById(vehicleDTO.getModelID())
                 .orElseThrow(() -> new EntityNotFoundException("Model not found"));
 
+        String imageUrl = cloudinaryService.uploadFile(image, "vehicles");
+
         Vehicle vehicle = modelMapper.map(vehicleDTO, Vehicle.class);
+
         vehicle.setModel(model);
+        vehicle.setImageUrl(imageUrl);
 
         if (vehicleDTO.getCustomerId() == null) {
             throw new IllegalArgumentException("Customer ID is required for a new vehicle.");

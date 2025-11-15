@@ -54,4 +54,6 @@ public class Vehicle {
     @Column(name = "status",columnDefinition = "BOOLEAN DEFAULT true")
     private Boolean status;
 
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
 }
