@@ -54,8 +54,8 @@ public class CustomerController {
     }
 
     @SecurityRequirement(name = "api")
-    @PutMapping("/update/{id}")
-    public ResponseEntity<?> updateCustomer(@PathVariable Long id,@Valid @RequestBody CustomerDTO dto){
+    @PatchMapping("/update/{id}") // Đổi từ PutMapping -> PatchMapping
+    public ResponseEntity<?> updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO dto){
         try{
             CustomerResponse updatedCustomer = customerService.updateCustomer(id, dto);
 
@@ -71,6 +71,12 @@ public class CustomerController {
         catch (IllegalArgumentException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", e.getMessage()));
+        }
+        catch (Exception e) {
+            // Bắt thêm lỗi 500 để debug xem nó là lỗi gì
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Lỗi server: " + e.getMessage()));
         }
     }
 
