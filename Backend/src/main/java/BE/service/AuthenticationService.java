@@ -144,7 +144,17 @@ public class AuthenticationService implements UserDetailsService {
         UserResponse userResponse = switch (user.getRole().toLowerCase()) {
             case "customer" -> modelMapper.map((Customer) userDetail, UserResponse.class);
             case "admin", "center_admin" -> modelMapper.map((Admin) userDetail, UserResponse.class);
-            case "staff", "technician" -> modelMapper.map((Employee) userDetail, UserResponse.class);
+            case "staff", "technician" -> {
+                UserResponse res = modelMapper.map((Employee) userDetail, UserResponse.class);
+                Employee emp = (Employee) userDetail;
+                if (emp.getServiceCenter() != null) {
+                    res.setServiceCenter(emp.getServiceCenter().getServiceCenterID());
+                }
+                if (emp.getShift() != null) {
+                    res.setShift(emp.getShift().getShiftID());
+                }
+                yield res;
+            }
             default -> throw new RuntimeException("Role không hợp lệ");
         };
 
@@ -320,7 +330,17 @@ public class AuthenticationService implements UserDetailsService {
         UserResponse userResponse = switch (user.getRole().toLowerCase()) {
             case "customer" -> modelMapper.map((Customer) userDetail, UserResponse.class);
             case "admin" -> modelMapper.map((Admin) userDetail, UserResponse.class);
-            case "staff", "technician" -> modelMapper.map((Employee) userDetail, UserResponse.class);
+            case "staff", "technician" -> {
+                UserResponse res = modelMapper.map((Employee) userDetail, UserResponse.class);
+                Employee emp = (Employee) userDetail;
+                if (emp.getServiceCenter() != null) {
+                    res.setServiceCenter(emp.getServiceCenter().getServiceCenterID());
+                }
+                if (emp.getShift() != null) {
+                    res.setShift(emp.getShift().getShiftID());
+                }
+                yield res;
+            }
             default -> throw new RuntimeException("Role không hợp lệ");
         };
 

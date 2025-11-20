@@ -12,4 +12,7 @@ public class UserResponse {
     String phone;
     String role;
     String token;
+
+    private Long serviceCenter; // Trả về ID
+    private Long shift;
 }
