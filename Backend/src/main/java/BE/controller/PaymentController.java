@@ -7,6 +7,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -25,6 +26,7 @@ public class PaymentController {
 
     public record CreatePaymentLinkRequest(Long invoiceId) {}
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createPaymentLink(@RequestBody CreatePaymentLinkRequest request) {
         try {
@@ -37,6 +39,7 @@ public class PaymentController {
         }
     }
     @PutMapping("/update-status/success/{paymentLinkId}")
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     public ResponseEntity<?> updateStatusAfterSuccess(@PathVariable String paymentLinkId) { // Thay Long paymentId bằng String paymentLinkId
         try {
             // Gọi hàm service đã sửa đổi

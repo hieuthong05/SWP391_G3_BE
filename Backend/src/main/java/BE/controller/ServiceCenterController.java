@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,12 +24,14 @@ public class ServiceCenterController {
     @Autowired
     private ServiceCenterService serviceCenterService;
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @GetMapping("/getAll")
     public ResponseEntity<List<ServiceCenterResponse>> getAllServiceCenters() {
         List<ServiceCenterResponse> serviceCenters = serviceCenterService.getAllServiceCenter();
         return ResponseEntity.ok(serviceCenters);
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @GetMapping("/getBy/{id}")
     public ResponseEntity<ServiceCenterResponse> getServiceCenterById(@PathVariable Long id) {
         try {
@@ -39,6 +42,7 @@ public class ServiceCenterController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @GetMapping("/search/by-name")
     public ResponseEntity<List<ServiceCenterResponse>> getServiceCenterByName(@RequestParam String name) {
         List<ServiceCenterResponse> serviceCenters = serviceCenterService.getServiceCenterByName(name);
@@ -48,6 +52,7 @@ public class ServiceCenterController {
         return ResponseEntity.ok(serviceCenters);
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @GetMapping("/search/by-location")
     public ResponseEntity<List<ServiceCenterResponse>> getServiceCenterByLocation(@RequestParam String location) {
         List<ServiceCenterResponse> serviceCenters = serviceCenterService.getServiceCenterByLocation(location);
@@ -57,6 +62,7 @@ public class ServiceCenterController {
         return ResponseEntity.ok(serviceCenters);
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/create")
     public ResponseEntity<?> createServiceCenter(@Valid @RequestBody ServiceCenterDTO serviceCenterDTO) {
         try {
@@ -67,6 +73,7 @@ public class ServiceCenterController {
         }
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateServiceCenter(
             @PathVariable Long id,
@@ -81,6 +88,7 @@ public class ServiceCenterController {
         }
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteServiceCenter(@PathVariable Long id) {
         try {

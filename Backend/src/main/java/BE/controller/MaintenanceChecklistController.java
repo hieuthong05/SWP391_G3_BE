@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class MaintenanceChecklistController {
     @Autowired
     private final MaintenanceChecklistService maintenanceChecklistService;
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @PostMapping(name="/createAndUpdateItem")
     public ResponseEntity<?> addOrUpdateChecklistItem(
             @PathVariable Long maintenanceId,
@@ -44,6 +46,7 @@ public class MaintenanceChecklistController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'technician', 'staff', 'admin')")
     @GetMapping(name="/getChecklistItemById")
     public ResponseEntity<?> getChecklistItemsByMaintenanceId(@PathVariable Long maintenanceId) {
         try {
@@ -62,6 +65,7 @@ public class MaintenanceChecklistController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @DeleteMapping("/{maintenanceChecklistId}")
     public ResponseEntity<?> deleteChecklistItem(
             @PathVariable Long maintenanceId, // Vẫn cần maintenanceId để xác định context, dù không dùng trực tiếp trong service

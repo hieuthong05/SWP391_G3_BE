@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -25,12 +26,14 @@ public class ComponentController {
     @Autowired
     private ComponentService componentService;
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @GetMapping("/getAll")
     public ResponseEntity<List<ComponentResponse>> getAllComponents() {
         List<ComponentResponse> components = componentService.getAllComponent();
         return ResponseEntity.ok(components);
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @GetMapping("/getComponentsByID/{id}")
     public ResponseEntity<ComponentResponse> getComponentById(@PathVariable Long id) {
         try {
@@ -41,6 +44,7 @@ public class ComponentController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @GetMapping("/search/by-service-center/{serviceCenterID}")
     public ResponseEntity<List<ComponentResponse>> getComponentByServiceCenter(@PathVariable Long serviceCenterID) {
         try {
@@ -54,6 +58,7 @@ public class ComponentController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @GetMapping("/search/by-type")
     public ResponseEntity<List<ComponentResponse>> getComponentByType(@RequestParam String type) {
         List<ComponentResponse> components = componentService.getComponentByType(type);
@@ -63,6 +68,7 @@ public class ComponentController {
         return ResponseEntity.ok(components);
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @GetMapping("/search/by-name")
     public ResponseEntity<List<ComponentResponse>> getComponentByName(@RequestParam String name) {
         List<ComponentResponse> components = componentService.getComponentByName(name);
@@ -72,6 +78,7 @@ public class ComponentController {
         return ResponseEntity.ok(components);
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin','technician')")
     @GetMapping("/low-stock")
     public ResponseEntity<List<ComponentResponse>> getLowStockComponent() {
         List<ComponentResponse> components = componentService.getLowStockComponent();
@@ -81,6 +88,7 @@ public class ComponentController {
         return ResponseEntity.ok(components);
     }
 
+    @PreAuthorize("hasAnyAuthority('admin')")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createComponent(@Valid @ModelAttribute ComponentDTO componentDTO) throws Exception
     {
@@ -94,6 +102,7 @@ public class ComponentController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('admin')")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateComponent(
             @PathVariable Long id,
@@ -108,6 +117,7 @@ public class ComponentController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('admin')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteComponent(@PathVariable Long id) {
         try {

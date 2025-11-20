@@ -6,8 +6,10 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,6 +28,7 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
@@ -35,43 +38,42 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // ✅ CORS
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                // ✅ Tắt CSRF
                 .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // ✅ Session Management - STATELESS
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                                .sessionFixation().none()
-                )
-
-                // ✅ Authorization - GIỮ NGUYÊN LOGIC HIỆN TẠI
                 .authorizeHttpRequests(req -> req
-                        // Cho phép OAuth2 endpoints
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**", "/login/**", "/error").permitAll()
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
 
-                        // ✅ GIỮ NGUYÊN - Filter sẽ xử lý phân quyền
-                        .requestMatchers("/**").permitAll()
-//                                .requestMatchers("/api/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/admin/register", "/api/customer/register", "/api/employee/register").permitAll()
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        .requestMatchers("/oauth2/**", "/login/**", "/error").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/reminders/customer/**").permitAll()
+
                         .anyRequest().authenticated()
                 )
 
-                // ✅ THÊM OAuth2 Login
+                // THÊM OAuth2 Login
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo ->
                                 userInfo.userService(customOAuth2UserService)
                         )
                         .successHandler(oAuth2LoginSuccessHandler)
                         .failureHandler((request, response, exception) -> {
-                            System.err.println("❌ OAuth2 Login Failed: " + exception.getMessage());
+                            System.err.println("OAuth2 Login Failed: " + exception.getMessage());
                             exception.printStackTrace();
                             response.sendRedirect("http://localhost:5173/login?error=oauth_failed");
                         })
                 )
 
-                // ✅ GIỮ NGUYÊN Filter hiện tại
+                //GIỮ NGUYÊN Filter hiện tại
                 .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -87,27 +89,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
         return authenticationConfiguration.getAuthenticationManager();
     }
-//    @Bean
-//    public SecurityFilterChain securityFilterChain(HttpSecurity http)  throws Exception {
-//         http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .authorizeHttpRequests(
-//                        req -> req
-//                                .requestMatchers("/**")
-//                                .permitAll()
-//                                .anyRequest()
-//                                .authenticated()
-//
-//                )
-//
-//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-//                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//
-//                return http.build();
-////                .userDetailsService(authenticationService)
-////                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-////                .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class).build();
-//    }
 
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {

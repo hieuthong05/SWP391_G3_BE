@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ public class VehicleController {
     @Autowired
     VehicleService vehicleService;
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<VehicleResponse> createVehicle(@Valid @RequestPart(value = "vehicleDTO") VehicleDTO vehicleDTO,
@@ -36,6 +38,7 @@ public class VehicleController {
         return ResponseEntity.ok(newVel);
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @SecurityRequirement(name = "api")
     @GetMapping("/getby/{id}")
     public ResponseEntity<?> getVehicleById(@PathVariable Long id) {
@@ -46,6 +49,7 @@ public class VehicleController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/getAll")
     public ResponseEntity<List<VehicleResponse>> getAllVehicle(){
@@ -53,6 +57,7 @@ public class VehicleController {
         return ResponseEntity.ok(responses);
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateVehicle(@PathVariable Long id,@Valid @RequestBody VehicleDTO dto){
@@ -76,6 +81,7 @@ public class VehicleController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<?> deleteVehicle(@PathVariable Long id) {
@@ -91,6 +97,7 @@ public class VehicleController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/getByCustomerId/{id}")
     public ResponseEntity<?> getVehicleByCustomerId(@PathVariable Long id) {

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -29,6 +30,7 @@ public class BookingController {
 
     @SecurityRequirement(name = "api")
     @GetMapping("/available-slots")
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     public ResponseEntity<AvailableTimeSlotsDTO> getAvailableSlots(
             @RequestParam Long serviceCenterId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date)
@@ -37,6 +39,7 @@ public class BookingController {
         return ResponseEntity.ok(slots);
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PostMapping
     public ResponseEntity<BookingResponse> createBooking(@Valid @RequestBody BookingRequest dto)
@@ -53,6 +56,7 @@ public class BookingController {
 //        return ResponseEntity.ok(bookings);
 //    }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PutMapping("/{orderId}/cancel")
     public ResponseEntity<Map<String, String>> cancelBooking(
@@ -63,6 +67,7 @@ public class BookingController {
         return ResponseEntity.ok(Map.of("message", "Booking cancelled successfully"));
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/all")
     public ResponseEntity<Map<String, Object>> getAllBookingsPaginated(
@@ -86,7 +91,7 @@ public class BookingController {
 //     * Lấy tất cả bookings theo status
 //     * GET /api/bookings/status/{status}
 //     * Example: GET /api/bookings/status/Pending
-
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/status/{status}")
     public ResponseEntity<List<BookingResponse>> getBookingsByStatus(
@@ -98,8 +103,7 @@ public class BookingController {
 
 
      //* Alternative: Lấy bookings theo status qua query parameter
-     //* GET /api/bookings/by-status?status=Pending
-
+     //* GET /api/bookings/by-status?status=Pending@PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/by-status")
     public ResponseEntity<List<BookingResponse>> getBookingsByStatusQuery(
@@ -113,6 +117,7 @@ public class BookingController {
      * Lấy bookings theo nhiều status
      * GET /api/bookings/by-statuses?statuses=Pending,Confirmed
      */
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/by-statuses")
     public ResponseEntity<List<BookingResponse>> getBookingsByMultipleStatus(
@@ -126,6 +131,7 @@ public class BookingController {
      * Lấy thống kê số lượng bookings theo từng status
      * GET /api/bookings/status-statistics
      */
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/status-statistics")
     public ResponseEntity<Map<String, Object>> getBookingStatusStatistics() {
@@ -147,7 +153,7 @@ public class BookingController {
 
      //* Lấy danh sách tất cả status có sẵn
      //* GET /api/bookings/available-statuses
-
+     @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "api")
     @GetMapping("/available-statuses")
     public ResponseEntity<Map<String, Object>> getAvailableStatuses()
@@ -178,7 +184,7 @@ public class BookingController {
 
     //* Lấy tất cả bookings của customer theo customerId
      //* GET /api/bookings/customer/{customerId}
-
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/customer/{customerId}")
     public ResponseEntity<Map<String, Object>> getBookingsByCustomerId(
