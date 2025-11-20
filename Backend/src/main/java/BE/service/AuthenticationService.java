@@ -142,11 +142,26 @@ public class AuthenticationService implements UserDetailsService {
         }
 
         UserResponse userResponse = switch (user.getRole().toLowerCase()) {
-            case "customer" -> modelMapper.map((Customer) userDetail, UserResponse.class);
+            case "customer" -> {
+                Customer cus = (Customer) userDetail;
+                UserResponse res = modelMapper.map(cus, UserResponse.class);
+                res.setName(cus.getName());
+                res.setEmail(cus.getEmail());
+                res.setPhone(cus.getPhone());
+                res.setGender(cus.getGender());
+                res.setAddress(cus.getAddress());
+                res.setBirth(cus.getBirth());
+                yield res;
+            }
             case "admin", "center_admin" -> modelMapper.map((Admin) userDetail, UserResponse.class);
             case "staff", "technician" -> {
                 UserResponse res = modelMapper.map((Employee) userDetail, UserResponse.class);
                 Employee emp = (Employee) userDetail;
+                res.setName(emp.getName());
+                res.setEmail(emp.getEmail());
+                res.setPhone(emp.getPhone());
+                res.setGender(emp.getGender());
+                res.setPhone(emp.getPhone());
                 if (emp.getServiceCenter() != null) {
                     res.setServiceCenter(emp.getServiceCenter().getServiceCenterID());
                 }
@@ -159,7 +174,9 @@ public class AuthenticationService implements UserDetailsService {
         };
 
         userResponse.setRole(user.getRole());
-        userResponse.setPhone(user.getUsername());
+        if (userResponse.getPhone() == null || userResponse.getPhone().isEmpty()) {
+            userResponse.setPhone(user.getUsername());
+        }
 
         String token = tokenService.generateToken(user);
         userResponse.setToken(token);
@@ -328,11 +345,26 @@ public class AuthenticationService implements UserDetailsService {
         }
 
         UserResponse userResponse = switch (user.getRole().toLowerCase()) {
-            case "customer" -> modelMapper.map((Customer) userDetail, UserResponse.class);
+            case "customer" -> {
+                Customer cus = (Customer) userDetail;
+                UserResponse res = modelMapper.map(cus, UserResponse.class);
+                res.setName(cus.getName());
+                res.setEmail(cus.getEmail());
+                res.setPhone(cus.getPhone());
+                res.setGender(cus.getGender());
+                res.setAddress(cus.getAddress());
+                res.setBirth(cus.getBirth());
+                yield res;
+            }
             case "admin" -> modelMapper.map((Admin) userDetail, UserResponse.class);
             case "staff", "technician" -> {
                 UserResponse res = modelMapper.map((Employee) userDetail, UserResponse.class);
                 Employee emp = (Employee) userDetail;
+                res.setName(emp.getName());
+                res.setEmail(emp.getEmail());
+                res.setPhone(emp.getPhone());
+                res.setGender(emp.getGender());
+                res.setPhone(emp.getPhone());
                 if (emp.getServiceCenter() != null) {
                     res.setServiceCenter(emp.getServiceCenter().getServiceCenterID());
                 }
@@ -346,7 +378,9 @@ public class AuthenticationService implements UserDetailsService {
 
         userResponse.setUserID(user.getUserID());
         userResponse.setRole(user.getRole());
-        userResponse.setPhone(user.getUsername());
+        if (userResponse.getPhone() == null || userResponse.getPhone().isEmpty()) {
+            userResponse.setPhone(user.getUsername());
+        }
 
         return userResponse;
     }

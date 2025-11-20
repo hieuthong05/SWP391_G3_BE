@@ -1,6 +1,10 @@
 package BE.security;
 
+import BE.entity.Customer;
+import BE.entity.Employee;
 import BE.entity.User;
+import BE.repository.CustomerRepository;
+import BE.repository.EmployeeRepository;
 import BE.repository.UserRepository;
 import BE.service.TokenService;
 import jakarta.servlet.ServletException;
@@ -24,6 +28,8 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final CustomerRepository customerRepository;
+    private final EmployeeRepository employeeRepository;
 
     @Value("${app.oauth2.redirect-url:http://localhost:5173/oauth2/redirect}")
     private String redirectUrl;
@@ -62,6 +68,44 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
             System.out.println("🔑 Token generated successfully");
 
+            String phone = "";
+            String address = "";
+            String birth = "";
+            String gender = "";
+
+            // 2. Lấy dữ liệu từ bảng Customer hoặc Employee dựa trên Role và RefId
+            if (user.getRefId() != null) {
+                String role = user.getRole().toLowerCase();
+
+                if ("customer".equals(role)) {
+                    Customer customer = customerRepository.findById(user.getRefId()).orElse(null);
+                    if (customer != null) {
+                        phone = customer.getPhone();
+                        address = customer.getAddress();
+                        gender = customer.getGender();
+                        birth = customer.getBirth() != null ? customer.getBirth().toString() : "";
+                    }
+                }
+                else if ("staff".equals(role) || "technician".equals(role)) {
+                    Employee employee = employeeRepository.findById(user.getRefId()).orElse(null);
+                    if (employee != null) {
+                        phone = employee.getPhone();
+                        address = employee.getAddress();
+                        gender = employee.getGender();
+                        birth = employee.getBirth() != null ? employee.getBirth().toString() : "";
+                    }
+                }
+            }
+
+            // Fallback: Nếu trong bảng chi tiết chưa có sđt, lấy tạm từ bảng User
+            if (phone == null || phone.isEmpty()) {
+                phone = user.getPhone() != null ? user.getPhone() : "";
+            }
+
+            // Xử lý null cho các trường string để tránh lỗi
+            address = address != null ? address : "";
+            gender = gender != null ? gender : "";
+
             //URL ENCODE tên và avatar để tránh lỗi Unicode
             String encodedName = URLEncoder.encode(
                     user.getFullName() != null ? user.getFullName() : "",
@@ -84,6 +128,11 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 //                    .build(true)
 //                    .toUriString();
 
+            // Encode địa chỉ và giới tính
+            String encodedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8);
+            String encodedGender = URLEncoder.encode(gender, StandardCharsets.UTF_8);
+
+            // Cập nhật targetUrl với đầy đủ tham số
             String targetUrl = redirectUrl +
                     "?token=" + token +
                     "&email=" + user.getEmail() +
@@ -91,7 +140,12 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                     "&avatar=" + encodedAvatar +
                     "&role=" + user.getRole() +
                     "&userID=" + user.getUserID() +
-                    "&refId=" + (user.getRefId() != null ? user.getRefId() : "");
+                    "&refId=" + (user.getRefId() != null ? user.getRefId() : "") +
+                    // Gắn thêm các trường vừa lấy được
+                    "&phone=" + phone +
+                    "&address=" + encodedAddress +
+                    "&birth=" + birth +
+                    "&gender=" + encodedGender;
 
             System.out.println("🔄 Redirecting to: " + targetUrl.substring(0, Math.min(100, targetUrl.length())) + "...");
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
