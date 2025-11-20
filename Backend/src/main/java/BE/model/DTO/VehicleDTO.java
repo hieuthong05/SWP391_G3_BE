@@ -1,5 +1,6 @@
 package BE.model.DTO;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 import java.time.LocalDate;
 
@@ -17,4 +18,5 @@ public class VehicleDTO {
     private Integer lastMaintenanceMileage;
 
     private boolean status;
+    private Boolean existed = true;
 }
