@@ -56,4 +56,7 @@ public class Vehicle {
 
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
+
+    @Column(name = "existed", columnDefinition = "BOOLEAN DEFAULT true")
+    private Boolean existed;
 }

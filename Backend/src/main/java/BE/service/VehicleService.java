@@ -112,7 +112,7 @@ public class VehicleService {
     public void deleteVehicle(Long id) {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vehicle not found with id: " + id));
-        vehicle.setStatus(false);
+        vehicle.setExisted(false);
         vehicleRepository.save(vehicle);
     }
 
