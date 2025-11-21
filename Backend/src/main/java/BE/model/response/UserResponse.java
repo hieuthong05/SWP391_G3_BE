@@ -20,4 +20,5 @@ public class UserResponse {
     private Long serviceCenter; // Trả về ID
     private Long shift;
     private Long employeeID;
+    private Long customerID;
 }

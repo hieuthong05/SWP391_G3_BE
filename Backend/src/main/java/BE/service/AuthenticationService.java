@@ -151,6 +151,7 @@ public class AuthenticationService implements UserDetailsService {
                 res.setGender(cus.getGender());
                 res.setAddress(cus.getAddress());
                 res.setBirth(cus.getBirth());
+                res.setCustomerID(cus.getCustomerID());
                 yield res;
             }
             case "admin", "center_admin" -> modelMapper.map((Admin) userDetail, UserResponse.class);
@@ -355,6 +356,7 @@ public class AuthenticationService implements UserDetailsService {
                 res.setGender(cus.getGender());
                 res.setAddress(cus.getAddress());
                 res.setBirth(cus.getBirth());
+                res.setCustomerID(cus.getCustomerID());
                 yield res;
             }
             case "admin" -> modelMapper.map((Admin) userDetail, UserResponse.class);
