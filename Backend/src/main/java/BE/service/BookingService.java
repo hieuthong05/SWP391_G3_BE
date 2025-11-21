@@ -281,24 +281,37 @@ public class BookingService {
     //Cancel booking
 
     @Transactional
-    public void cancelBooking(Long orderId, Long customerId)
-    {
+    public void cancelBooking(Long orderId, Long requestUserId, String role) {
+        // Tìm đơn hàng
         Orders order = ordersRepository.findById(orderId)
-                .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found with ID: " + orderId));
 
-        // Verify booking belongs to customer
-        if (!order.getCustomer().getCustomerID().equals(customerId))
-        {
-            throw new IllegalArgumentException("You can only cancel your own bookings");
+        // Validate quyền sở hữu (Chỉ áp dụng cho Customer)
+        if ("CUSTOMER".equalsIgnoreCase(role)) {
+            if (!order.getCustomer().getCustomerID().equals(requestUserId)) {
+                throw new IllegalArgumentException("You can only cancel your own bookings");
+            }
         }
 
-        // Check if can cancel
-        if (order.getStatus().equals("Completed") || order.getStatus().equals("Cancelled"))
+        // Kiểm tra trạng thái đơn hàng
+        // Chặn hủy nếu đơn đã: Hoàn thành, Đã hủy, hoặc Đang thực hiện
+        String currentStatus = order.getStatus();
+        if ("Completed".equalsIgnoreCase(currentStatus) ||
+                "Cancelled".equalsIgnoreCase(currentStatus) ||
+                "In Progress".equalsIgnoreCase(currentStatus))
         {
-            throw new IllegalArgumentException("Cannot cancel booking with status: " + order.getStatus());
+            throw new IllegalArgumentException("Cannot cancel booking with status: " + currentStatus);
         }
 
+        // Cập nhật trạng thái sang Cancelled
         order.setStatus("Cancelled");
+
+        // Tự động ghi chú nếu người hủy là Admin/Staff
+        if (!"CUSTOMER".equalsIgnoreCase(role)) {
+            String oldNotes = order.getNotes() == null ? "" : order.getNotes();
+            String autoNote = " | Cancelled by " + role.toUpperCase() + " (No-Show/Request)";
+            order.setNotes(oldNotes + autoNote);
+        }
         ordersRepository.save(order);
     }
 

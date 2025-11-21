@@ -24,6 +24,8 @@ public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> 
             "ORDER BY MONTH(m.orders.orderDate)")
     List<Object[]> countMaintenanceByMonth(int year);
 
+    @Query("SELECT m FROM Maintenance m WHERE m.vehicle.vehicleID = :vehicleId ORDER BY m.startTime DESC")
+    List<Maintenance> findByVehicleId(@Param("vehicleId") Long vehicleId);
 
      //* Kiểm tra xem order đã có maintenance chưa
 

@@ -119,6 +119,11 @@ public class MaintenanceService {
         return mapToConfirmBookingResponse(savedMaintenance);
     }
 
+    public List<MaintenanceResponse> getMaintenancesByVehicleId(Long vehicleId) {
+        List<Maintenance> maintenances = maintenanceRepository.findByVehicleId(vehicleId);
+        return maintenances.stream().map(this::mapToMaintenanceResponse).collect(Collectors.toList());
+    }
+
     private ConfirmBookingResponse mapToConfirmBookingResponse(Maintenance maintenance)
     {
         ConfirmBookingResponse response = new ConfirmBookingResponse();
@@ -226,28 +231,46 @@ public class MaintenanceService {
     private MaintenanceResponse mapToMaintenanceResponse(Maintenance maintenance)
     {
         MaintenanceResponse response = new MaintenanceResponse();
-
         response.setMaintenanceID(maintenance.getMaintenanceID());
-        if (maintenance.getOrders() != null)
-        {
+
+        // 1. Kiểm tra Order và Customer an toàn
+        if (maintenance.getOrders() != null) {
             response.setOrderID(maintenance.getOrders().getOrderID());
-            response.setCustomerName(maintenance.getOrders().getCustomer().getName());
-            response.setCustomerPhone(maintenance.getOrders().getCustomer().getPhone());
+
+            if (maintenance.getOrders().getCustomer() != null) {
+                response.setCustomerName(maintenance.getOrders().getCustomer().getName());
+                response.setCustomerPhone(maintenance.getOrders().getCustomer().getPhone());
+            } else {
+                response.setCustomerName("Khách vãng lai / Đã xóa");
+                response.setCustomerPhone("---");
+            }
+        } else {
+            response.setOrderID(null);
+            response.setCustomerName("Không có đơn hàng");
+            response.setCustomerPhone("---");
         }
 
-        if (maintenance.getEmployee() != null)
-        {
+        // 2. Kiểm tra Nhân viên an toàn
+        if (maintenance.getEmployee() != null) {
             response.setEmpID(maintenance.getEmployee().getEmployeeID());
             response.setEmpName(maintenance.getEmployee().getName());
+        } else {
+            response.setEmpName("Chưa phân công");
         }
 
-        if (maintenance.getVehicle() != null)
-        {
+        // 3. Kiểm tra Xe và Mẫu xe an toàn
+        if (maintenance.getVehicle() != null) {
             response.setVehicleID(maintenance.getVehicle().getVehicleID());
             response.setLicensePlate(maintenance.getVehicle().getLicensePlate());
-            response.setModel(maintenance.getVehicle().getModel().getModelName());
+
+            if (maintenance.getVehicle().getModel() != null) {
+                response.setModel(maintenance.getVehicle().getModel().getModelName());
+            } else {
+                response.setModel("Không rõ dòng xe");
+            }
         }
 
+        // Các trường cơ bản (không lo null)
         response.setDescription(maintenance.getDescription());
         response.setCost(maintenance.getCost());
 

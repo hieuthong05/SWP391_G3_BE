@@ -84,6 +84,13 @@ public class MaintenanceController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
+    @GetMapping("/vehicle/{vehicleId}")
+    public ResponseEntity<Map<String, Object>> getMaintenancesByVehicleId(@PathVariable Long vehicleId) {
+        List<MaintenanceResponse> list = maintenanceService.getMaintenancesByVehicleId(vehicleId);
+        return ResponseEntity.ok(Map.of("data", list));
+    }
+
      //* Confirm booking và tạo maintenance
      //* POST /api/bookings/confirm
 

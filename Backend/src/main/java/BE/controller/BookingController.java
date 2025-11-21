@@ -63,8 +63,20 @@ public class BookingController {
             @PathVariable Long orderId,
             @RequestParam Long customerId)
     {
-        bookingService.cancelBooking(orderId, customerId);
+        bookingService.cancelBooking(orderId, customerId, "CUSTOMER");
         return ResponseEntity.ok(Map.of("message", "Booking cancelled successfully"));
+    }
+
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
+    @SecurityRequirement(name = "api")
+    @PutMapping("/{orderId}/admin-cancel")
+    public ResponseEntity<Map<String, String>> cancelBookingByCenter(
+            @PathVariable Long orderId,
+            @RequestParam Long userId,
+            @RequestParam String role)
+    {
+        bookingService.cancelBooking(orderId, userId, role.toUpperCase());
+        return ResponseEntity.ok(Map.of("message", "Booking cancelled by Admin/Staff successfully"));
     }
 
     @PreAuthorize("hasAnyAuthority('staff', 'admin')")
