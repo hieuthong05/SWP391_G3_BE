@@ -103,10 +103,11 @@ public class ComponentController {
     }
 
     @PreAuthorize("hasAnyAuthority('admin')")
-    @PutMapping("/update/{id}")
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) // 1. Thêm dòng này để nhận file
     public ResponseEntity<?> updateComponent(
             @PathVariable Long id,
-            @Valid @RequestBody ComponentDTO componentDTO) throws IOException {
+            @Valid @ModelAttribute ComponentDTO componentDTO // 2. Đổi @RequestBody thành @ModelAttribute
+    ) throws IOException {
         try {
             ComponentResponse response = componentService.updateComponent(id, componentDTO);
             return ResponseEntity.ok(response);

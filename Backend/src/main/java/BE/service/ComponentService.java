@@ -8,8 +8,10 @@ import BE.repository.ServiceCenterRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import java.io.IOException;
 import java.util.List;
@@ -89,8 +91,9 @@ public class ComponentService {
         return componentResponse;
     }
 
-    // ✅ FIXED UPDATE METHOD (no more foreign key errors)
+    // FIXED UPDATE METHOD (no more foreign key errors)
     @Transactional
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ComponentResponse updateComponent(Long id, ComponentDTO componentDTO) throws IOException {
         BE.entity.Component component = componentRepository.findByComponentIDAndStatus(id, "active")
                 .orElseThrow(() -> new EntityNotFoundException("Component not found with id: " + id));
@@ -99,21 +102,21 @@ public class ComponentService {
             throw new IllegalArgumentException("Component code already exists");
         }
 
-        // ✅ Only update editable fields, ignore checklist_id & status
+        // Only update editable fields, ignore checklist_id & status
         component.setPrice(componentDTO.getPrice());
         component.setQuantity(componentDTO.getQuantity());
         component.setMinQuantity(componentDTO.getMinQuantity());
         component.setSupplierName(componentDTO.getSupplierName());
         component.setDescription(componentDTO.getDescription());
 
-        // ✅ Update Service Center if provided
+        // Update Service Center if provided
         if (componentDTO.getServiceCenterID() != null) {
             ServiceCenter serviceCenter = serviceCenterRepository.findById(componentDTO.getServiceCenterID())
                     .orElseThrow(() -> new EntityNotFoundException("Service Center not found"));
             component.setServiceCenter(serviceCenter);
         }
 
-        // ✅ Only update image if new image is provided
+        // Only update image if new image is provided
         if (componentDTO.getImage() != null && !componentDTO.getImage().isEmpty()) {
             String imageUrl = cloudinaryService.uploadFile(componentDTO.getImage(), "components");
             component.setImageUrl(imageUrl);
