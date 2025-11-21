@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class MaintenanceController {
     @Autowired
     private MaintenanceService maintenanceService;
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin', 'technician')")
     @SecurityRequirement(name = "api")
     @GetMapping("/all")
     public ResponseEntity<Map<String, Object>> getAllMaintenances()
@@ -44,6 +46,7 @@ public class MaintenanceController {
 //     * Lấy maintenance theo ID
 //     * GET /api/maintenances/{maintenanceId}
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @SecurityRequirement(name = "api")
     @GetMapping("/{maintenanceId}")
     public ResponseEntity<Map<String, Object>> getMaintenanceById(@PathVariable Long maintenanceId)
@@ -65,6 +68,7 @@ public class MaintenanceController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin', 'technician')")
     @SecurityRequirement(name = "api")
     @GetMapping("/technician/{technicianId}")
     public ResponseEntity<Map<String, Object>> getMaintenancesByTechnicianId(@PathVariable Long technicianId)
@@ -83,6 +87,7 @@ public class MaintenanceController {
      //* Confirm booking và tạo maintenance
      //* POST /api/bookings/confirm
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PostMapping("/confirm")
     public ResponseEntity<ConfirmBookingResponse> confirmBooking(
@@ -97,7 +102,7 @@ public class MaintenanceController {
 
      //* Lấy maintenance theo order ID
      //* GET /api/bookings/{orderId}/maintenance
-
+     @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @SecurityRequirement(name = "api")
     @GetMapping("/{orderId}/maintenance")
     public ResponseEntity<Map<String, Object>> getMaintenanceByOrderId(
@@ -121,6 +126,7 @@ public class MaintenanceController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PutMapping("/{maintenanceID}/set-status/in-progress")
     public ResponseEntity<Map<String, String>> setInProgress(@PathVariable Long maintenanceID)
@@ -129,6 +135,7 @@ public class MaintenanceController {
         return ResponseEntity.ok(Map.of("message", "Set Status 'In Progress' successfully!"));
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PutMapping("/{maintenanceID}/set-status/waiting-for-payment")
     public ResponseEntity<Map<String, String>> setWaitingForPayment(@PathVariable Long maintenanceID)
@@ -137,6 +144,7 @@ public class MaintenanceController {
         return ResponseEntity.ok(Map.of("message", "Set Status 'Waiting For Payment' successfully!"));
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PutMapping("/{maintenanceID}/set-status/completed")
     public ResponseEntity<Map<String, String>> setCompleted(@PathVariable Long maintenanceID)

@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -30,6 +31,7 @@ public class CustomerController {
     @Autowired
     CustomerService customerService;
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/getAll")
     public ResponseEntity<List<CustomerResponse>> getAll(){
@@ -37,6 +39,7 @@ public class CustomerController {
         return ResponseEntity.ok(responses);
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @SecurityRequirement(name = "api")
     @GetMapping("/getby/{id}")
     public ResponseEntity<?> getCustomerById(@PathVariable Long id){
@@ -53,6 +56,7 @@ public class CustomerController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newCustomer);
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @SecurityRequirement(name = "api")
     @PatchMapping("/update/{id}") // Đổi từ PutMapping -> PatchMapping
     public ResponseEntity<?> updateCustomer(@PathVariable Long id, @RequestBody CustomerDTO dto){
@@ -80,6 +84,7 @@ public class CustomerController {
         }
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @SecurityRequirement(name = "api")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCustomer(@PathVariable Long id) {

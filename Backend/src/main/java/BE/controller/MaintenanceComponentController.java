@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class MaintenanceComponentController {
     @Autowired
     private final MaintenanceComponentService maintenanceComponentService;
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @PostMapping
     public ResponseEntity<?> addComponentToMaintenance(
             @PathVariable Long maintenanceId,
@@ -42,6 +44,7 @@ public class MaintenanceComponentController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'technician', 'staff', 'admin')")
     @GetMapping
     public ResponseEntity<?> getComponentsByMaintenanceId(@PathVariable Long maintenanceId) {
         try {
@@ -59,6 +62,7 @@ public class MaintenanceComponentController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @PutMapping("/{maintenanceComponentId}/quantity")
     public ResponseEntity<?> updateComponentQuantity(
             @PathVariable Long maintenanceId,
@@ -80,6 +84,7 @@ public class MaintenanceComponentController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('technician', 'staff', 'admin')")
     @DeleteMapping("/{maintenanceComponentId}")
     public ResponseEntity<?> removeComponentFromMaintenance(
             @PathVariable Long maintenanceId,

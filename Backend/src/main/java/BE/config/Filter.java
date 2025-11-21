@@ -38,7 +38,6 @@ public class Filter extends OncePerRequestFilter {
             "POST:/api/admin/register",
             "POST:/api/customer/register",
             "POST:/api/auth/login",
-            "POST:/api/employee/register",
             "GET: /api/reminders/customer/{customerId}",
             "POST:/api/auth/google",
             "POST:/api/auth/forgot-password",
@@ -59,10 +58,10 @@ public class Filter extends OncePerRequestFilter {
     );
 
     public boolean isPublicAPI(String uri, String method ){
+        if ("OPTIONS".equals(method)) {
+            return true;
+        }
         AntPathMatcher matcher = new AntPathMatcher();
-
-//        if(method.equals("GET")) return true;
-        if(uri.startsWith("/api/employees")) return true;
 
         return PULIC_API.stream().anyMatch(pattern ->{
             String[] parts = pattern.split(":", 2);
@@ -87,22 +86,22 @@ public class Filter extends OncePerRequestFilter {
         System.out.println("🔍 Filter - URI: " + uri + " | Method: " + method);
 
         if(isPublicAPI(uri,method)){
-            System.out.println("✅ Public API - bypass filter");
+            System.out.println("Public API - bypass filter");
             filterChain.doFilter(request, response);
             return;
         }else{
 
             String token = getToken(request);
 
-            System.out.println("🔑 Token: " + (token != null ? token.substring(0, Math.min(20, token.length())) + "..." : "NULL"));
+            System.out.println("Token: " + (token != null ? token.substring(0, Math.min(20, token.length())) + "..." : "NULL"));
 
             if(token ==null) {
-                System.err.println("❌ No token found in request!");
+                System.err.println("No token found in request!");
                 resolver.resolveException(request, response, null, new AuthenticationException("Empty token"));
                 return;
             }
             try {
-                System.out.println("🔑 Processing token for: " + uri);
+                System.out.println(" Processing token for: " + uri);
                 tokenService.extractToken(token);
 
                 //SỬA: Lấy subject (có thể là phone hoặc email)
@@ -111,7 +110,7 @@ public class Filter extends OncePerRequestFilter {
 
                 //Load user by subject (tự động phân biệt phone/email)
                 UserDetails userInfo = tokenService.loadUserBySubject(subject);
-                System.out.println("✅ User loaded: " + userInfo.getUsername());
+                System.out.println("User loaded: " + userInfo.getUsername());
 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
@@ -119,19 +118,12 @@ public class Filter extends OncePerRequestFilter {
                         );
 
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                System.out.println("✅ Authentication set successfully");
+                System.out.println("Authentication set successfully");
 
                 filterChain.doFilter(request, response);
 
             }
 
-//            catch (ExpiredJwtException expiredJwtException){
-//                resolver.resolveException(request,response,null,new AuthenticationException("Expired token!"));
-//                return;
-//            }catch (MalformedJwtException malformedJwtException){
-//                resolver.resolveException(request,response,null,new AuthenticationException("Invalid token!"));
-//                return;
-//            }
             catch (ExpiredJwtException expiredJwtException) {
                 resolver.resolveException(request, response, null,
                         new AuthenticationException("Expired token!"));
@@ -148,8 +140,6 @@ public class Filter extends OncePerRequestFilter {
 
     public String getToken(HttpServletRequest request){
         String authHeader = request.getHeader("Authorization");
-//        if(authHeader == null) return null;
-//        return authHeader.substring(7);
         if (StringUtils.hasText(authHeader) && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }

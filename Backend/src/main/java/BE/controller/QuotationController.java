@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class QuotationController {
     @Autowired
     private final QuotationService quotationService;
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin', 'technician')")
     @PostMapping("/create")
     public ResponseEntity<?> createQuotation(@Valid @RequestBody QuotationDTO requestDTO) {
         try {
@@ -45,6 +47,7 @@ public class QuotationController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getQuotationById(@PathVariable Long id) {
         try {
@@ -62,6 +65,7 @@ public class QuotationController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @PutMapping("/{id}/confirm")
     public ResponseEntity<Map<String, String>> confirmQuotation(
             @PathVariable Long id,
@@ -79,13 +83,14 @@ public class QuotationController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @GetMapping
     public ResponseEntity<List<QuotationResponse>> getAllQuotations() {
         List<QuotationResponse> quotations = quotationService.getAllQuotation();
         return ResponseEntity.ok(quotations);
     }
 
-
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @GetMapping("/maintenance/{maintenanceId}")
     public ResponseEntity<?> getQuotationByMaintenanceId(@PathVariable Long maintenanceId) {
         try {
@@ -103,6 +108,7 @@ public class QuotationController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @GetMapping("/order/{orderId}")
     public ResponseEntity<?> getQuotationByOrderId(@PathVariable Long orderId) {
         try {

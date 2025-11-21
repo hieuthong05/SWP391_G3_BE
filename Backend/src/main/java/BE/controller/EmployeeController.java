@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -31,6 +32,7 @@ public class EmployeeController {
     @Autowired
     EmployeeService employeeService;
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin', 'technician')")
     @GetMapping("/getby/{id}")
     public ResponseEntity<?> getEmployeeById(@PathVariable Long id)
     {
@@ -41,6 +43,7 @@ public class EmployeeController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping
     public ResponseEntity<Map<String, Object>> getAllEmployees()
@@ -54,6 +57,7 @@ public class EmployeeController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @Operation(summary = "Lấy tất cả nhân viên đang hoạt động (status = true)")
     @GetMapping("/active")
     public ResponseEntity<List<EmployeeResponse>> getAllActiveEmployees()
@@ -65,6 +69,7 @@ public class EmployeeController {
      //* Lấy active employees theo role (useful cho assign technician)
      //* GET /api/employees/active-by-role/{role}
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @SecurityRequirement(name = "api")
     @GetMapping("/all/technicians")
     public ResponseEntity<Map<String, Object>> getAllActiveTechnicians()
@@ -79,6 +84,7 @@ public class EmployeeController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/register")
     public ResponseEntity registerEmp(@Valid @RequestBody EmployeeDTO employeeDTO)
     {
@@ -86,6 +92,7 @@ public class EmployeeController {
         return ResponseEntity.ok(newEmp);
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin', 'technician')")
     @PutMapping("/update/{id}")
     public ResponseEntity<?> updateEmployee(
             @PathVariable Long id,
@@ -110,6 +117,7 @@ public class EmployeeController {
         }
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @SecurityRequirement(name = "api")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Map<String, String>> deleteEmployee(@PathVariable Long id)

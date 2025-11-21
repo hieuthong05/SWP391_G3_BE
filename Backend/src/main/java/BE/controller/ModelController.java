@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +30,7 @@ public class ModelController {
     @Autowired
     ModelMapper modelMapper;
 
+    @PreAuthorize("hasAuthority('admin')")
     @PostMapping(value="/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ModelResponse> createModel(@RequestPart("modelName") String modelName,
                                                      @RequestPart("image") MultipartFile image) throws Exception
@@ -41,7 +43,9 @@ public class ModelController {
         return new ResponseEntity<>(modelMapper.map(createdModel, ModelResponse.class), HttpStatus.CREATED);
     }
 
+
     // READ - GET /api/models
+    @PreAuthorize("isAuthenticated()")
     @GetMapping(name="/getAll")
     public ResponseEntity<List<ModelResponse>> getAllModels() {
         List<Model> models = modelService.getAllModels();
@@ -52,6 +56,7 @@ public class ModelController {
     }
 
     // READ - GET /api/models/{id}
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getModelBy/{id}")
     public ResponseEntity<ModelResponse> getModelById(@PathVariable Long id) {
         Optional<Model> model = modelService.getModelById(id);
@@ -60,6 +65,7 @@ public class ModelController {
     }
 
     // UPDATE - PUT /api/models/{id}
+    @PreAuthorize("hasAuthority('admin')")
     @PutMapping("/update/{id}")
     public ResponseEntity<ModelResponse> updateModel(@PathVariable Long id, @RequestBody ModelDTO modelDTO) {
         Model modelDetails = modelMapper.map(modelDTO, Model.class);
@@ -71,6 +77,7 @@ public class ModelController {
     }
 
     // DELETE - DELETE /api/models/{id}
+    @PreAuthorize("hasAuthority('admin')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteModel(@PathVariable Long id) {
         boolean deleted = modelService.deleteModel(id);
@@ -79,13 +86,6 @@ public class ModelController {
         }
         return new ResponseEntity<>("Model not found", HttpStatus.NOT_FOUND);
     }
-
-   // DELETE - DELETE /api/models
-//    @DeleteMapping
-//    public ResponseEntity<String> deleteAllModels() {
-//        modelService.deleteAllModels();
-//        return new ResponseEntity<>("All models deleted successfully", HttpStatus.OK);
-//    }
 
 }
 

@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class InvoiceController {
     @Autowired
     private final InvoiceService invoiceService;
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @PostMapping("/create")
     public ResponseEntity<?> createInvoice(@Valid @RequestBody InvoiceDTO requestDTO) {
         try {
@@ -43,6 +45,7 @@ public class InvoiceController {
     }
 
     @GetMapping("/getby/{id}")
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     public ResponseEntity<?> getInvoiceById(@PathVariable Long id) {
         try {
             InvoiceResponse invoice = invoiceService.getInvoiceById(id);
@@ -56,6 +59,7 @@ public class InvoiceController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @GetMapping("/getby/maintenance/{maintenanceId}")
     public ResponseEntity<?> getInvoiceByMaintenanceId(@PathVariable Long maintenanceId) {
         try {
@@ -70,6 +74,7 @@ public class InvoiceController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
     @GetMapping("/getby/order/{orderId}")
     public ResponseEntity<?> getInvoiceByOrderId(@PathVariable Long orderId) {
         try {
@@ -87,6 +92,7 @@ public class InvoiceController {
         }
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
     @GetMapping("/getAll")
     public ResponseEntity<?> getAllInvoices() {
         try {

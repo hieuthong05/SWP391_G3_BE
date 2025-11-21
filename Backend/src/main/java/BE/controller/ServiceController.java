@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class ServiceController {
     @Autowired
     private ServicesService servicesService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getServiceById/{id}")
     public ResponseEntity<ServiceResponse> getServiceById(@PathVariable Long id) {
         try {
@@ -33,30 +35,35 @@ public class ServiceController {
         }
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/getAll")
     public ResponseEntity<List<ServiceResponse>> getAllServices() {
         List<ServiceResponse> services = servicesService.getAllService();
         return ResponseEntity.ok(services);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/searchByType/{serviceType}")
     public ResponseEntity<List<ServiceResponse>> getServicesByType(@PathVariable String serviceType) {
         List<ServiceResponse> services = servicesService.getServiceByType(serviceType);
         return ResponseEntity.ok(services);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/search")
     public ResponseEntity<List<ServiceResponse>> getServicesByName(@RequestParam String name) {
         List<ServiceResponse> services = servicesService.getServiceByName(name);
         return ResponseEntity.ok(services);
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @PostMapping("/create")
     public ResponseEntity<ServiceResponse> createService(@Valid @RequestBody ServiceDTO serviceDTO) {
         ServiceResponse newService = servicesService.createService(serviceDTO);
         return new ResponseEntity<>(newService, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @PutMapping("/update/{id}")
     public ResponseEntity<ServiceResponse> updateService(@PathVariable Long id,@Valid @RequestBody ServiceDTO serviceDTO) {
         try {
@@ -67,6 +74,7 @@ public class ServiceController {
         }
     }
 
+    @PreAuthorize("hasAuthority('admin')")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteService(@PathVariable Long id) {
         try {
