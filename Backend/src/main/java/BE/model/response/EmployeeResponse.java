@@ -18,7 +18,7 @@ public class EmployeeResponse {
     private LocalDate birth;
 
     private boolean status;
-
+    private Long serviceCenterID;
     private String serviceCenterName;
     private String shiftName;
 

@@ -195,6 +195,7 @@ public class EmployeeService {
         if (employee.getServiceCenter() != null)
         {
             response.setServiceCenterName(employee.getServiceCenter().getName());
+            response.setServiceCenterID(employee.getServiceCenter().getServiceCenterID());
         }
 
         // Shift info

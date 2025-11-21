@@ -168,6 +168,7 @@ public class AuthenticationService implements UserDetailsService {
                 if (emp.getShift() != null) {
                     res.setShift(emp.getShift().getShiftID());
                 }
+                res.setEmployeeID(emp.getEmployeeID());
                 yield res;
             }
             default -> throw new RuntimeException("Role không hợp lệ");
@@ -371,6 +372,7 @@ public class AuthenticationService implements UserDetailsService {
                 if (emp.getShift() != null) {
                     res.setShift(emp.getShift().getShiftID());
                 }
+                res.setEmployeeID(emp.getEmployeeID());
                 yield res;
             }
             default -> throw new RuntimeException("Role không hợp lệ");
