@@ -26,7 +26,7 @@ public class InvoiceController {
     @Autowired
     private final InvoiceService invoiceService;
 
-    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin', 'technician')")
     @PostMapping("/create")
     public ResponseEntity<?> createInvoice(@Valid @RequestBody InvoiceDTO requestDTO) {
         try {

@@ -185,15 +185,32 @@ public class PaymentService {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy hóa đơn với ID: " + invoiceId));
 
-        // SỬA LỖI TRÀN SỐ INT (chia 1000 để lấy số giây)
-        long orderCode = System.currentTimeMillis() / 1000L;
+        List<Payment> existingPayments = paymentRepository.findByInvoice_InvoiceID(invoiceId);
+
+        Payment pendingPayment = existingPayments.stream()
+                .filter(p -> "PENDING".equalsIgnoreCase(p.getPaymentStatus()))
+                .findFirst()
+                .orElse(null);
+
+        long newOrderCode = System.currentTimeMillis() / 1000L;
+
+        if (pendingPayment != null) {
+            if (newOrderCode <= pendingPayment.getOrderCode()) {
+                newOrderCode = pendingPayment.getOrderCode() + 1;
+            }
+            pendingPayment.setOrderCode(newOrderCode);
+            pendingPayment.setPaymentDate(LocalDateTime.now());
+
+            return paymentRepository.save(pendingPayment);
+        }
 
         Payment newPayment = new Payment();
         newPayment.setInvoice(invoice);
         newPayment.setAmount(invoice.getTotalAmount());
         newPayment.setPaymentMethod("PayOS");
         newPayment.setPaymentStatus("PENDING");
-        newPayment.setOrderCode(orderCode); // Lưu số long (nhỏ)
+        newPayment.setOrderCode(newOrderCode);
+        newPayment.setPaymentDate(LocalDateTime.now());
 
         return paymentRepository.save(newPayment);
     }
