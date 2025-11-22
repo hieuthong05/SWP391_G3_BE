@@ -36,12 +36,17 @@ public class ModelService {
     }
 
     // UPDATE - Cập nhật Model
-    public Model updateModel(Long modelID, Model modelDetails) {
+    public Model updateModel(Long modelID, ModelDTO update) throws Exception{
         Optional<Model> model = modelRepository.findById(modelID);
         if (model.isPresent()) {
             Model existingModel = model.get();
-            if (modelDetails.getModelName() != null) {
-                existingModel.setModelName(modelDetails.getModelName());
+            if (update.getModelName() != null) {
+                existingModel.setModelName(update.getModelName());
+            }
+            if (update.getImage() != null && !update.getImage().isEmpty())
+            {
+                String imageUrl = cloudinaryService.uploadFile(update.getImage(), "models");
+                existingModel.setImageUrl(imageUrl);
             }
             return modelRepository.save(existingModel);
         }

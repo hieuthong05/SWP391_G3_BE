@@ -66,10 +66,10 @@ public class ModelController {
 
     // UPDATE - PUT /api/models/{id}
     @PreAuthorize("hasAuthority('admin')")
-    @PutMapping("/update/{id}")
-    public ResponseEntity<ModelResponse> updateModel(@PathVariable Long id, @RequestBody ModelDTO modelDTO) {
-        Model modelDetails = modelMapper.map(modelDTO, Model.class);
-        Model updatedModel = modelService.updateModel(id, modelDetails);
+    @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ModelResponse> updateModel(@RequestPart(value = "id") Long id, @RequestPart(value = "modelDTO") ModelDTO modelDTO) throws Exception
+    {
+        Model updatedModel = modelService.updateModel(id, modelDTO);
         if (updatedModel != null) {
             return new ResponseEntity<>(modelMapper.map(updatedModel, ModelResponse.class), HttpStatus.OK);
         }
