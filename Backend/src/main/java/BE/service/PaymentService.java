@@ -1,10 +1,7 @@
 package BE.service;
 
 import BE.entity.*;
-import BE.repository.InvoiceRepository;
-import BE.repository.MaintenanceRepository;
-import BE.repository.OrdersRepository;
-import BE.repository.PaymentRepository;
+import BE.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +26,7 @@ public class PaymentService {
     private final OrdersRepository ordersRepository;
     private final MaintenanceRepository maintenanceRepository;
     private final EmailService emailService;
+    private final VehicleRepository vehicleRepository;
 
     @Autowired
     public PaymentService(PayOS payOS,
@@ -36,7 +34,8 @@ public class PaymentService {
                           InvoiceRepository invoiceRepository,
                           OrdersRepository ordersRepository,
                           MaintenanceRepository maintenanceRepository,
-                          EmailService emailService) {
+                          EmailService emailService,
+                          VehicleRepository vehicleRepository) {
 
         this.payOS = payOS;
         this.paymentRepository = paymentRepository;
@@ -44,6 +43,7 @@ public class PaymentService {
         this.ordersRepository = ordersRepository;
         this.maintenanceRepository = maintenanceRepository;
         this.emailService = emailService;
+        this.vehicleRepository = vehicleRepository;
     }
 
     public Map<String, Object> createPaymentLink(Long invoiceId) throws Exception {
@@ -92,15 +92,7 @@ public class PaymentService {
             throw new Exception("Lỗi khi tạo link thanh toán từ PayOS, response trả về null.");
         }
 
-        // === PHẦN SỬA LỖI CHÍNH ===
-        //
-        // Bỏ đoạn kiểm tra response.getData() == null
-        // vì class CreatePaymentLinkResponse không có .getData()
-        // Thay vào đó, ta kiểm tra một trường quan trọng, ví dụ paymentLinkId
-        //
         if (response.getPaymentLinkId() == null || response.getPaymentLinkId().isEmpty()) {
-            // Chúng ta không còn .getCode() hay .getDesc() ở đây
-            // vì nếu có lỗi, nó đã bị bắt ở khối try-catch bên trên.
             throw new Exception("Lỗi PayOS: Dữ liệu trả về không hợp lệ (không có paymentLinkId).");
         }
 
@@ -154,6 +146,15 @@ public class PaymentService {
         }
 
         updateOrderStatusOnPayment(order);
+
+        Vehicle vehicle = order.getVehicle();
+        if (vehicle != null) {
+            vehicle.setStatus(true);
+            vehicleRepository.save(vehicle);
+        } else {
+            System.err.println("Quan trọng: Cập nhật trạng thái thành công, nhưng không tìm thấy Vehicle liên quan đến Order ID: " + order.getOrderID());
+        }
+
         try {
             emailService.sendInvoiceEmail(invoice);
         } catch (Exception e) {
