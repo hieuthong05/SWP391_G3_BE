@@ -124,7 +124,7 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
             "ORDER BY o.orderDate DESC") // Tạm thời bỏ JOIN Maintenance để ứng dụng khởi động
     List<Orders> findAllWithDetailsAndTechnician();
 
-
+    List<Orders> findByServiceCenter_ServiceCenterID(Long serviceCenterId);
 //    /**
 //     * Lấy bookings theo customer và status
 //     */

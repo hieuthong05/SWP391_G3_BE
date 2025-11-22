@@ -99,6 +99,20 @@ public class BookingController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('staff', 'admin')")
+    @SecurityRequirement(name = "api")
+    @GetMapping("/service-center/{serviceCenterId}")
+    public ResponseEntity<List<BookingResponse>> getBookingsByServiceCenter(
+            @PathVariable Long serviceCenterId)
+    {
+        List<BookingResponse> bookings = bookingService.getBookingsByServiceCenter(serviceCenterId);
+
+        if (bookings.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204 No Content nếu không có booking
+        }
+
+        return ResponseEntity.ok(bookings); // 200 OK với data
+    }
 
 //     * Lấy tất cả bookings theo status
 //     * GET /api/bookings/status/{status}

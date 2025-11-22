@@ -383,6 +383,18 @@ public class BookingService {
     }
 
     @Transactional
+    public List<BookingResponse> getBookingsByServiceCenter(Long serviceCenterId)
+    {
+        // Lấy tất cả orders theo serviceCenterId
+        List<Orders> orders = ordersRepository.findByServiceCenter_ServiceCenterID(serviceCenterId);
+
+        // Map từng order sang BookingResponse
+        return orders.stream()
+                .map(this::mapToBookingResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
     public List<BookingResponse> getBookingsByStatus(String status)
     {
         if (status == null || status.trim().isEmpty())
