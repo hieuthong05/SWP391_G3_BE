@@ -223,6 +223,11 @@ public class BookingService {
         // 8. Save order
         Orders savedOrder = ordersRepository.save(order);
 
+        if (vehicle != null) {
+            vehicle.setStatus(false);
+            vehicleRepository.save(vehicle);
+        }
+
         // 9. Build response using ModelMapper
         BookingResponse response = modelMapper.map(savedOrder, BookingResponse.class);
         response.setServiceCenterName(serviceCenter.getName());
