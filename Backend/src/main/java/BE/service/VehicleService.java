@@ -129,7 +129,7 @@ public class VehicleService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new EntityNotFoundException("Customer not found with id: " + customerId));
 
-        return vehicleRepository.findByCustomerAndStatus(customer, true)
+        return vehicleRepository.findByCustomerAndExisted(customer, true)
                 .stream()
                 .map(this::mapToVehicleResponse)
                 .toList();

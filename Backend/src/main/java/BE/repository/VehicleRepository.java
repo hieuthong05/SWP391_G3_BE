@@ -21,6 +21,8 @@ public interface VehicleRepository extends JpaRepository<Vehicle,Long> {
     Optional<Vehicle> findByVin(String vin);
     List<Vehicle> findByStatus(Boolean status);
 
+    List<Vehicle> findByCustomerAndExisted(Customer customer, Boolean existed);
+
     @Query("SELECT COUNT(v) FROM Vehicle v WHERE v.status = true")
     long countActiveVehicles();
 }

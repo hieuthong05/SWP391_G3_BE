@@ -303,6 +303,14 @@ public class BookingService {
             throw new IllegalArgumentException("Cannot cancel booking with status: " + currentStatus);
         }
 
+        if ("Confirmed".equalsIgnoreCase(currentStatus)) {
+            Vehicle vehicle = order.getVehicle();
+            if (vehicle != null) {
+                vehicle.setStatus(true); // Set vehicle back to Available
+                vehicleRepository.save(vehicle);
+            }
+        }
+
         // Cập nhật trạng thái sang Cancelled
         order.setStatus("Cancelled");
 
