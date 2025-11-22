@@ -81,6 +81,7 @@ public class VehicleService {
         Vehicle vehicle = vehicleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Vehicle not found with id: " + id));
 
+        // Validate biển số trùng lặp (giữ nguyên logic cũ của bạn)
         if (vehicleRepository.findByLicensePlateAndVehicleIDNot(dto.getLicensePlate(), id).isPresent()) {
             throw new IllegalArgumentException("License plate already exists");
         }
@@ -89,7 +90,24 @@ public class VehicleService {
             throw new IllegalArgumentException("VIN already exists");
         }
 
-        modelMapper.map(dto, vehicle);
+        // --- ĐOẠN CẦN SỬA ---
+
+        // ModelMapper có thể gây lỗi mapping nhầm modelID -> mileage
+        // modelMapper.map(dto, vehicle); // <--- XÓA HOẶC COMMENT DÒNG NÀY ĐI
+
+        // Thay bằng việc set thủ công các trường cần update:
+        vehicle.setLicensePlate(dto.getLicensePlate());
+        vehicle.setVin(dto.getVin());
+        vehicle.setType(dto.getType());
+
+        // [QUAN TRỌNG] Gán chính xác mileage từ DTO
+        vehicle.setMileage(dto.getMileage());
+
+        vehicle.setLastMaintenanceDate(dto.getLastMaintenanceDate());
+        vehicle.setLastMaintenanceMileage(dto.getLastMaintenanceMileage());
+        vehicle.setStatus(dto.isStatus());
+
+        // --------------------
 
         if (dto.getModelID() != null) {
             Model model = modelRepository.findById(dto.getModelID())
@@ -118,7 +136,7 @@ public class VehicleService {
 
     @Transactional(readOnly = true)
     public List<VehicleResponse> getAllVehicle() {
-        return vehicleRepository.findByStatus(true)
+        return vehicleRepository.findByExisted(true)
                 .stream()
                 .map(this::mapToVehicleResponse)
                 .toList();
