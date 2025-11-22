@@ -67,9 +67,9 @@ public class ModelController {
     // UPDATE - PUT /api/models/{id}
     @PreAuthorize("hasAuthority('admin')")
     @PutMapping(value = "/update/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ModelResponse> updateModel(@RequestPart(value = "id") Long id,
+    public ResponseEntity<ModelResponse> updateModel(@PathVariable("id") Long id,
                                                      @RequestPart(value = "modelName") String modelName,
-                                                     @RequestPart(value = "image") MultipartFile image) throws Exception
+                                                     @RequestPart(value = "image", required = false) MultipartFile image) throws Exception
     {
         ModelDTO modelDTO = new ModelDTO();
         modelDTO.setModelName(modelName);
