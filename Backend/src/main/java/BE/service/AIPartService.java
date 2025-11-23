@@ -23,7 +23,7 @@ public class AIPartService {
 
         // Step 1: Estimate daily usage (simple heuristic)
         // Assume the "minQuantity" was based on ~30 days of expected usage
-        double avgDaily = Math.max(0.5, currentMin / 30.0); // ensure not zero
+        double avgDaily = Math.max(0.0, currentMin / 30.0); // ensure not zero
 
         // Step 2: Safety stock & buffer levels
         int safetyStock = (int) Math.ceil(avgDaily * 5);  // ~5 days of safety
@@ -51,7 +51,24 @@ public class AIPartService {
         suggestedMin = Math.max(suggestedMin, safetyStock + buffer);
 
         // Suggested Minimum based on days.
-        int suggestedMinBasedOnDays = (int) Math.ceil(avgDaily * days) + safetyStock + buffer;
+        int base = (int) Math.ceil(avgDaily * days);
+        int suggestedMinBasedOnDays;
+
+        if (currentQuantity <= 0) {
+            // Kho trống → tăng thêm safetyStock
+            suggestedMinBasedOnDays = base + safetyStock;
+        } else if (currentQuantity < currentMin) {
+            // Sắp hết → tăng vừa phải
+            suggestedMinBasedOnDays = base + (int) Math.ceil((currentMin - currentQuantity) * 0.5);
+        } else if (currentQuantity > currentMin * 1.5) {
+            // Còn nhiều → giảm bớt
+            suggestedMinBasedOnDays = (int) Math.ceil(base * 0.9);
+        } else {
+            // Bình thường → giữ
+            suggestedMinBasedOnDays = base;
+        }
+
+        // Make sure this >= safetyStock + buffer
         suggestedMinBasedOnDays = Math.max(suggestedMinBasedOnDays, safetyStock + buffer);
 
         // Step 4: Prepare response object
