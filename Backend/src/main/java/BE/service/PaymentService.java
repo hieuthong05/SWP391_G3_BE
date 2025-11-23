@@ -111,10 +111,10 @@ public class PaymentService {
     }
 
     @Transactional
-    public String updatePaymentStatusAfterSuccess(String paymentLinkId) {
+    public String updatePaymentStatusAfterSuccess(Long orderCode) {
         // Tìm Payment
-        Payment payment = paymentRepository.findByPaymentLinkId(paymentLinkId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thanh toán với Link ID: " + paymentLinkId));
+        Payment payment = paymentRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy thanh toán với Order Code: " + orderCode));
 
         if (!"PENDING".equalsIgnoreCase(payment.getPaymentStatus())) {
             return "Trạng thái thanh toán đã được xử lý trước đó: " + payment.getPaymentStatus();
@@ -158,11 +158,10 @@ public class PaymentService {
         try {
             emailService.sendInvoiceEmail(invoice);
         } catch (Exception e) {
-            System.err.println("Quan trọng: Thanh toán thành công (Link ID: " + paymentLinkId + ") nhưng gửi email hóa đơn thất bại. Lỗi: " + e.getMessage());
             e.printStackTrace();
         }
 
-        return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID() + " (Link ID: " + paymentLinkId + ")";
+        return "Cập nhật trạng thái thanh toán thành công cho Payment ID: " + payment.getPaymentID();
     }
 
     private void updateMaintenanceStatusOnPayment(Maintenance maintenance) {

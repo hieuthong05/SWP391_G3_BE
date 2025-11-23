@@ -38,19 +38,34 @@ public class PaymentController {
                     .body(Map.of("error", "Lỗi khi tạo link thanh toán: " + e.getMessage()));
         }
     }
-    @PutMapping("/update-status/success/{paymentLinkId}")
-    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
-    public ResponseEntity<?> updateStatusAfterSuccess(@PathVariable String paymentLinkId) { // Thay Long paymentId bằng String paymentLinkId
+//    @PutMapping("/update-status/success/{paymentLinkId}")
+//    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')")
+//    public ResponseEntity<?> updateStatusAfterSuccess(@PathVariable String paymentLinkId) { // Thay Long paymentId bằng String paymentLinkId
+//        try {
+//            // Gọi hàm service đã sửa đổi
+//            String message = paymentService.updatePaymentStatusAfterSuccess(paymentLinkId);
+//            return ResponseEntity.ok(Map.of("message", message));
+//        } catch (EntityNotFoundException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Map.of("error", "Lỗi không xác định khi cập nhật trạng thái: " + e.getMessage()));
+//        }
+//    }
+
+    @PutMapping("/update-status-by-order/{orderCode}")
+    @PreAuthorize("hasAnyAuthority('customer', 'staff', 'admin')") // Hoặc .permitAll() nếu cần test gấp
+    public ResponseEntity<?> updateStatusByOrderCode(@PathVariable Long orderCode) {
         try {
-            // Gọi hàm service đã sửa đổi
-            String message = paymentService.updatePaymentStatusAfterSuccess(paymentLinkId);
+            String message = paymentService.updatePaymentStatusAfterSuccess(orderCode);
             return ResponseEntity.ok(Map.of("message", message));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Lỗi không xác định khi cập nhật trạng thái: " + e.getMessage()));
+                    .body(Map.of("error", "Lỗi server: " + e.getMessage()));
         }
     }
 
