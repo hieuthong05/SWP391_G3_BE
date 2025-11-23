@@ -47,61 +47,37 @@ public class PaymentService {
     }
 
     public Map<String, Object> createPaymentLink(Long invoiceId) throws Exception {
-
         Payment savedPayment = createPendingPayment(invoiceId);
 
-        // Dữ liệu cho PayOS
+        // 1️⃣ If payment already has a paymentLinkId, reuse it
+        if (savedPayment.getPaymentLinkId() != null && !savedPayment.getPaymentLinkId().isEmpty()) {
+            Map<String, Object> paymentResponse = new HashMap<>();
+            paymentResponse.put("paymentLinkId", savedPayment.getPaymentLinkId());
+            paymentResponse.put("checkoutUrl", "https://pay.payos.vn/web/" + savedPayment.getPaymentLinkId() + "/");
+            paymentResponse.put("amount", savedPayment.getAmount());
+            paymentResponse.put("qrCode", ""); // optional, leave empty or generate separately
+            return paymentResponse;
+        }
+
+        // 2️⃣ Otherwise, create new link on PayOS
         String description = "Thanh toan hoa don #" + invoiceId;
         String returnUrl = "http://localhost:5173/payment-success";
         String cancelUrl = "http://localhost:5173/payment-cancel";
 
-        List<PaymentLinkItem> items = new ArrayList<>();
-        for (InvoiceDetail detail : savedPayment.getInvoice().getInvoiceDetails()) {
-            String itemName = detail.getItemName() != null ? detail.getItemName() : "Hang muc hoa don";
-
-            PaymentLinkItem item = PaymentLinkItem.builder()
-                    .name(itemName)
-                    .quantity(detail.getQuantity())
-                    .price((long) detail.getUnitPrice())
-                    .build();
-
-            items.add(item);
-        }
-
-        // SỬ DỤNG CreatePaymentLinkRequest (v2)
         CreatePaymentLinkRequest paymentData = CreatePaymentLinkRequest.builder()
-                .orderCode(savedPayment.getOrderCode()) // <-- ĐÃ XÓA (int)
+                .orderCode(savedPayment.getOrderCode())
                 .amount((long) savedPayment.getAmount())
                 .description(description)
-                .items(items)
                 .cancelUrl(cancelUrl)
                 .returnUrl(returnUrl)
                 .build();
 
-        // GỌI HÀM V2
-        CreatePaymentLinkResponse response;
-        try {
-            // Kiểu trả về của .create() chính là CreatePaymentLinkResponse
-            response = this.payOS.paymentRequests().create(paymentData);
-        } catch (Exception e) {
-            // Nếu PayOS trả về lỗi (4xx, 5xx), nó sẽ ném ra Exception
-            throw new Exception("Lỗi khi gọi API PayOS v2: " + e.getMessage(), e);
-        }
+        CreatePaymentLinkResponse response = this.payOS.paymentRequests().create(paymentData);
 
-        if (response == null) {
-            throw new Exception("Lỗi khi tạo link thanh toán từ PayOS, response trả về null.");
-        }
-
-        if (response.getPaymentLinkId() == null || response.getPaymentLinkId().isEmpty()) {
-            throw new Exception("Lỗi PayOS: Dữ liệu trả về không hợp lệ (không có paymentLinkId).");
-        }
-
-        // Cập nhật Payment với paymentLinkId (truy cập trực tiếp)
+        // 3️⃣ Save the new paymentLinkId in DB
         updatePaymentWithLinkId(savedPayment.getPaymentID(), response.getPaymentLinkId());
 
         Map<String, Object> paymentResponse = new HashMap<>();
-
-        // Lấy dữ liệu trực tiếp từ response (KHÔNG CÓ .getData())
         paymentResponse.put("qrCode", response.getQrCode());
         paymentResponse.put("amount", response.getAmount());
         paymentResponse.put("paymentLinkId", response.getPaymentLinkId());
