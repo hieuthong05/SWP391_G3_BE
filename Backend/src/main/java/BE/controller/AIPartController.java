@@ -16,10 +16,12 @@ public class AIPartController {
 
     // AI Suggestion Endpoint
     @GetMapping("/suggested-min/{code}")
-    public ResponseEntity<AIPartResponse> getSuggestedMin(@PathVariable String code) {
-        AIPartResponse response = aiPartService.calculateSuggestedMin(code);
-        return ResponseEntity.ok(response);
+    public AIPartResponse getSuggestedMin(
+            @PathVariable String code,
+            @RequestParam(defaultValue = "7") int days) { // Default is 7
+        return aiPartService.calculateSuggestedMin(code, days);
     }
+
 
     // Apply AI Suggestion Endpoint
     @PostMapping("/apply-suggested-min/{code}")

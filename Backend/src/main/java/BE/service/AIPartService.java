@@ -14,7 +14,7 @@ public class AIPartService {
     private final ComponentRepository componentRepository;
 
     // Improved AI logic using real database data
-    public AIPartResponse calculateSuggestedMin(String code) {
+    public AIPartResponse calculateSuggestedMin(String code, int days) {
         Component component = componentRepository.findByCode(code)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy phụ tùng có mã: " + code));
 
@@ -30,6 +30,7 @@ public class AIPartService {
         int buffer = (int) Math.ceil(avgDaily * 2);       // small buffer
 
         // Step 3: Suggest adjustment based on current quantity vs min
+
         int suggestedMin;
 
         if (currentQuantity <= 0) {
@@ -49,9 +50,14 @@ public class AIPartService {
         // Ensure suggestedMin is at least above safety threshold
         suggestedMin = Math.max(suggestedMin, safetyStock + buffer);
 
+        // Suggested Minimum based on days.
+        int suggestedMinBasedOnDays = (int) Math.ceil(avgDaily * days) + safetyStock + buffer;
+        suggestedMinBasedOnDays = Math.max(suggestedMinBasedOnDays, safetyStock + buffer);
+
         // Step 4: Prepare response object
         AIPartResponse response = new AIPartResponse();
         response.setCode(code);
+        response.setCurrentQuantity(currentQuantity);
         response.setCurrentMin(currentMin);
         response.setAvgDaily(avgDaily);
         response.setLookbackDays(30);
@@ -59,6 +65,7 @@ public class AIPartService {
         response.setSafetyStock(safetyStock);
         response.setBuffer(buffer);
         response.setSuggestedMin(suggestedMin);
+        response.setSuggestedMinBasedOnDays(suggestedMinBasedOnDays);
 
         return response;
     }
